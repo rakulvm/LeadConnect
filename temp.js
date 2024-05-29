@@ -9,19 +9,30 @@ const experiences = experienceSection.querySelectorAll(
   ".pkDhwOIEuoAIIiZRFGgXppNhdmUWwvlrVFqX.qWWKhMYtHtbRUZyWOlGEcnApsjZvtoA"
 );
 
+
+let experiencesData = []
+
 for (let i = 0; i < experiences.length; i++) {
+    // Company Data
+    let company = {}
     // Company Name
     const companyName = experiences[i].querySelectorAll("span")[0].textContent;
-    console.log(`Company Name [Experience ${i}]:`, companyName);
+    company['CompanyName'] = companyName;
   
     // Company Duration
     const companyDuration = experiences[i].querySelectorAll("span")[3].textContent;
-    console.log(`Company Duration [Experience ${i}]:`, companyDuration);
+    company['companyDuration'] = companyDuration;
   
     // Company Location
-    const companyLocation = experiences[i].querySelectorAll("span")[6].textContent.trim();
-    console.log(`Company Location [Experience ${i}]:`, companyLocation);
+    const companyLocation = experiences[i].querySelectorAll("span")[6].textContent.trim().split(" · ")[0];
+    company['companyLocation'] = companyLocation;
+
+    // Work Location (Remote | Hybrid)
+    const companyWorkLocation = experiences[i].querySelectorAll("span")[6].textContent.trim().split(" · ")[1];
+    company['companyWorkLocation'] = companyWorkLocation;
   
+
+    let positions = []
     // all roles in the company
     // Start from 2 -> End
     let experienceEach = experiences[0].querySelectorAll(
@@ -29,31 +40,35 @@ for (let i = 0; i < experiences.length; i++) {
     );
   
     for (let j = 2; j < experienceEach.length - 1; j++) {
-      console.log(" ");
+      let position = {};
       console.log("____________________________________________________________");
       // Current role
-      const currentRole = experienceEach[j].children[0].textContent?.trim();
-      console.log(`Current Role [Experience ${i}, Role ${j}]:`, currentRole);
+      const currentRole = experienceEach[j].querySelector('span').textContent?.trim();
+      position['role'] = currentRole
   
       // Current duration (Permanent)
       const currentDuration = experienceEach[j].children[1].children[0].textContent;
-      console.log(`Current Duration [Experience ${i}, Role ${j}]:`, currentDuration);
+      position['totalRoleDuration'] = currentDuration
   
       // Current role duration (may - june)
       const roleDuration = experienceEach[j].children[2].children[0].textContent;
-      console.log(`Role Duration [Experience ${i}, Role ${j}]:`, roleDuration);
+      position['roleDuration'] = roleDuration.split(" · ")[0]
+      position['roleTotalDuration'] = roleDuration.split(" · ")[1]
   
       // Current role bullet points
   
       try {
         const bulletPointsInTry = experienceEach[j].parentElement.parentElement.querySelectorAll("span")[8]?.textContent;
-        console.log(`Bullet Points in Try Block [Experience ${i}, Role ${j}]:`, bulletPointsInTry);
+        position['bulletPoints'] = bulletPointsInTry ? bulletPointsInTry : "";
       } catch (error) {
-        console.error(`Error [Experience ${i}, Role ${j}]:`, error);
+        position['bulletPoints'] = "";
+
       }
+      positions.push(position);
     }
 
-
+    company['companyPositions'] = positions
     console.log(" ");
-    console.log("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+    experiencesData.push(company);
   }
+console.log(experiencesData)
