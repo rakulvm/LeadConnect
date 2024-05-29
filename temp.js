@@ -5,10 +5,11 @@ const targetSpan = Array.from(spans).find(
 const experienceSection =
   targetSpan.parentElement.parentElement.parentElement.parentElement
     .parentElement.parentElement;
-const experiences = experienceSection.querySelectorAll(
-  ".pkDhwOIEuoAIIiZRFGgXppNhdmUWwvlrVFqX.qWWKhMYtHtbRUZyWOlGEcnApsjZvtoA"
-);
+// const experiences = experienceSection.querySelectorAll(
+//   ".pkDhwOIEuoAIIiZRFGgXppNhdmUWwvlrVFqX.qWWKhMYtHtbRUZyWOlGEcnApsjZvtoA"
+// );
 
+const experiences = experienceSection.children[2].querySelectorAll('.artdeco-list__item')
 
 let experiencesData = []
 
