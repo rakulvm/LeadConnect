@@ -72,11 +72,11 @@ for (let i = 0; i < experiences.length; i++) {
       // 'May 2018 - Aug 2023 · 5 yrs 4 mos'
       position["CompanyDuration"] = currentCompanyRoles[j]
         .querySelector("a")
-        .querySelectorAll("span")[3]
+        .querySelectorAll(".pvs-entity__caption-wrapper")[0]
         .textContent.split(" · ")[0];
       position["companyTotalDuration"] = currentCompanyRoles[j]
         .querySelector("a")
-        .querySelectorAll("span")[3]
+        .querySelectorAll(".pvs-entity__caption-wrapper")[0]
         .textContent.split(" · ")[1];
       // Bullet point
       position["bulletPoints"] = currentCompanyRoles[j]
@@ -105,8 +105,7 @@ for (let i = 0; i < experiences.length; i++) {
     // company["companyWorkLocation"] = companyLocation.split(" · ")[1];
 
     // Company Duration
-    const companyDuration =
-      experiences[i].querySelectorAll("span")[6].textContent;
+    const companyDuration = experiences[i].querySelectorAll(".pvs-entity__caption-wrapper")[0].textContent;;
     position["CompanyDuration"] = companyDuration.split(" · ")[0];
     position["companyTotalDuration"] = companyDuration.split(" · ")[1];
     let bulletPoints = experiences[i]
