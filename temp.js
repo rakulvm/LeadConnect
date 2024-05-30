@@ -32,23 +32,27 @@ for (let i = 0; i < experiences.length; i++) {
     company["CompanyName"] = companyName;
 
     // Company Duration
-    const companyDuration =
-      experiences[i].querySelectorAll("span")[3].textContent;
-    company["companyDuration"] = companyDuration;
+    // const companyDuration =
+    //   experiences[i].querySelectorAll("span")[3].textContent;
+    // company["companyDuration"] = companyDuration;
 
     // Company Location
     const companyLocation = experiences[i]
-      .querySelectorAll("span")[6]
-      .textContent.trim()
-      .split(" · ")[0];
-    company["companyLocation"] = companyLocation;
+      .querySelectorAll("span")[12]
+      .textContent.trim();
+    if(companyLocation.includes("·")){
+        company["companyLocation"] = companyLocation.split(" · ")[0];
+    }
+    else{
+        company["companyLocation"] = ""
+    }
 
     // Work Location (Remote | Hybrid)
-    const companyWorkLocation = experiences[i]
-      .querySelectorAll("span")[6]
-      .textContent.trim()
-      .split(" · ")[1];
-    company["companyWorkLocation"] = companyWorkLocation;
+    // const companyWorkLocation = experiences[i]
+    //   .querySelectorAll("span")[6]
+    //   .textContent.trim()
+    //   .split(" · ")[1];
+    // company["companyWorkLocation"] = companyWorkLocation;
 
     let newexperienceEach = experiences[i].querySelectorAll(
       ".pvs-entity__sub-components"
@@ -98,7 +102,7 @@ for (let i = 0; i < experiences.length; i++) {
       .querySelectorAll("span")[9]
       .textContent.trim();
     company["companyLocation"] = companyLocation.split(" · ")[0];
-    company["companyWorkLocation"] = companyLocation.split(" · ")[1];
+    // company["companyWorkLocation"] = companyLocation.split(" · ")[1];
 
     // Company Duration
     const companyDuration =
