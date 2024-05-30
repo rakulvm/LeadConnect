@@ -40,11 +40,10 @@ for (let i = 0; i < experiences.length; i++) {
     const companyLocation = experiences[i]
       .querySelectorAll("span")[12]
       .textContent.trim();
-    if(companyLocation.includes("·")){
-        company["companyLocation"] = companyLocation.split(" · ")[0];
-    }
-    else{
-        company["companyLocation"] = ""
+    if (companyLocation.includes("·")) {
+      company["companyLocation"] = companyLocation.split(" · ")[0];
+    } else {
+      company["companyLocation"] = "";
     }
 
     // Work Location (Remote | Hybrid)
@@ -82,14 +81,15 @@ for (let i = 0; i < experiences.length; i++) {
       // Bullet point
       position["bulletPoints"] = currentCompanyRoles[j]
         .querySelector("ul")
-        .querySelectorAll("li")[0].textContent.trim();
+        .querySelectorAll("li")[0]
+        .textContent.trim();
       positionList.push(position);
     }
     company["companyPositions"] = positionList;
   } else {
     // Single role in the comapny
     // Company Role
-    let position = {}
+    let position = {};
     const companyRole = experiences[i].querySelectorAll("span")[0].textContent;
     position["CompanyRole"] = companyRole;
 
@@ -98,9 +98,9 @@ for (let i = 0; i < experiences.length; i++) {
     company["companyName"] = companyName.trim().split(" · ")[0];
 
     // Company Location
-    const companyLocation = experiences[i]
-      .querySelectorAll("span")[9]
-      .textContent.trim();
+    let companyLocation = experiences[i]
+      .querySelectorAll("span")[9];
+    companyLocation = companyLocation ? companyLocation.textContent : ""
     company["companyLocation"] = companyLocation.split(" · ")[0];
     // company["companyWorkLocation"] = companyLocation.split(" · ")[1];
 
@@ -109,8 +109,10 @@ for (let i = 0; i < experiences.length; i++) {
       experiences[i].querySelectorAll("span")[6].textContent;
     position["CompanyDuration"] = companyDuration.split(" · ")[0];
     position["companyTotalDuration"] = companyDuration.split(" · ")[1];
+    let bulletPoints = experiences[i]
+    .querySelectorAll("span")[11];
+    position["bulletPoints"] = bulletPoints ? bulletPoints.textContent.trim() : "";
     company["companyPositions"] = [position];
-
   }
   experiencesData.push(company);
 }
