@@ -9,67 +9,105 @@ const experienceSection =
 //   ".pkDhwOIEuoAIIiZRFGgXppNhdmUWwvlrVFqX.qWWKhMYtHtbRUZyWOlGEcnApsjZvtoA"
 // );
 
-const experiences = experienceSection.children[2].querySelectorAll('.artdeco-list__item')
+const experiences = experienceSection.children[2].querySelectorAll(
+  ".artdeco-list__item"
+);
 
-let experiencesData = []
+let experiencesData = [];
 
 for (let i = 0; i < experiences.length; i++) {
-    // Company Data
-    let company = {}
+  // Company Data
+  let company = {};
+
+  // all roles in the company
+  // Start from 2 -> End
+  let experienceEach = experiences[i].querySelectorAll(
+    ".pvs-entity__sub-components"
+  );
+
+  if (experienceEach.length > 2) {
+    // Multiple roles in the same company
     // Company Name
     const companyName = experiences[i].querySelectorAll("span")[0].textContent;
-    company['CompanyName'] = companyName;
-  
+    company["CompanyName"] = companyName;
+
     // Company Duration
-    const companyDuration = experiences[i].querySelectorAll("span")[3].textContent;
-    company['companyDuration'] = companyDuration;
-  
+    const companyDuration =
+      experiences[i].querySelectorAll("span")[3].textContent;
+    company["companyDuration"] = companyDuration;
+
     // Company Location
-    const companyLocation = experiences[i].querySelectorAll("span")[6].textContent.trim().split(" · ")[0];
-    company['companyLocation'] = companyLocation;
+    const companyLocation = experiences[i]
+      .querySelectorAll("span")[6]
+      .textContent.trim()
+      .split(" · ")[0];
+    company["companyLocation"] = companyLocation;
 
     // Work Location (Remote | Hybrid)
-    const companyWorkLocation = experiences[i].querySelectorAll("span")[6].textContent.trim().split(" · ")[1];
-    company['companyWorkLocation'] = companyWorkLocation;
-  
+    const companyWorkLocation = experiences[i]
+      .querySelectorAll("span")[6]
+      .textContent.trim()
+      .split(" · ")[1];
+    company["companyWorkLocation"] = companyWorkLocation;
 
-    let positions = []
-    // all roles in the company
-    // Start from 2 -> End
-    let experienceEach = experiences[0].querySelectorAll(
-      ".optional-action-target-wrapper"
+    let newexperienceEach = experiences[i].querySelectorAll(
+      ".pvs-entity__sub-components"
     );
-  
-    for (let j = 2; j < experienceEach.length - 1; j++) {
+
+    let className = newexperienceEach[0]
+      .querySelector("ul")
+      .querySelectorAll("li")[0]
+      .querySelectorAll("div")[0].classList[0];
+    let positionList = [];
+    let currentCompanyRoles = experiences[i].querySelectorAll("." + className);
+    for (let j = 1; j < currentCompanyRoles.length; j++) {
       let position = {};
-      console.log("____________________________________________________________");
-      // Current role
-      const currentRole = experienceEach[j].querySelector('span').textContent?.trim();
-      position['role'] = currentRole
-  
-      // Current duration (Permanent)
-      const currentDuration = experienceEach[j].children[1].children[0].textContent;
-      position['totalRoleDuration'] = currentDuration
-  
-      // Current role duration (may - june)
-      const roleDuration = experienceEach[j].children[2].children[0].textContent;
-      position['roleDuration'] = roleDuration.split(" · ")[0]
-      position['roleTotalDuration'] = roleDuration.split(" · ")[1]
-  
-      // Current role bullet points
-  
-      try {
-        const bulletPointsInTry = experienceEach[j].parentElement.parentElement.querySelectorAll("span")[8]?.textContent;
-        position['bulletPoints'] = bulletPointsInTry ? bulletPointsInTry : "";
-      } catch (error) {
-        position['bulletPoints'] = "";
-
-      }
-      positions.push(position);
+      // role
+      position["CompanyRole"] = currentCompanyRoles[j]
+        .querySelector("a")
+        .querySelector("span").textContent;
+      // 'May 2018 - Aug 2023 · 5 yrs 4 mos'
+      position["CompanyDuration"] = currentCompanyRoles[j]
+        .querySelector("a")
+        .querySelectorAll("span")[3]
+        .textContent.split(" · ")[0];
+      position["companyTotalDuration"] = currentCompanyRoles[j]
+        .querySelector("a")
+        .querySelectorAll("span")[3]
+        .textContent.split(" · ")[1];
+      // Bullet point
+      position["bulletPoints"] = currentCompanyRoles[j]
+        .querySelector("ul")
+        .querySelectorAll("li")[0].textContent.trim();
+      positionList.push(position);
     }
+    company["companyPositions"] = positionList;
+  } else {
+    // Single role in the comapny
+    // Company Role
+    let position = {}
+    const companyRole = experiences[i].querySelectorAll("span")[0].textContent;
+    position["CompanyRole"] = companyRole;
 
-    company['companyPositions'] = positions
-    console.log(" ");
-    experiencesData.push(company);
+    // Company Name
+    const companyName = experiences[i].querySelectorAll("span")[3].textContent;
+    company["companyName"] = companyName.trim().split(" · ")[0];
+
+    // Company Location
+    const companyLocation = experiences[i]
+      .querySelectorAll("span")[9]
+      .textContent.trim();
+    company["companyLocation"] = companyLocation.split(" · ")[0];
+    company["companyWorkLocation"] = companyLocation.split(" · ")[1];
+
+    // Company Duration
+    const companyDuration =
+      experiences[i].querySelectorAll("span")[6].textContent;
+    position["CompanyDuration"] = companyDuration.split(" · ")[0];
+    position["companyTotalDuration"] = companyDuration.split(" · ")[1];
+    company["companyPositions"] = [position];
+
   }
-console.log(experiencesData)
+  experiencesData.push(company);
+}
+console.log(experiencesData);
