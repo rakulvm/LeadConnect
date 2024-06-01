@@ -98,10 +98,30 @@ for (let i = 0; i < experiences.length; i++) {
     company["companyName"] = companyName.trim().split(" · ")[0];
 
     // Company Location
-    let companyLocation = experiences[i]
-      .querySelectorAll("span")[9];
-    companyLocation = companyLocation ? companyLocation.textContent : ""
-    company["companyLocation"] = companyLocation.split(" · ")[0];
+
+    let companyData = experiences[i].querySelectorAll("span:not([class])");
+    if(companyData.length == 4){
+      position["companyLocation"] = companyData[2].textContent.trim();
+      position["bulletPoints"] = companyData[3].textContent.trim();
+
+    }
+    else if(companyData.length == 3){
+      position["bulletPoints"] = companyData[2].textContent.trim();
+      position["companyLocation"] = "";
+
+    }
+    else{
+      position["bulletPoints"] = "";
+      position["companyLocation"] = ""; 
+    }
+
+    // OLD CODE
+    // let companyLocation = experiences[i]
+    //   .querySelectorAll("span")[9];
+    // companyLocation = companyLocation ? companyLocation.textContent : ""
+    // company["companyLocation"] = companyLocation.split(" · ")[0];
+
+    // OLD CODE
     // company["companyWorkLocation"] = companyLocation.split(" · ")[1];
 
     // Company Duration
@@ -109,9 +129,11 @@ for (let i = 0; i < experiences.length; i++) {
       experiences[i].querySelectorAll("span")[6].textContent;
     position["CompanyDuration"] = companyDuration.split(" · ")[0];
     position["companyTotalDuration"] = companyDuration.split(" · ")[1];
-    let bulletPoints = experiences[i]
-    .querySelectorAll("span")[11];
-    position["bulletPoints"] = bulletPoints ? bulletPoints.textContent.trim() : "";
+
+
+    // let bulletPoints = experiences[i]
+    // .querySelectorAll("span")[11];
+    // position["bulletPoints"] = bulletPoints ? bulletPoints.textContent.trim() : "";
     company["companyPositions"] = [position];
   }
   experiencesData.push(company);
