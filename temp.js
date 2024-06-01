@@ -1,34 +1,37 @@
 const spans = document.querySelectorAll("span");
+// Find the experience Text
 const targetSpan = Array.from(spans).find(
   (span) => span.textContent.trim() === "Experience"
 );
+
+// Locate the parent dic of the experience section
 const experienceSection =
   targetSpan.parentElement.parentElement.parentElement.parentElement
     .parentElement.parentElement;
 
+// get the list of experience divs
 const experiences = experienceSection.children[2].querySelectorAll(
   ".artdeco-list__item"
 );
 
+// Final output list
 let experiencesData = [];
 
+// Go through each experience
 for (let i = 0; i < experiences.length; i++) {
   // Company Data
   let company = {};
-
-  // all roles in the company
-  // Start from 2 -> End
+  // check if there are multiple roles in the same company
   let experienceEach = experiences[i].querySelectorAll(
     "div.t-bold"
   );
-
   if (experienceEach.length > 1) {
     // Multiple roles in the same company
     // Company Name
     const companyName = experiences[i].querySelectorAll("span")[0].textContent;
     company["CompanyName"] = companyName;
 
-
+    // Extract the dynamic class that linkedin uses to extract company roles
     let newexperienceEach = experiences[i].querySelectorAll(
       ".pvs-entity__sub-components"
     );
@@ -37,10 +40,13 @@ for (let i = 0; i < experiences.length; i++) {
       .querySelector("ul")
       .querySelectorAll("li")[0]
       .querySelectorAll("div")[0].classList[0];
+
     let positionList = [];
     let currentCompanyRoles = experiences[i].querySelectorAll("." + className);
+    // Find the company location
     const companyLocation = experiences[i].querySelectorAll("span.pvs-entity__caption-wrapper");
     let companyLocationText = '';
+    // Handle the case when company text is not present
     if(currentCompanyRoles.length == companyLocation.length){
       // company duration exist
       companyLocationText = companyLocation[0].textContent.split(" · ")[0];
@@ -49,8 +55,7 @@ for (let i = 0; i < experiences.length; i++) {
       // company duration doesnt exist
       companyLocationText = "";
     }
-
-
+    // iterate through the roles and extract data of each role
     for (let j = 1; j < currentCompanyRoles.length; j++) {
       let position = {};
       // role
@@ -88,7 +93,6 @@ for (let i = 0; i < experiences.length; i++) {
     company["companyName"] = companyName.trim().split(" · ")[0];
 
     // Company Location
-
     let companyData = experiences[i].querySelectorAll("span:not([class])");
     if(companyData.length == 4){
       position["companyLocation"] = companyData[2].textContent.trim();
