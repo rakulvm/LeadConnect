@@ -86,7 +86,7 @@ for (let i = 0; i < experiences.length; i++) {
     // Company Role
     let position = {};
     const companyRole = experiences[i].querySelectorAll("span")[0].textContent;
-    position["CompanyRole"] = companyRole;
+    position["companyRole"] = companyRole;
 
     // Company Name
     const companyName = experiences[i].querySelectorAll("span")[3].textContent;
@@ -94,24 +94,24 @@ for (let i = 0; i < experiences.length; i++) {
 
     // Company Location
     let companyData = experiences[i].querySelectorAll("span:not([class])");
-    if(companyData.length == 4){
+    position["companyLocation"] = ""; 
+    position["bulletPoints"] = "";
+    if(companyData.length == 4 && companyData[2].parentElement?.classList?.contains('t-black--light')){
       position["companyLocation"] = companyData[2].textContent.trim();
       position["bulletPoints"] = companyData[3].textContent.trim();
 
     }
-    else if(companyData.length == 3){
-      position["bulletPoints"] = companyData[2].textContent.trim();
-      position["companyLocation"] = "";
-
+    else if(companyData.length == 3 && companyData[2].parentElement?.classList?.contains('t-black--light')){
+      position["companyLocation"] =  companyData[2].textContent.trim();
+      
     }
     else{
-      position["bulletPoints"] = "";
-      position["companyLocation"] = ""; 
+      position["bulletPoints"] = companyData[2].textContent.trim();
     }
 
     // Company Duration
     const companyDuration = experiences[i].querySelectorAll(".pvs-entity__caption-wrapper")[0].textContent;;
-    position["CompanyDuration"] = companyDuration.split(" · ")[0];
+    position["companyDuration"] = companyDuration.split(" · ")[0];
     position["companyTotalDuration"] = companyDuration.split(" · ")[1];
 
     company["companyPositions"] = [position];
