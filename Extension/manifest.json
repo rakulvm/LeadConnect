@@ -1,8 +1,8 @@
 {
     "manifest_version": 3,
-    "name": "Your Extension Name",
+    "name": "LeadConnect",
     "version": "1.0",
-    "description": "Description of your extension",
+    "description": "Nurturing Connections, Fueling Growth",
     "permissions": [
       "activeTab",
       "webNavigation"
