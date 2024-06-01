@@ -1,11 +1,19 @@
 import { useState } from 'react'
+import LeftSideNav from './components/LeftSideNav'
+import TopNav from './components/TopNav'
+import MainTable from './components/MainTable'
 
 function App() {
 
   return (
-    <>
-    <h1 className='text-red-400 font-bold text-xl'>This is a test</h1>
-    </>
+
+    <div className='flex' >
+      <LeftSideNav></LeftSideNav>
+      <div className='bg-red w-5/6'>
+        <TopNav></TopNav>
+        <MainTable></MainTable>
+      </div>
+    </div>
   )
 }
 

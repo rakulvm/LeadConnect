@@ -5,6 +5,13 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    colors: {
+        backgroundColor: '#F6F6F6',
+        cardWhite: '#FFFFFF',
+        highlightBlue: '#F0F4FF',
+        buttonBlue: '#4D78FF',
+        searchBarBackground: "#F5F6FA"
+      },
     extend: {},
   },
   plugins: [],
