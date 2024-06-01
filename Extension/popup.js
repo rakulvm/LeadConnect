@@ -1,4 +1,16 @@
+
 // Refactor
+function convertToCamelCase(str) {
+  // Remove "get" from the start of the string
+  let newStr = str.replace(/^get/, '');
+  
+  // Convert to camel case
+  return newStr.replace(/(?:^\w|[A-Z]|\b\w|\s+|[-_]+)/g, (match, index) => {
+      if (+match === 0) return ""; // or if (/\d/.test(match)) for number removal
+      return index === 0 ? match.toLowerCase() : match.toUpperCase();
+  });
+}
+
 
 document.getElementById('getName').addEventListener('click', () => {
   // Function to send a message and get a response as a promise
@@ -19,7 +31,7 @@ document.getElementById('getName').addEventListener('click', () => {
   };
 
   // Example messages to send
-  const messages = [{ action: "getName" }, { action: "getLocation" }, { action: "getProfilePicture" }];
+  const messages = [{ action: "getName" }, { action: "getHeadline" }, { action: "getLocation" }, { action: "getProfilePicture" }, { action: "getExperience" }];
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tabId = tabs[0].id;
@@ -29,14 +41,16 @@ document.getElementById('getName').addEventListener('click', () => {
       .then(responses => {
         // Populate the results object with the responses
         responses.forEach(response => {
+          let key = convertToCamelCase(response.action);
           if (response && response.text) {
-            results[response.action] = response.text;
+            results[key] = response.text;
           } else {
-            results[response.action] = "Element text not found.";
+            results[key] = "Element text not found.";
           }
         });
 
         alert(JSON.stringify(results));
+        console.log(results);
       })
       .catch(error => {
         console.error('Error in sending messages:', error);
