@@ -20,6 +20,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: "" });
     }
+  } else if (request.action === "getLinkedinURL") {
+    sendResponse({ text: window.location.href });
   } else if (request.action === "getHeadline") {
     const element = document
       .getElementsByTagName("h1")[0]
