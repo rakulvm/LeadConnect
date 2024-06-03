@@ -6,14 +6,31 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: null });
     }
-  }
-   else if (request.action === "getHeadline") {
-      const element = document.getElementsByTagName("h1")[0].parentElement.parentElement.parentElement.parentElement.children[1].textContent.trim();
-      if (element) {
-        sendResponse({ text: element });
-      } else {
-        sendResponse({ text: null });
-      }
+  } else if (request.action === "getSummary") {
+    const spans = document.querySelectorAll("span");
+    // Find the experience Text
+    const element = Array.from(spans).find(
+      (span) => span.textContent.trim() === "About"
+    );
+
+    if (element) {
+      sendResponse({
+        text: element.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.children[2].textContent.trim(),
+      });
+    } else {
+      sendResponse({ text: "" });
+    }
+  } else if (request.action === "getLinkedinURL") {
+    sendResponse({ text: window.location.href });
+  } else if (request.action === "getHeadline") {
+    const element = document
+      .getElementsByTagName("h1")[0]
+      .parentElement.parentElement.parentElement.parentElement.children[1].textContent.trim();
+    if (element) {
+      sendResponse({ text: element });
+    } else {
+      sendResponse({ text: null });
+    }
   } else if (request.action === "getProfilePicture") {
     const element = document.querySelector(
       ".pv-top-card__non-self-photo-wrapper img"
@@ -24,7 +41,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ text: null });
     }
   } else if (request.action === "getLocation") {
-    const element = document.getElementsByTagName("h1")[0].parentElement.parentElement.parentElement.parentElement.parentElement.children[1].children[0].textContent.trim();
+    const element = document
+      .getElementsByTagName("h1")[0]
+      .parentElement.parentElement.parentElement.parentElement.parentElement.children[1].children[0].textContent.trim();
     if (element) {
       sendResponse({ text: element });
     } else {
@@ -56,7 +75,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       let company = {};
       // check if there are multiple roles in the same company
       let experienceEach = experiences[i].querySelectorAll("div.t-bold");
-      if (experienceEach.length > 1) {
+      if (experienceEach.length > 2) {
         // Multiple roles in the same company
         // Company Name
         const companyName =
