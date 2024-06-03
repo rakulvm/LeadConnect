@@ -1,17 +1,12 @@
 import React, { useState } from 'react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
-import { BiSolidDownArrow  } from "react-icons/bi";
-
+import { BiSolidDownArrow } from 'react-icons/bi';
 
 export default function TopNav() {
   const [searchTerm, setSearchTerm] = useState<string>("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handleSearch = () => {
-    console.log("Searching for:", searchTerm);
   };
 
   return (
@@ -28,14 +23,14 @@ export default function TopNav() {
       </div>
       <div className="flex items-center">
         <button
-          className="ml-2 p-2 bg-searchBarBackground rounded-full hover:bg-gray-300 focus:outline-none" style={{ color: "#767B86" }}
+          className="ml-2 p-2 bg-searchBarBackground rounded-full text-iconColor hover:bg-hoverIconColor focus:outline-none"
         >
           <FaPlus />
         </button>
         <button
-          className="ml-2 p-2 bg-searchBarBackground text-gray-10 0 rounded-full hover:bg-gray-300 focus:outline-none" style={{ color: "#767B86" }}
+          className="ml-2 p-2 bg-searchBarBackground rounded-full text-iconColor hover:bg-hoverIconColor focus:outline-none"
         >
-          <BiSolidDownArrow  />
+          <BiSolidDownArrow />
         </button>
       </div>
     </div>

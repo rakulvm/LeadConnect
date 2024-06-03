@@ -10,7 +10,9 @@ export default {
         cardWhite: '#FFFFFF',
         highlightBlue: '#F0F4FF',
         buttonBlue: '#4D78FF',
-        searchBarBackground: "#F5F6FA"
+        searchBarBackground: "#F5F6FA",
+        iconColor: "#767B86",
+        hoverIconColor: "#DCDCDC"
       },
     extend: {},
   },
