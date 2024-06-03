@@ -33,6 +33,7 @@ document.getElementById("getName").addEventListener("click", () => {
   // Example messages to send
   const messages = [
     { action: "getName" },
+    { action: "getSummary" },
     { action: "getHeadline" },
     { action: "getLocation" },
     { action: "getProfilePicture" },

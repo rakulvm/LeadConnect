@@ -6,6 +6,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: null });
     }
+  } else if (request.action === "getSummary") {
+    const spans = document.querySelectorAll("span");
+    // Find the experience Text
+    const element = Array.from(spans).find(
+      (span) => span.textContent.trim() === "About"
+    );
+
+    if (element) {
+      sendResponse({
+        text: element.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement.children[2].textContent.trim(),
+      });
+    } else {
+      sendResponse({ text: "" });
+    }
   } else if (request.action === "getHeadline") {
     const element = document
       .getElementsByTagName("h1")[0]
