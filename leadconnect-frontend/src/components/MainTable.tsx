@@ -8,7 +8,7 @@ const MainTable = () => {
     { name: 'Rathinas', role: 'Actor', frequency: 'Every week', date: 'jul 5' },
     { name: 'Rakul', role: 'DevOps Engineer', frequency: 'Every month', date: 'jul 5' },
     { name: 'Hayden', role: 'Full Stack Developer', frequency: 'Every week', date: 'jul 5' },
-    { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'jul 5' },
+    { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'jul 5' }, 
   ];
 
   const handleIconClick = (icon: string) => {
@@ -24,7 +24,7 @@ const MainTable = () => {
         </div>
         <button className="bg-blue-500 text-white px-5 py-3 rounded-lg shadow-lg hover:bg-blue-600">+ Add new contact</button>
       </div>
-      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg shadow-lg">
+      <div className="flex justify-between items-center mb-6 bg-white p-4 rounded-lg">
         <div className="flex items-center space-x-2">
           <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-500" />
           <span className="text-lg text-gray-700">Select all</span>
@@ -42,27 +42,27 @@ const MainTable = () => {
       </div>
       <div className="bg-white rounded-lg shadow-lg overflow-hidden">
         {contacts.map((contact, index) => (
-          <div key={index} className="flex justify-between items-center m-8 p-4 hover:bg-gray-50">
+          <div key={index} className="flex justify-between items-center m-6 p-8 hover:bg-gray-50">
             <div className="flex items-center space-x-16">
               <input type="checkbox" className="form-checkbox h-4 w-4 text-blue-500" />
-              <img src="https://via.placeholder.com/40" alt="profile" className="w-12 h-12 rounded-full" />
-              <div>
+              <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-12 h-12 rounded-full" />
+              <div className="flex items-center">
                 <p className="font-semibold text-2xl text-gray-800">{contact.name}</p>
-                <p className="text-lg text-gray-500">{contact.role}</p>
+                <p className="text-lg text-gray-500 ml-8">{contact.role}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-16">
+            <div className="flex-0 justify-start items-center space-x-16">
               <span className="text-2xl text-gray-700 m-5">{contact.frequency}</span>
-              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-blue-500 hover:text-blue-700"><FaEnvelope/></span>
               </button>
-              <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-blue-500 hover:text-blue-700"><FaLinkedin/></span>
               </button>
-              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-blue-500 hover:text-blue-700"><FaFacebook/></span>
               </button>
-              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-blue-500 hover:text-blue-700"><FaTwitter/></span>
               </button>
               <span className="text-lg text-gray-500 ml-8">{contact.date}</span>
