@@ -59,7 +59,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       let company = {};
       // check if there are multiple roles in the same company
       let experienceEach = experiences[i].querySelectorAll("div.t-bold");
-      if (experienceEach.length > 1) {
+      if (experienceEach.length > 2) {
         // Multiple roles in the same company
         // Company Name
         const companyName =
