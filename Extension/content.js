@@ -6,14 +6,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: null });
     }
-  }
-   else if (request.action === "getHeadline") {
-      const element = document.getElementsByTagName("h1")[0].parentElement.parentElement.parentElement.parentElement.children[1].textContent.trim();
-      if (element) {
-        sendResponse({ text: element });
-      } else {
-        sendResponse({ text: null });
-      }
+  } else if (request.action === "getHeadline") {
+    const element = document
+      .getElementsByTagName("h1")[0]
+      .parentElement.parentElement.parentElement.parentElement.children[1].textContent.trim();
+    if (element) {
+      sendResponse({ text: element });
+    } else {
+      sendResponse({ text: null });
+    }
   } else if (request.action === "getProfilePicture") {
     const element = document.querySelector(
       ".pv-top-card__non-self-photo-wrapper img"
@@ -24,7 +25,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ text: null });
     }
   } else if (request.action === "getLocation") {
-    const element = document.getElementsByTagName("h1")[0].parentElement.parentElement.parentElement.parentElement.parentElement.children[1].children[0].textContent.trim();
+    const element = document
+      .getElementsByTagName("h1")[0]
+      .parentElement.parentElement.parentElement.parentElement.parentElement.children[1].children[0].textContent.trim();
     if (element) {
       sendResponse({ text: element });
     } else {

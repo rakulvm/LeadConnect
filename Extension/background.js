@@ -1,4 +1,4 @@
-chrome.webNavigation.onCompleted.addListener(function(details) {
+chrome.webNavigation.onCompleted.addListener(function (details) {
   if (details.url && details.url.includes("https://www.linkedin.com")) {
     chrome.action.enable(details.tabId);
   } else {
@@ -7,6 +7,5 @@ chrome.webNavigation.onCompleted.addListener(function(details) {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log('Extension installed');
-  });
-  
+  console.log("Extension installed");
+});
