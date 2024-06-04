@@ -109,14 +109,54 @@ class TokenCheck(Resource):
         # If this point is reached, the token is valid
         return {"success": True, "msg": "Token is valid", "user_id": current_user.id}, 200
     
+
+signup_model = rest_api.model('SignupModel', {
+    'name': fields.String(required=True, description='User name'),
+    'email': fields.String(required=True, description='User email address'),
+    'password': fields.String(required=True, description='User password'),
+    'security_question': fields.String(required=True, description='Security question for password recovery'),
+    'security_answer': fields.String(required=True, description='Answer to the security question')
+})
+
+@rest_api.route('/users/register')
+class Register(Resource):
+    @rest_api.expect(signup_model, validate=True)
+    def post(self):
+        req_data = request.get_json()
+        name = req_data.get("name")
+        email = req_data.get("email")
+        password = req_data.get("password")
+        security_question = req_data.get("security_question")
+        security_answer = req_data.get("security_answer")
+
+        user_exists = Users.get_by_email(email)
+        if user_exists:
+            return {"success": False, "msg": "Failed to register user"}, 500
+
+        new_user = Users(
+            name=name,
+            email=email,
+            security_question=security_question,
+            created_at=datetime.utcnow(),
+            updated_at=datetime.utcnow()
+        )
+        new_user.set_password(password)
+        new_user.set_security_answer(security_answer)
+        
+        db.session.add(new_user)
+        db.session.commit()
+
+        return {"status": "success", "userID": new_user.user_id, "msg": "The user was successfully registered"}, 200
+
+    
 """
     Flask-Restx routes
 """
+
+"""
 @rest_api.route('/api/users/register')
 class Register(Resource):
-    """
-       Creates a new user by taking 'signup_model' input
-    """
+#       Creates a new user by taking 'signup_model' input
 
     def extract_date_components(date_str):
         return day, month, year
@@ -164,6 +204,8 @@ class Register(Resource):
         return {"success": True,
                 "userID": new_user.id,
                 "msg": "The user was successfully registered"}, 200
+
+"""
 
 @rest_api.route('/api/user/forgot-password')
 class ForgotPassword(Resource):
@@ -308,6 +350,7 @@ def format_date(dt):
 def convert_date(date_str):
     return datetime.strptime(date_str, '%m/%d/%Y').strftime('%Y-%m-%d')
 
+"""
 def store_to_mysql(json_data):
     # Iterate through the JSON data and insert into the table
     try:
@@ -356,6 +399,7 @@ def store_to_mysql(json_data):
             "total_inserted": total_inserted,
             "total_failed": total_failed
         }
+"""
 
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):
