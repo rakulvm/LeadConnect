@@ -43,8 +43,6 @@ In today's fast-paced business environment, staying connected with your network 
 - **Small Businesses:** Seeking sustainable growth and effective network management.
 - **Startups:** Hustling for their first customers and needing to make every connection count.
 
-## Demo
-[![DEMO](https://img.youtube.com/vi/r_R-d4lYf-A/0.jpg)](https://www.youtube.com/watch?v=r_R-d4lYf-A)
 
 ## Getting Started
 

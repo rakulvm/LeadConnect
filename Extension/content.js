@@ -149,7 +149,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         // Company Name
         const companyName =
           experiences[i].querySelectorAll("span")[3].textContent;
-        company["companyName"] = companyName.trim().split(" · ")[0];
+        company["companyName"] = companyName?.trim().split(" · ")[0];
 
         // Company Location
         let companyData = experiences[i].querySelectorAll("span:not([class])");
@@ -159,15 +159,19 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           companyData.length == 4 &&
           companyData[2].parentElement?.classList?.contains("t-black--light")
         ) {
-          position["companyLocation"] = companyData[2].textContent.trim();
-          position["bulletPoints"] = companyData[3].textContent.trim();
+          position["companyLocation"] = companyData[2]?.textContent?.trim();
+          position["companyLocation"] = position["companyLocation"] ? position["companyLocation"] : ''
+          position["bulletPoints"] = companyData[3]?.textContent?.trim();
+          position["bulletPoints"] = position["bulletPoints"] ? position["bulletPoints"] : ''
         } else if (
           companyData.length == 3 &&
           companyData[2].parentElement?.classList?.contains("t-black--light")
         ) {
-          position["companyLocation"] = companyData[2].textContent.trim();
+          position["companyLocation"] = companyData[2]?.textContent?.trim();
+          position["companyLocation"] = position["companyLocation"] ? position["companyLocation"] : ''
         } else {
-          position["bulletPoints"] = companyData[2].textContent.trim();
+          position["bulletPoints"] = companyData[2]?.textContent?.trim();
+          position["bulletPoints"] = position["bulletPoints"] ? position["bulletPoints"] : ''
         }
 
         // Company Duration
