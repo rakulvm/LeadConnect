@@ -41,14 +41,7 @@ class BaseConfig():
         try:
             
             # Relational DBMS: PSQL, MySql
-            SQLALCHEMY_DATABASE_URI = '{}://{}:{}@{}:{}/{}'.format(
-                DB_ENGINE,
-                DB_USERNAME,
-                DB_PASS,
-                DB_HOST,
-                DB_PORT,
-                DB_NAME
-            ) 
+            SQLALCHEMY_DATABASE_URI = SQLALCHEMY_DATABASE_URI = 'mysql://admin:LeadConnect%402024@143.110.152.18:3306/lead' 
             print("SQLALCHEMY_DATABASE_URI")
             print(SQLALCHEMY_DATABASE_URI)
 

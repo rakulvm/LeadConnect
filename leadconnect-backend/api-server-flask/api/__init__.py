@@ -9,6 +9,9 @@ from flask import Flask
 from flask_cors import CORS
 from .routes import rest_api
 from .models import db
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 app = Flask(__name__)
@@ -49,11 +52,12 @@ def initialize_database():
    Custom responses
 """
 
+"""
 @app.after_request
 def after_request(response):
-    """
-       Sends back a custom error with {"success", "msg"} format
-    """
+
+    #   Sends back a custom error with {"success", "msg"} format
+    
 
     if int(response.status_code) >= 400:
         response_data = json.loads(response.get_data())
@@ -61,5 +65,29 @@ def after_request(response):
             response_data = {"success": False,
                              "msg": list(response_data["errors"].items())[0][1]}
             response.set_data(json.dumps(response_data))
+        response.headers.add('Content-Type', 'application/json')
+    return response
+"""
+@app.after_request
+def after_request(response):
+    """
+       Sends back a custom error with {"success", "msg"} format
+    """
+    if int(response.status_code) >= 400:
+        try:
+            response_data = response.get_data(as_text=True)
+            logging.debug(f"Response data before parsing: {response_data}")
+            response_data = json.loads(response_data)
+            if "errors" in response_data:
+                response_data = {"success": False,
+                                 "msg": list(response_data["errors"].items())[0][1]}
+        except ValueError as ve:
+            logging.error(f"ValueError occurred: {ve}")
+            response_data = {"success": False, "msg": "Unknown error occurred"}
+        except Exception as e:
+            logging.error(f"Unexpected error: {e}")
+            response_data = {"success": False, "msg": str(e)}
+
+        response.set_data(json.dumps(response_data))
         response.headers.add('Content-Type', 'application/json')
     return response

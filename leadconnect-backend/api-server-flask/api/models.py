@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime,timezone
 import json
 
 
@@ -13,6 +13,7 @@ Base = declarative_base()
 
 db = SQLAlchemy()
 
+"""
 class Users(db.Model):
     __tablename__ = 'users_v2'
     id = db.Column(db.Integer, primary_key=True)
@@ -101,7 +102,41 @@ class Users(db.Model):
     def toJSON(self):
 
         return self.toDICT()
+"""
 
+class Users(db.Model):
+    __tablename__ = 'users'
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
+    security_question = db.Column(db.String(255), nullable=False)
+    security_answer_hash = db.Column(db.String(255), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), nullable=False)
+    updated_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
+
+    def __repr__(self):
+        return f"User {self.name}"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
+
+    def set_security_answer(self, answer):
+        self.security_answer_hash = generate_password_hash(answer)
+
+    def check_security_answer(self, answer):
+        return check_password_hash(self.security_answer_hash, answer)
+
+    @classmethod
+    def get_by_email(cls, email):
+        return cls.query.filter_by(email=email).first()
 
 
 class JWTTokenBlocklist(Base):
