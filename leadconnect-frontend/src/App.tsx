@@ -2,6 +2,7 @@ import { useState } from 'react'
 import LeftSideNav from './components/LeftSideNav'
 import TopNav from './components/TopNav'
 import MainTable from './components/MainTable'
+import AddContactForm from './components/AddContact'
 
 function App() {
 

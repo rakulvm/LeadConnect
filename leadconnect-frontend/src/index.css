@@ -1,3 +1,14 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.modal {
+    @apply fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-cardWhite rounded-lg shadow-lg p-6 w-96;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  
+  .modal-overlay {
+    @apply fixed top-0 left-0 right-0 bottom-0 bg-highlightBlue bg-opacity-75;
+    @apply shadow-lg;
+    transition: opacity 0.9s ease;
+  }

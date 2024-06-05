@@ -1,15 +1,29 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { FaSort, FaFilter, FaEnvelope, FaLinkedin, FaFacebook, FaTwitter, FaWhatsapp } from 'react-icons/fa';
+import ContactModal from './AddContact'; // Adjust the path according to your folder structure
 
-const MainTable = () => {
-  const contacts = [
+type Contact = {
+  name: string;
+  role: string;
+  frequency: string;
+  date: string;
+};
+
+const MainTable: React.FC = () => {
+  const [contacts, setContacts] = useState<Contact[]>([
     { name: 'Sundhar K', role: 'Developer', frequency: 'Every 2 weeks', date: 'jul 5' },
     { name: 'Sarvan', role: 'Mentor', frequency: 'Don\'t keep in touch', date: 'jul 5' },
     { name: 'Rathinas', role: 'Actor', frequency: 'Every week', date: 'jul 5' },
     { name: 'Rakul', role: 'DevOps Engineer', frequency: 'Every month', date: 'jul 5' },
     { name: 'Hayden', role: 'Full Stack Developer', frequency: 'Every week', date: 'jul 5' },
     { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'jul 5' }, 
-  ];
+  ]);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const addContact = (contact: Contact) => {
+    setContacts([...contacts, contact]);
+  };
 
   const handleIconClick = (icon: string) => {
     alert(`You clicked on the ${icon} icon!`);
@@ -22,8 +36,14 @@ const MainTable = () => {
           <h2 className="text-3xl font-bold text-gray-800">All contacts</h2>
           <p className="text-lg text-gray-600">{contacts.length} total contacts</p>
         </div>
-        <button className="bg-buttonBlue text-white px-5 py-3 rounded-lg shadow-lg hover:bg-blue-600">+ Add new contact</button>
+        <button
+          className="bg-buttonBlue text-white px-5 py-3 rounded-lg shadow-lg hover:bg-blue-600"
+          onClick={() => setIsModalOpen(true)}
+        >
+          + Add new contact
+        </button>
       </div>
+      <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
       <div className="flex justify-between items-center mb-6 bg-cardWhite p-4 rounded-lg">
         <div className="flex items-center space-x-2">
           <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
