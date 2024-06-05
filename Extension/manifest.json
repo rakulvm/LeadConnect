@@ -1,10 +1,11 @@
 {
     "manifest_version": 3,
-    "name": "Your Extension Name",
+    "name": "LeadConnect",
     "version": "1.0",
-    "description": "Description of your extension",
+    "description": "Nurturing Connections, Fueling Growth",
     "permissions": [
-      "activeTab"
+      "activeTab",
+      "webNavigation"
     ],
     "background": {
       "service_worker": "background.js"
@@ -19,7 +20,7 @@
     },
     "content_scripts": [
       {
-        "matches": ["<all_urls>"],
+        "matches": ["https://www.linkedin.com/*"],
         "js": ["content.js"]
       }
     ],
@@ -27,14 +28,6 @@
       "16": "icon16.png",
       "48": "icon48.png",
       "128": "icon128.png"
-    },
-    "browser_action": {
-      "default_popup": "popup.html",
-      "default_icon": {
-        "16": "icon16.png",
-        "48": "icon48.png",
-        "128": "icon128.png"
-      }
     }
   }
   
