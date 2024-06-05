@@ -8,9 +8,9 @@ function App() {
 
   return (
 
-    <div className='flex' >
+    <div className='flex h-screen overflow-hidden' >
       <LeftSideNav></LeftSideNav>
-      <div className='bg-red w-5/6'>
+      <div className='flex flex-col w-full'>
         <TopNav></TopNav>
         <MainTable></MainTable>
       </div>

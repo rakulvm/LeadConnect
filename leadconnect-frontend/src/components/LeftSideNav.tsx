@@ -54,54 +54,54 @@ const LeftSideNav = () => {
   };
 
   return (
-    <div className='h-screen w-1/6 bg-backgroundColor p-4 shadow-lg'>
-      <div className='flex items-center mb-12'>
-        <div className='bg-buttonBlue h-14 w-14 flex items-center justify-center rounded-lg'>
-          <img src='/src/assets/logo.jpg' alt='Logo' className='w-10' />
+    <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 shadow-lg flex flex-col'>
+      <div className='flex items-center mb-4'>
+        <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-lg'>
+          <img src='/src/assets/logo.jpg' alt='Logo' className='w-8' />
         </div>
-        <span className='ml-5 text-3xl font-bold text-gray-700'>Lead Connect</span>
+        <span className='ml-4 text-xl font-bold text-gray-700'>Lead Connect</span>
       </div>
-      <nav className='space-y-2'>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaSun /></span> <span className='ml-4 text-xl font-medium'>Today</span>
+      <nav className='flex-grow overflow-y-auto space-y-2 opacity-75'>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaSun /></span> <span className='ml-2 text-lg font-medium'>Today</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaUserFriends /></span> <span className='ml-4 text-xl font-medium'>Contacts</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaUserFriends /></span> <span className='ml-2 text-lg font-medium'>Contacts</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaPhone /></span><span className='ml-4 text-xl font-medium'>Keep-in-touch</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaPhone /></span><span className='ml-2 text-lg font-medium'>Keep-in-touch</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaBolt /></span>  <span className='ml-4 text-xl font-medium'>Quick action</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaBolt /></span>  <span className='ml-2 text-lg font-medium'>Quick action</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaTools /></span> <span className='ml-4 text-xl font-medium'>Merge and fix</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaTools /></span> <span className='ml-2 text-lg font-medium'>Merge and fix</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaMapMarkerAlt /></span>  <span className='ml-4 text-xl font-medium'>Location</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaMapMarkerAlt /></span>  <span className='ml-2 text-lg font-medium'>Location</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaClock /></span> <span className='ml-4 text-xl font-medium'>Timeline</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaClock /></span> <span className='ml-2 text-lg font-medium'>Timeline</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-lg'><FaNetworkWired /></span> <span className='ml-4 text-xl font-medium'>Network</span>
+        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaNetworkWired /></span> <span className='ml-2 text-lg font-medium'>Network</span>
         </a>
       </nav>
 
-      <div className='mt-12'>
-        <div className='flex items-center justify-between'>
+      <div className='mb-20 mt-4'>
+        <div className='flex items-center justify-between mb-6'>
           <h3 className='text-gray-500 text-lg font-bold'>GROUPS</h3>
-          <div className='flex items-center space-x-4'>
+          <div className='flex items-center space-x-2'>
             <span className='text-gray-500 cursor-pointer' onClick={handleSort}><FaSort /></span>
             <span className='text-gray-500 cursor-pointer' onClick={handleAddGroup}><FaPlus /></span>
             <span className='text-gray-500 cursor-pointer' onClick={handleDeleteGroup}><FaTrash /></span>
           </div>
         </div>
-        <div className='space-y-2 mt-2'>
+        <div className='space-y-1'>
           {groups.map(group => (
-            <div key={group.name} className='text-xg font-medium flex justify-between text-gray-700 items-center hover:bg-highlightBlue px-3 py-2 rounded-lg transition duration-300 ease-in-out'>
+            <div key={group.name} className='text-lg font-medium flex justify-between text-gray-700 items-center hover:bg-highlightBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
               <span className='flex items-center'>
-                <span className='mr-3'>{group.emoji}</span>
+                <span className='mr-2'>{group.emoji}</span>
                 {group.name}
               </span>
               <span>{group.value}</span>
