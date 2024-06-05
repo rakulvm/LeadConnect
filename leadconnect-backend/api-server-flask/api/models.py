@@ -134,9 +134,37 @@ class Users(db.Model):
     def check_security_answer(self, answer):
         return check_password_hash(self.security_answer_hash, answer)
 
+    def update_email(self, new_email):
+        self.email = new_email
+
+    def update_name(self, new_name):
+        self.name = new_name
+
+    @classmethod
+    def get_by_id(cls, id):
+        return db.session.query(cls).get_or_404(id)
+
     @classmethod
     def get_by_email(cls, email):
-        return cls.query.filter_by(email=email).first()
+        return db.session.query(cls).filter_by(email=email).first()
+
+    @classmethod
+    def get_by_name(cls, name):
+        return db.session.query(cls).filter_by(name=name).first()
+
+    def toDICT(self):
+        cls_dict = {}
+        cls_dict['user_id'] = self.user_id
+        cls_dict['name'] = self.name
+        cls_dict['email'] = self.email
+        cls_dict['password_hash'] = self.password_hash
+        cls_dict['security_question'] = self.security_question
+        cls_dict['created_at'] = self.created_at
+        cls_dict['updated_at'] = self.updated_at
+        return cls_dict
+
+    def toJSON(self):
+        return self.toDICT()
 
 
 class JWTTokenBlocklist(Base):
