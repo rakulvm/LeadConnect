@@ -35,7 +35,7 @@ rest_api = Api(version="1.0", title="Users API")
 """
     Flask-Restx models for api request and response data
 """
-
+"""
 signup_model = rest_api.model('SignUpModel', {"email_address": fields.String(required=True, min_length=4, max_length=64),
                                               "password": fields.String(required=True, min_length=4, max_length=16),
                                               "first_name": fields.String(required=True, min_length=2, max_length=32),
@@ -47,8 +47,9 @@ signup_model = rest_api.model('SignUpModel', {"email_address": fields.String(req
                                               "security_question_answer": fields.String(required=True, min_length=2, max_length=255),
                                               "user_type": fields.String(required=True, min_length=1, max_length=1)
                                               })
-login_model = rest_api.model('LoginModel', {"email": fields.String(required=True, min_length=4, max_length=64),
-                                              "password": fields.String(required=True, min_length=4, max_length=16)
+"""
+login_model = rest_api.model('LoginModel', {"email": fields.String(required=True),
+                                              "password": fields.String(required=True)
                                             })
 
 user_edit_model = rest_api.model('UserEditModel', {"user_id": fields.String(required=True, min_length=1, max_length=50),
@@ -75,7 +76,7 @@ def token_required(f):
         try:
             data = jwt.decode(token, BaseConfig.SECRET_KEY, algorithms=["HS256"])
             current_user = Users.get_by_email_address(data["email"])
-
+            print(current_user)
             if not current_user:
                 return {"success": False, "msg": "User does not exist"}, 400
 
@@ -213,7 +214,7 @@ class ForgotPassword(Resource):
     def post(self):
         req_data = request.get_json()
         _email_address = req_data.get("email")
-        user_exists = Users.get_by_email_address(_email_address)
+        user_exists = Users.get_by_email(_email_address)
         
         if user_exists:
             # Assuming your Users model has a security_question field
@@ -274,7 +275,7 @@ class Verify(Resource):
         _email_address = req_data.get("email")
         _password = req_data.get("password")
         _pin = req_data.get("pin")
-        user_exists = Users.get_by_email_address(_email_address)
+        user_exists = Users.get_by_email(_email_address)
 
         if not user_exists:
             return {"success": False, "msg": "This email does not exist."}, 400
@@ -301,45 +302,49 @@ class Verify(Resource):
         else:
             return {"success": False, "msg": "You are already authenticated."}, 401
 
-    
+""""""
 @rest_api.route('/api/users/login')
 class Login(Resource):
     """
        Login user by taking 'login_model' input and return JWT token
     """
-
     @rest_api.expect(login_model, validate=True)
     def post(self):
-
         req_data = request.get_json()
 
-        _email_address = req_data.get("email")
-        _password = req_data.get("password")
-        user_exists = Users.get_by_email_address(_email_address)
-
+        email_address = req_data.get("email")
+        password = req_data.get("password")
+        user_exists = Users.get_by_email(email_address)
         if not user_exists:
             return {"success": False,
                     "msg": "This email does not exist."}, 400
 
         # Add this check for is_authenticated
-        if user_exists.is_authenticated == 0:
-            return {"success": False, "msg": "You are not authenticated. Please verify your email by using the verification link sent to your email."}, 401
+    #    if user_exists.is_authenticated == 0:
+    #        return {"success": False, "msg": "You are not authenticated. Please verify your email by using the verification link sent to your email."}, 401
 
-        if not user_exists.check_password(_password):
+        if not user_exists.check_password(password):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
 
-        # create access token uwing JWT
-        token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
-
-        user_exists.set_jwt_auth_active(True)
-        user_exists.save()
+    #   user_exists.set_jwt_auth_active(True)
+    #    user_exists.save()
 
         return {"success": True,
-                "token": token,
-                "user": user_exists.toJSON()}, 200
+                "msg":"User Login Successful"}, 200
  
 
+
+@rest_api.route('/api/users')
+class UserList(Resource):
+    """
+       List all user names
+    """
+    def get(self):
+        users = Users.query.all()
+        user_names = [user.name for user in users]
+        return {"success": True, "user_names": user_names}, 200
+    
 # Function to convert date to "mm/dd/yyyy" format
 def format_date(dt):
     if pd.isnull(dt):
