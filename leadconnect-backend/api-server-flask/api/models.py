@@ -107,16 +107,24 @@ class Users(db.Model):
 class Users(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
+    username = db.Column(db.String(255), unique=True, nullable=False)
     password_hash = db.Column(db.String(255), nullable=False)
-    security_question = db.Column(db.String(255), nullable=False)
-    security_answer_hash = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    first_name = db.Column(db.String(255), nullable=False)
+    last_name = db.Column(db.String(255), nullable=False)
+    phone_number = db.Column(db.String(20))
+    company = db.Column(db.String(255))
+    number_of_employees = db.Column(db.Enum('1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+'))
+    province = db.Column(db.Enum('Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'), nullable=False)
+    profile_picture_url = db.Column(db.String(255))
+    security_question = db.Column(db.Enum('What is your mother’s maiden name?', 'What was the name of your first pet?', 'What was the make of your first car?', 'What is your favorite color?', 'What city were you born in?'), nullable=False)
+    security_answer = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.Integer, nullable=False)  # To indicate the status of the user
     created_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
     def __repr__(self):
-        return f"User {self.name}"
+        return f"User {self.username}"
 
     def save(self):
         db.session.add(self)
@@ -128,17 +136,20 @@ class Users(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def set_security_answer(self, answer):
-        self.security_answer_hash = generate_password_hash(answer)
-
-    def check_security_answer(self, answer):
-        return check_password_hash(self.security_answer_hash, answer)
-
     def update_email(self, new_email):
         self.email = new_email
 
-    def update_name(self, new_name):
-        self.name = new_name
+    def update_first_name(self, new_first_name):
+        self.first_name = new_first_name
+
+    def update_last_name(self, new_last_name):
+        self.last_name = new_last_name
+
+    def check_jwt_auth_active(self):
+        return self.jwt_auth_active
+
+    def set_jwt_auth_active(self, set_status):
+        self.jwt_auth_active = set_status
 
     @classmethod
     def get_by_id(cls, id):
@@ -149,23 +160,31 @@ class Users(db.Model):
         return db.session.query(cls).filter_by(email=email).first()
 
     @classmethod
-    def get_by_name(cls, name):
-        return db.session.query(cls).filter_by(name=name).first()
+    def get_by_username(cls, username):
+        return db.session.query(cls).filter_by(username=username).first()
 
     def toDICT(self):
         cls_dict = {}
         cls_dict['user_id'] = self.user_id
-        cls_dict['name'] = self.name
+        cls_dict['username'] = self.username
         cls_dict['email'] = self.email
-        cls_dict['password_hash'] = self.password_hash
+        cls_dict['first_name'] = self.first_name
+        cls_dict['last_name'] = self.last_name
+        cls_dict['phone_number'] = self.phone_number
+        cls_dict['company'] = self.company
+        cls_dict['number_of_employees'] = self.number_of_employees
+        cls_dict['province'] = self.province
+        cls_dict['profile_picture_url'] = self.profile_picture_url
         cls_dict['security_question'] = self.security_question
-        cls_dict['created_at'] = self.created_at
-        cls_dict['updated_at'] = self.updated_at
+        cls_dict['security_answer'] = self.security_answer
+        cls_dict['created_at'] = self.created_at.isoformat() if self.created_at else None,
+        cls_dict['updated_at'] = self.updated_at.isoformat() if self.updated_at else None,
+        cls_dict['status'] = self.status
         return cls_dict
-
+        
     def toJSON(self):
-        return self.toDICT()
 
+        return self.toDICT()
 
 class JWTTokenBlocklist(Base):
     __tablename__ = 'users_session'

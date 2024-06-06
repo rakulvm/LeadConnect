@@ -48,6 +48,20 @@ signup_model = rest_api.model('SignUpModel', {"email_address": fields.String(req
                                               "user_type": fields.String(required=True, min_length=1, max_length=1)
                                               })
 """
+signup_model = rest_api.model('SignupModel', {
+    'username': fields.String(required=True, description='User login name'),
+    'password': fields.String(required=True, description='User password'),
+    'email': fields.String(required=True, description='User email address'),
+    'first_name': fields.String(required=True, description='User first name'),
+    'last_name': fields.String(required=True, description='User last name'),
+    'phone_number': fields.String(description='User contact number'),
+    'company': fields.String(description='User company name'),
+    'number_of_employees': fields.String(description='Number of employees in the company', enum=['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+']),
+    'province': fields.String(required=True, description='User province in Canada', enum=['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan']),
+    'profile_picture_url': fields.String(description='URL to the user’s profile picture'),
+    'security_question': fields.String(required=True, description='Security question for password recovery', enum=['What is your mother’s maiden name?', 'What was the name of your first pet?', 'What was the make of your first car?', 'What is your favorite color?', 'What city were you born in?']),
+    'security_answer': fields.String(required=True, description='Answer to the security question')
+})
 login_model = rest_api.model('LoginModel', {"email": fields.String(required=True),
                                               "password": fields.String(required=True)
                                             })
@@ -110,44 +124,49 @@ class TokenCheck(Resource):
         # If this point is reached, the token is valid
         return {"success": True, "msg": "Token is valid", "user_id": current_user.id}, 200
     
-
-signup_model = rest_api.model('SignupModel', {
-    'name': fields.String(required=True, description='User name'),
-    'email': fields.String(required=True, description='User email address'),
-    'password': fields.String(required=True, description='User password'),
-    'security_question': fields.String(required=True, description='Security question for password recovery'),
-    'security_answer': fields.String(required=True, description='Answer to the security question')
-})
-
-@rest_api.route('/users/register')
+@rest_api.route('/api/users/register')
 class Register(Resource):
     @rest_api.expect(signup_model, validate=True)
     def post(self):
         req_data = request.get_json()
-        name = req_data.get("name")
-        email = req_data.get("email")
+        username = req_data.get("username")
         password = req_data.get("password")
+        email = req_data.get("email")
+        first_name = req_data.get("first_name")
+        last_name = req_data.get("last_name")
+        phone_number = req_data.get("phone_number")
+        company = req_data.get("company")
+        number_of_employees = req_data.get("number_of_employees")
+        province = req_data.get("province")
+        profile_picture_url = req_data.get("profile_picture_url")
         security_question = req_data.get("security_question")
-        security_answer = req_data.get("security_answer")
-
+        security_answer = req_data.get("security_answer")        
         user_exists = Users.get_by_email(email)
         if user_exists:
-            return {"success": False, "msg": "Failed to register user"}, 500
+            return {"success": False, "msg": "User already exists"}, 400
 
         new_user = Users(
-            name=name,
+            username=username,
             email=email,
+            first_name=first_name,
+            last_name=last_name,
+            phone_number=phone_number,
+            company=company,
+            number_of_employees=number_of_employees,
+            province=province,
+            profile_picture_url=profile_picture_url,
             security_question=security_question,
-            created_at=datetime.utcnow(),
-            updated_at=datetime.utcnow()
+            security_answer=security_answer,
+            status=1,  # Assuming 1 means 'active'
+            created_at=datetime.now(timezone.utc),
+            updated_at=datetime.now(timezone.utc)
         )
         new_user.set_password(password)
-        new_user.set_security_answer(security_answer)
-        
         db.session.add(new_user)
         db.session.commit()
+        new_user.save()
 
-        return {"status": "success", "userID": new_user.user_id, "msg": "The user was successfully registered"}, 200
+        return {"status": "success", "userID": new_user.user_id, "msg": "The user was successfully registered"}, 201
 
     
 """
@@ -326,12 +345,17 @@ class Login(Resource):
         if not user_exists.check_password(password):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
+        
+        
+         # create access token uwing JWT
+        token = jwt.encode({'email': email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
 
-    #   user_exists.set_jwt_auth_active(True)
-    #    user_exists.save()
+        user_exists.set_jwt_auth_active(True)
+        user_exists.save()
 
         return {"success": True,
-                "msg":"User Login Successful"}, 200
+                "token": token,
+                "user": user_exists.toJSON()}, 200
  
 
 
