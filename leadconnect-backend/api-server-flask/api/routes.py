@@ -18,7 +18,7 @@ from flask_restx import Api, Resource, fields
 import pandas as pd
 import jwt
 
-from .models import db, Users, JWTTokenBlocklist
+from .models import db, Users, JWTTokenBlocklist, Contact, Experience
 from .config import BaseConfig
 import requests
 import uuid
@@ -579,3 +579,144 @@ class GitHubLogin(Resource):
                     "username": user_json['username'],
                     "token": token,
                 }}, 200
+
+#CONTACTS APIS
+contact_model = rest_api.model('Contact', {
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'name': fields.String(required=True, description='Name'),
+    'current_location': fields.String(required=True, description='Current Location'),
+    'headline': fields.String(required=True, description='Headline'),
+    'about': fields.String(required=True, description='About'),
+    'profile_pic_url': fields.String(required=True, description='Profile Picture URL')
+})
+
+#CONTACTS ROUTE ge
+@rest_api.route('/api/contacts')
+class ContactList(Resource):
+    @rest_api.marshal_list_with(contact_model)
+    def get(self):
+        """List all contacts"""
+        contacts = Contact.get_all()
+        return contacts, 200
+
+    @rest_api.expect(contact_model, validate=True)
+    @rest_api.marshal_with(contact_model, code=201)
+    def post(self):
+        """Create a new contact"""
+        data = request.get_json()
+        new_contact = Contact(
+            contact_url=data['contact_url'],
+            name=data['name'],
+            current_location=data['current_location'],
+            headline=data['headline'],
+            about=data['about'],
+            profile_pic_url=data['profile_pic_url']
+        )
+        new_contact.save()
+        return new_contact, 201
+# wont work FOR NOW below three apis 
+@rest_api.route('/api/contacts/<string:contact_url>')
+class ContactResource(Resource):
+    @rest_api.marshal_with(contact_model)
+    def get(self, contact_url):
+        """Get a contact by contact URL"""
+        contact = Contact.get_by_contact_url(contact_url)
+        if not contact:
+            rest_api.abort(404, "Contact not found")
+        return contact, 200
+
+    @rest_api.expect(contact_model, validate=True)
+    @rest_api.marshal_with(contact_model)
+    def put(self, contact_url):
+        """Update a contact by contact URL"""
+        data = request.get_json()
+        contact = Contact.get_by_contact_url(contact_url)
+        if not contact:
+            rest_api.abort(404, "Contact not found")
+        contact.update_name(data.get('name'))
+        contact.update_current_location(data.get('current_location'))
+        contact.update_headline(data.get('headline'))
+        contact.update_about(data.get('about'))
+        contact.update_profile_pic_url(data.get('profile_pic_url'))
+        return contact, 200
+
+    def delete(self, contact_url):
+        """Delete a contact by contact URL"""
+        contact = Contact.get_by_contact_url(contact_url)
+        if not contact:
+            rest_api.abort(404, "Contact not found")
+        contact.delete()
+        return '', 204
+# wont work till this section 
+# CONTACTS API END
+
+experience_model = rest_api.model('Experience', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier of the experience'),
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'company_name': fields.String(required=True, description='Company Name'),
+    'company_role': fields.String(required=True, description='Company Role'),
+    'company_location': fields.String(required=True, description='Company Location'),
+    'bulletpoints': fields.String(required=True, description='Bullet Points'),
+    'company_duration': fields.String(required=True, description='Company Duration'),
+    'company_total_duration': fields.String(required=True, description='Company Total Duration')
+})
+# experience routes not tested mostly wont work
+@rest_api.route('/api/experiences')
+class ExperienceList(Resource):
+    @rest_api.marshal_list_with(experience_model)
+    def get(self):
+        """List all experiences"""
+        experiences = Experience.get_all()
+        return experiences, 200
+
+    @rest_api.expect(experience_model, validate=True)
+    @rest_api.marshal_with(experience_model, code=201)
+    def post(self):
+        """Create a new experience"""
+        data = request.get_json()
+        new_experience = Experience(
+            contact_url=data['contact_url'],
+            company_name=data['company_name'],
+            company_role=data['company_role'],
+            company_location=data['company_location'],
+            bulletpoints=data['bulletpoints'],
+            company_duration=data['company_duration'],
+            company_total_duration=data['company_total_duration']
+        )
+        new_experience.save()
+        return new_experience, 201
+
+@rest_api.route('/api/experiences/<int:id>')
+class ExperienceResource(Resource):
+    @rest_api.marshal_with(experience_model)
+    def get(self, id):
+        """Get an experience by ID"""
+        experience = Experience.get_by_id(id)
+        if not experience:
+            rest_api.abort(404, "Experience not found")
+        return experience, 200
+
+    @rest_api.expect(experience_model, validate=True)
+    @rest_api.marshal_with(experience_model)
+    def put(self, id):
+        """Update an experience by ID"""
+        data = request.get_json()
+        experience = Experience.get_by_id(id)
+        if not experience:
+            rest_api.abort(404, "Experience not found")
+        experience.update_company_name(data.get('company_name'))
+        experience.update_company_role(data.get('company_role'))
+        experience.update_company_location(data.get('company_location'))
+        experience.update_bulletpoints(data.get('bulletpoints'))
+        experience.update_company_duration(data.get('company_duration'))
+        experience.update_company_total_duration(data.get('company_total_duration'))
+        return experience, 200
+
+    def delete(self, id):
+        """Delete an experience by ID"""
+        experience = Experience.get_by_id(id)
+        if not experience:
+            rest_api.abort(404, "Experience not found")
+        experience.delete()
+        return '', 204
+# experience routes not tested mostly wont work
