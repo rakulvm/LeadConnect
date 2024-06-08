@@ -5,6 +5,7 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
+    extend:{
     colors: {
         backgroundColor: '#F6F6F6',
         cardWhite: '#FFFFFF',
@@ -14,7 +15,7 @@ export default {
         iconColor: "#767B86",
         hoverIconColor: "#DCDCDC"
       },
-    extend: {},
+    }
   },
   plugins: [],
 }
