@@ -59,31 +59,31 @@ const LeftSideNav = () => {
         <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-lg'>
           <img src='/src/assets/logo.jpg' alt='Logo' className='w-8' />
         </div>
-        <span className='ml-4 text-xl font-bold text-gray-700'>Lead Connect</span>
+        <span className='ml-4 text-xl font-bold color-secondaryTextColor'>Lead Connect</span>
       </div>
       <nav className='flex-grow overflow-y-auto space-y-2 opacity-75'>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaSun /></span> <span className='ml-2 text-lg font-medium'>Today</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaUserFriends /></span> <span className='ml-2 text-lg font-medium'>Contacts</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaPhone /></span><span className='ml-2 text-lg font-medium'>Keep-in-touch</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaBolt /></span>  <span className='ml-2 text-lg font-medium'>Quick action</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaTools /></span> <span className='ml-2 text-lg font-medium'>Merge and fix</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaMapMarkerAlt /></span>  <span className='ml-2 text-lg font-medium'>Location</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaClock /></span> <span className='ml-2 text-lg font-medium'>Timeline</span>
         </a>
-        <a href='#' className='flex items-center text-gray-700 hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaNetworkWired /></span> <span className='ml-2 text-lg font-medium'>Network</span>
         </a>
       </nav>
@@ -99,7 +99,7 @@ const LeftSideNav = () => {
         </div>
         <div className='space-y-1'>
           {groups.map(group => (
-            <div key={group.name} className='text-lg font-medium flex justify-between text-gray-700 items-center hover:bg-highlightBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+            <div key={group.name} className='text-lg font-medium flex justify-between color-secondaryTextColor items-center hover:bg-highlightBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
               <span className='flex items-center'>
                 <span className='mr-2'>{group.emoji}</span>
                 {group.name}

@@ -34,8 +34,8 @@ const MainTable: React.FC = () => {
     <div className="h-screen p-1 bg-backgroundColor flex flex-col">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4">
         <div>
-          <h2 className="text-2xl opacity-75 font-bold text-gray-800">All contacts</h2>
-          <p className="text-lg text-gray-600">{contacts.length} total contacts</p>
+          <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
+          <p className="text-lg color-secondaryTextColor">{contacts.length} total contacts</p>
         </div>
         <button
           className="bg-buttonBlue text-cardWhite px-3 py-2 rounded-lg shadow-lg hover:bg-blue-600"
@@ -48,7 +48,7 @@ const MainTable: React.FC = () => {
       <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4">
         <div className="ml-3 flex items-center space-x-4">
           <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
-          <span className="text-lg opacity-85 text-gray-700">Select all</span>
+          <span className="text-lg opacity-85 color-secondaryTextColor">Select all</span>
         </div>
         <div className="flex items-center space-x-9">
           <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg hover:bg-gray-300">
