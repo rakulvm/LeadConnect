@@ -11,7 +11,7 @@ const App: React.FC = () => {
     return (
     <Routes>
       <Route path="/" element={
-      <div className='flex' >
+      <div className='flex bg-backgroundColor' >
         <LeftSideNav></LeftSideNav>
         <div className='bg-red w-5/6'>
           <TopNav></TopNav>
