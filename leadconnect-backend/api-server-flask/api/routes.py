@@ -599,131 +599,6 @@ class GitHubLogin(Resource):
                     "token": token,
                 }}, 200
 
-#--------------REDUNDANT CODE START----------------------------
-#CONTACTS APIS
-#CONTACTS ROUTE ge
-@rest_api.route('/api/contacts')
-class ContactList(Resource):
-    @rest_api.marshal_list_with(contact_model)
-    def get(self):
-        """List all contacts"""
-        contacts = Contact.get_all()
-        return contacts, 200
-
-    @rest_api.expect(contact_model, validate=True)
-    @rest_api.marshal_with(contact_model, code=201)
-    def post(self):
-        """Create a new contact"""
-        data = request.get_json()
-        new_contact = Contact(
-            contact_url=data['contact_url'],
-            name=data['name'],
-            current_location=data['current_location'],
-            headline=data['headline'],
-            about=data['about'],
-            profile_pic_url=data['profile_pic_url']
-        )
-        # new_contact.save()
-        return new_contact, 201
-# wont work FOR NOW below three apis 
-@rest_api.route('/api/contacts/<string:contact_url>')
-class ContactResource(Resource):
-    @rest_api.marshal_with(contact_model)
-    def get(self, contact_url):
-        """Get a contact by contact URL"""
-        contact = Contact.get_by_contact_url(contact_url)
-        if not contact:
-            rest_api.abort(404, "Contact not found")
-        return contact, 200
-
-    @rest_api.expect(contact_model, validate=True)
-    @rest_api.marshal_with(contact_model)
-    def put(self, contact_url):
-        """Update a contact by contact URL"""
-        data = request.get_json()
-        contact = Contact.get_by_contact_url(contact_url)
-        if not contact:
-            rest_api.abort(404, "Contact not found")
-        contact.update_name(data.get('name'))
-        contact.update_current_location(data.get('current_location'))
-        contact.update_headline(data.get('headline'))
-        contact.update_about(data.get('about'))
-        contact.update_profile_pic_url(data.get('profile_pic_url'))
-        return contact, 200
-
-    def delete(self, contact_url):
-        """Delete a contact by contact URL"""
-        contact = Contact.get_by_contact_url(contact_url)
-        if not contact:
-            rest_api.abort(404, "Contact not found")
-        contact.delete()
-        return '', 204
-# wont work till this section 
-# CONTACTS API END
-
-#Experience  model
-
-# experience routes not tested mostly wont work
-@rest_api.route('/api/experiences')
-class ExperienceList(Resource):
-    @rest_api.marshal_list_with(experience_model)
-    def get(self):
-        """List all experiences"""
-        experiences = Experience.get_all()
-        return experiences, 200
-
-    @rest_api.expect(experience_model, validate=True)
-    @rest_api.marshal_with(experience_model, code=201)
-    def post(self):
-        """Create a new experience"""
-        data = request.get_json()
-        new_experience = Experience(
-            contact_url=data['contact_url'],
-            company_name=data['company_name'],
-            company_role=data['company_role'],
-            company_location=data['company_location'],
-            bulletpoints=data['bulletpoints'],
-            company_duration=data['company_duration'],
-            company_total_duration=data['company_total_duration']
-        )
-        new_experience.save()
-        return new_experience, 201
-
-@rest_api.route('/api/experiences/<int:id>')
-class ExperienceResource(Resource):
-    @rest_api.marshal_with(experience_model)
-    def get(self, id):
-        """Get an experience by ID"""
-        experience = Experience.get_by_id(id)
-        if not experience:
-            rest_api.abort(404, "Experience not found")
-        return experience, 200
-
-    @rest_api.expect(experience_model, validate=True)
-    @rest_api.marshal_with(experience_model)
-    def put(self, id):
-        """Update an experience by ID"""
-        data = request.get_json()
-        experience = Experience.get_by_id(id)
-        if not experience:
-            rest_api.abort(404, "Experience not found")
-        experience.update_company_name(data.get('company_name'))
-        experience.update_company_role(data.get('company_role'))
-        experience.update_company_location(data.get('company_location'))
-        experience.update_bulletpoints(data.get('bulletpoints'))
-        experience.update_company_duration(data.get('company_duration'))
-        experience.update_company_total_duration(data.get('company_total_duration'))
-        return experience, 200
-
-    def delete(self, id):
-        """Delete an experience by ID"""
-        experience = Experience.get_by_id(id)
-        if not experience:
-            rest_api.abort(404, "Experience not found")
-        experience.delete()
-        return '', 204
-# experience routes not tested mostly wont work
-#--------------REDUNDANT CODE END----------------------------
 
 # route to add using a user id to all tables experiences.
 @rest_api.route('/api/createcontact')
@@ -743,6 +618,8 @@ class ExtensionResource(Resource):
             existing_contact.update_current_location(data['location'])
             existing_contact.update_profile_pic_url(data['profilePicture'])
             existing_contact.update_about(data['about'])
+
+            new_contact=existing_contact
         else:
             # Contact doesnt exist in the databse
             """Create a new contact"""
@@ -800,4 +677,4 @@ class ExtensionResource(Resource):
                 
                 experience_object.append(experience.toDICT())
                 # print(experience_object)
-        return experience_object, 201
+        return [new_connection.toDICT(),new_contact.toDICT(),experience_object], 201
