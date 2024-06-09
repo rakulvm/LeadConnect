@@ -739,11 +739,11 @@ class ExtensionResource(Resource):
             user_id = 2,
             contact_url = data['url']
         )
-        return new_connection.toDICT(), 200
+        # return new_connection.toDICT(), 200
 
         """Create a new contact"""
         new_contact = Contact(
-            contact_url=data['url'],
+            contact_url=new_connection.contact_url,
             name=data['name'],
             headline=data['headline'],
             current_location=data['location'],
@@ -751,7 +751,7 @@ class ExtensionResource(Resource):
             about=data['about'],
         )
         # new_contact.save()
-        # return new_contact, 201
+        # return new_contact.toDICT(), 201
 
  # Process the experience list
         experiences = data.get('experience', [])
@@ -765,9 +765,9 @@ class ExtensionResource(Resource):
                 # print(position)
                 # break
                 experience =Experience (
-                    contact_url= data['url'],
+                    contact_url= new_connection.contact_url,
                     company_name = company.get("CompanyName") or company.get("companyName"),
-                    company_role = position.get("CompanyRole"),
+                    company_role = position.get("CompanyRole") or position.get("companyRole"),
                     # company_role = position["CompanyRole"],
                     company_location = position["companyLocation"],
                     bulletpoints = position["bulletPoints"],
