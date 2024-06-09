@@ -255,7 +255,7 @@ class Contact(db.Model):
 
     @classmethod
     def get_by_contact_url(cls, contact_url):
-        return db.session.query(cls).get_or_404(contact_url)
+        return db.session.query(cls).get(contact_url)
 
     @classmethod
     def get_all(cls):
