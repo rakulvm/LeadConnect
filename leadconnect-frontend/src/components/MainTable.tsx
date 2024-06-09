@@ -31,7 +31,7 @@ const MainTable: React.FC = () => {
   };
 
   return (
-    <div className="h-screen p-2 bg-white flex flex-col">
+    <div className="h-[89%] p-2 bg-white flex flex-col">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
@@ -73,7 +73,7 @@ const MainTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-cardWhite flex-grow overflow-y-auto scrollbar-thin">
+      <div className="bg-cardWhite overflow-y-auto scrollbar-thin">
         {contacts.map((contact, index) => (
           <div key={index} className="flex items-center mr-4 p-0.5 pt-2 pb-2 border-slate-100	border-y-[1px] hover:bg-highlightBlue hover:border-l-blue-400 hover:border-l-4">
             <div className="flex items-center pl-4 w-[8%]">

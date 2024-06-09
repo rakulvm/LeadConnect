@@ -10,7 +10,7 @@ export default function TopNav() {
   };
 
   return (
-    <div className='bg-white h-[8%] flex items-center justify-between px-6 py-4 mb-[0.2rem]'>
+    <div className='bg-white h-[10%] flex items-center justify-between px-6 py-4 mb-[0.2rem]'>
       <div className="flex items-center bg-searchBarBackground rounded-md p-0 w-1/2">
         <FaSearch className="ml-4" style={{ color: "#A0AEC0" }} />
         <input
