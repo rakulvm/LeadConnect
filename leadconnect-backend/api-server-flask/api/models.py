@@ -294,7 +294,7 @@ class Experience(db.Model):
     # contact = db.relationship('Contact', backref=db.backref('contacts', lazy=True))
 
     def __repr__(self):
-        return f"Experience {self.company_name} "#at {self.contact_url}
+        return f"Experience {self.company_name} #at {self.contact_url}"
 
     def save(self):
         db.session.add(self)
@@ -363,3 +363,13 @@ class Connection(db.Model):
     def save(self):
         db.session.add(self)
         db.session.commit()
+    
+    def toDICT(self):
+        cls_dict = {}
+        cls_dict['id'] = self.id
+        cls_dict['user_id'] = self.user_id
+        cls_dict['contact_url'] = self.contact_url
+        return cls_dict
+
+    def toJSON(self):
+        return self.toDICT()
