@@ -31,7 +31,7 @@ const MainTable: React.FC = () => {
   };
 
   return (
-    <div className="h-screen p-1 bg-backgroundColor flex flex-col">
+    <div className="h-[89%] p-2 bg-white flex flex-col">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
@@ -45,19 +45,19 @@ const MainTable: React.FC = () => {
         </button>
       </div>
       <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
-      <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4">
+      <div className="flex justify-between items-center p-1 rounded-lg">
         <div className="ml-3 flex items-center space-x-4">
           <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
           <span className="text-lg opacity-85 color-secondaryTextColor">Select all</span>
         </div>
         <div className="flex items-center space-x-9">
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg border-slate-200 border-[1px] hover:bg-gray-300">
             Properties
           </button>
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg flex items-center hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
             <span className="mr-2"><FaSort /></span> Sort
           </button>
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg flex items-center hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
             <span className="mr-2 "><FaFilter/></span> Filter
           </button>
           <div className="relative flex items-center">
@@ -73,33 +73,36 @@ const MainTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-cardWhite rounded-lg shadow-lg flex-grow overflow-y-auto scrollbar-thin">
+      <div className="bg-cardWhite overflow-y-auto scrollbar-thin">
         {contacts.map((contact, index) => (
-          <div key={index} className="flex justify-between items-center m-4 p-0.5 hover:bg-highlightBlue">
-            <div className="flex items-center space-x-8">
-              <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
-              <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-12 h-12 rounded-full" />
-              <div className="flex items-center">
+          <div key={index} className="flex items-center mr-4 p-0.5 pt-2 pb-2 border-slate-100	border-y-[1px] hover:bg-highlightBlue hover:border-l-blue-400 hover:border-l-4">
+            <div className="flex items-center pl-4 w-[8%]">
+              <input type="checkbox" className="form-checkbox h-4 w-4  text-buttonBlue" />
+              <img src="https://media.licdn.com/dms/image/D5603AQHCl6rE29FjDQ/profile-displayphoto-shrink_400_400/0/1700181003703?e=1722470400&v=beta&t=JXh72hidUVebdLR2JrDBMXbG9HC1FT9LCuBHuPUS0i4" alt="profile" className="ml-4 w-8 h-8 rounded-full" />
+            </div>
+              <div className="flex w-[32%]">
                 <p className="font-semibold text-lg opacity-80">{contact.name}</p>
                 <p className="text-lg opacity-60 ml-3">{contact.role}</p>
               </div>
-            </div>
-            <div className="flex justify-start items-center space-x-16">
-              <span className="text-lg opacity-80 m-5">{contact.frequency}</span>
-              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
+              <span className="text-lg opacity-80 w-[25%]">{contact.frequency}</span>
+            <div className="flex items-center justify-evenly pr-2 w-[20%]">
+              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaEnvelope/></span>
               </button>
-              <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
               </button>
-              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
               </button>
-              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaTwitter/></span>
               </button>
-              <span className="text-lg opacity-60 ml-8">{contact.date}</span>
+              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <span className="text-buttonBlue hover:text-blue-700"><FaTwitter/></span>
+              </button>
             </div>
+              <span className="text-lg opacity-60 text-right pr-2 w-[15%]">{contact.date}</span>
           </div>
         ))}
       </div>
