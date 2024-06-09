@@ -54,7 +54,7 @@ const LeftSideNav = () => {
   };
 
   return (
-    <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 shadow-lg flex flex-col'>
+    <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 flex flex-col mr-[0.2rem]'>
       <div className='flex items-center mb-4'>
         <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-lg'>
           <img src='/src/assets/logo.jpg' alt='Logo' className='w-8' />

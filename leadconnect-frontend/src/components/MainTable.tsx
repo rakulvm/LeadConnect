@@ -31,7 +31,7 @@ const MainTable: React.FC = () => {
   };
 
   return (
-    <div className="h-screen p-1 bg-backgroundColor flex flex-col">
+    <div className="h-screen p-2 bg-white flex flex-col">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
@@ -45,19 +45,19 @@ const MainTable: React.FC = () => {
         </button>
       </div>
       <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
-      <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4">
+      <div className="flex justify-between items-center p-1 rounded-lg">
         <div className="ml-3 flex items-center space-x-4">
           <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
           <span className="text-lg opacity-85 color-secondaryTextColor">Select all</span>
         </div>
         <div className="flex items-center space-x-9">
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg border-slate-200 border-[1px] hover:bg-gray-300">
             Properties
           </button>
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg flex items-center hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
             <span className="mr-2"><FaSort /></span> Sort
           </button>
-          <button className="bg-gray-200 opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg shadow-lg flex items-center hover:bg-gray-300">
+          <button className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
             <span className="mr-2 "><FaFilter/></span> Filter
           </button>
           <div className="relative flex items-center">
@@ -73,11 +73,11 @@ const MainTable: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-cardWhite rounded-lg shadow-lg flex-grow overflow-y-auto scrollbar-thin">
+      <div className="bg-cardWhite flex-grow overflow-y-auto scrollbar-thin">
         {contacts.map((contact, index) => (
-          <div key={index} className="flex justify-between items-center m-4 p-0.5 hover:bg-highlightBlue">
-            <div className="flex items-center space-x-8">
-              <input type="checkbox" className="form-checkbox h-4 w-4 text-buttonBlue" />
+          <div key={index} className="flex justify-between items-center mr-4 p-0.5 border-slate-100	border-y-[1px] hover:bg-highlightBlue hover:border-l-blue-400 hover:border-l-4">
+            <div className="flex items-center space-x-8 pl-4">
+              <input type="checkbox" className="form-checkbox h-4 w-4  text-buttonBlue" />
               <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-12 h-12 rounded-full" />
               <div className="flex items-center">
                 <p className="font-semibold text-lg opacity-80">{contact.name}</p>
