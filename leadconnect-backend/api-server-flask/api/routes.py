@@ -733,27 +733,28 @@ class ExtensionResource(Resource):
     def post(self):
         data = request.get_json()
 
-
-        # update connection table 
-        new_connection=Connection(
-            user_id = 2,
-            contact_url = data['url']
-        )
-        # return new_connection.toDICT(), 200
-
+        # Contact doesnt exist in the databse
         """Create a new contact"""
         new_contact = Contact(
-            contact_url=new_connection.contact_url,
+            contact_url= data['url'],
             name=data['name'],
             headline=data['headline'],
             current_location=data['location'],
             profile_pic_url=data['profilePicture'],
             about=data['about'],
         )
-        # new_contact.save()
-        # return new_contact.toDICT(), 201
+        new_contact.save()
 
- # Process the experience list
+        # Connection doesnt exist in the database
+        # update connection table 
+        new_connection=Connection(
+            user_id = 2,
+            contact_url = data['url']
+        )
+        new_connection.save()
+
+
+        # Process the experience list
         experiences = data.get('experience', [])
         # Create experience table
         experience_object = []
@@ -775,6 +776,7 @@ class ExtensionResource(Resource):
                     company_total_duration = position["companyTotalDuration"]
                     
                 )
+                experience.save()
                 
                 experience_object.append(experience.toDICT())
                 # print(experience_object)
