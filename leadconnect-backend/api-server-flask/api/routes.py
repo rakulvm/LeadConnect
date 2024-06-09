@@ -18,7 +18,7 @@ from flask_restx import Api, Resource, fields
 import pandas as pd
 import jwt
 
-from .models import db, Users, JWTTokenBlocklist, Contact, Experience
+from .models import db, Users, JWTTokenBlocklist, Contact, Experience,Connection
 from .config import BaseConfig
 import requests
 import uuid
@@ -72,6 +72,25 @@ user_edit_model = rest_api.model('UserEditModel', {"user_id": fields.String(requ
                                                    "email_address": fields.String(required=True, min_length=4, max_length=64)
                                                    })
 
+contact_model = rest_api.model('Contact', {
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'name': fields.String(required=True, description='Name'),
+    'current_location': fields.String(required=True, description='Current Location'),
+    'headline': fields.String(required=True, description='Headline'),
+    'about': fields.String(required=True, description='About'),
+    'profile_pic_url': fields.String(required=True, description='Profile Picture URL')
+})
+
+experience_model = rest_api.model('Experience', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier of the experience'),
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'company_name': fields.String(required=True, description='Company Name'),
+    'company_role': fields.String(required=True, description='Company Role'),
+    'company_location': fields.String(required=True, description='Company Location'),
+    'bulletpoints': fields.String(required=True, description='Bullet Points'),
+    'company_duration': fields.String(required=True, description='Company Duration'),
+    'company_total_duration': fields.String(required=True, description='Company Total Duration')
+})
 
 """
    Helper function for JWT token required
@@ -580,16 +599,8 @@ class GitHubLogin(Resource):
                     "token": token,
                 }}, 200
 
+#--------------REDUNDANT CODE START----------------------------
 #CONTACTS APIS
-contact_model = rest_api.model('Contact', {
-    'contact_url': fields.String(required=True, description='Contact URL'),
-    'name': fields.String(required=True, description='Name'),
-    'current_location': fields.String(required=True, description='Current Location'),
-    'headline': fields.String(required=True, description='Headline'),
-    'about': fields.String(required=True, description='About'),
-    'profile_pic_url': fields.String(required=True, description='Profile Picture URL')
-})
-
 #CONTACTS ROUTE ge
 @rest_api.route('/api/contacts')
 class ContactList(Resource):
@@ -612,7 +623,7 @@ class ContactList(Resource):
             about=data['about'],
             profile_pic_url=data['profile_pic_url']
         )
-        new_contact.save()
+        # new_contact.save()
         return new_contact, 201
 # wont work FOR NOW below three apis 
 @rest_api.route('/api/contacts/<string:contact_url>')
@@ -650,16 +661,8 @@ class ContactResource(Resource):
 # wont work till this section 
 # CONTACTS API END
 
-experience_model = rest_api.model('Experience', {
-    'id': fields.Integer(readOnly=True, description='The unique identifier of the experience'),
-    'contact_url': fields.String(required=True, description='Contact URL'),
-    'company_name': fields.String(required=True, description='Company Name'),
-    'company_role': fields.String(required=True, description='Company Role'),
-    'company_location': fields.String(required=True, description='Company Location'),
-    'bulletpoints': fields.String(required=True, description='Bullet Points'),
-    'company_duration': fields.String(required=True, description='Company Duration'),
-    'company_total_duration': fields.String(required=True, description='Company Total Duration')
-})
+#Experience  model
+
 # experience routes not tested mostly wont work
 @rest_api.route('/api/experiences')
 class ExperienceList(Resource):
@@ -720,3 +723,51 @@ class ExperienceResource(Resource):
         experience.delete()
         return '', 204
 # experience routes not tested mostly wont work
+#--------------REDUNDANT CODE END----------------------------
+
+# route to add using a user id to all tables experiences.
+@rest_api.route('/api/createcontact')
+class ExtensionResource(Resource):
+    # @rest_api.expect(contact_model, validate=True) -- if you keep this it expects that json object is exact model shape
+    # @rest_api.marshal_with(contact_model, code=201)  # needed this for serializability
+    def post(self):
+        """Create a new contact"""
+        data = request.get_json()
+
+        new_contact = Contact(
+            contact_url=data['url'],
+            name=data['name'],
+            headline=data['headline'],
+            current_location=data['location'],
+            profile_pic_url=data['profilePicture'],
+            about=data['about'],
+        )
+        # new_contact.save()
+        # return new_contact, 201
+
+ # Process the experience list
+        experiences = data.get('experience', [])
+        # Create experience table
+        experience_object = []
+        for company in experiences:
+            # print(company)
+            # break
+            for position in company['companyPositions']:
+                # print("JIVIN")
+                # print(position)
+                # break
+                experience =Experience (
+                    contact_url= data['url'],
+                    company_name = company.get("CompanyName") or company.get("companyName"),
+                    company_role = position.get("CompanyRole"),
+                    # company_role = position["CompanyRole"],
+                    company_location = position["companyLocation"],
+                    bulletpoints = position["bulletPoints"],
+                    company_duration = position["companyDuration"],
+                    company_total_duration = position["companyTotalDuration"]
+                    
+                )
+                
+                experience_object.append(experience.toDICT())
+                # print(experience_object)
+        return experience_object, 201

@@ -221,10 +221,10 @@ class Contact(db.Model):
     profile_pic_url = db.Column(db.String(255), nullable=False)
 
     # One-to-many relationship with Experience
-    experiences = db.relationship('Experience', backref='contact', lazy=True, cascade='all, delete')
+    # experiences = db.relationship('Experience', backref='contact', lazy=True, cascade='all, delete')
 
     # Many-to-many relationship with User through Connection
-    users = db.relationship('User', secondary='connections', backref=db.backref('contacts', lazy='dynamic'))
+    # users = db.relationship('User', secondary='connections', backref=db.backref('contacts', lazy='dynamic'))
 
     def __repr__(self):
         return f"Contact {self.contact_url}"
@@ -291,10 +291,10 @@ class Experience(db.Model):
     company_duration = db.Column(db.String(255), nullable=False)
     company_total_duration = db.Column(db.String(255), nullable=False)
     
-    contact = db.relationship('Contact', backref=db.backref('experiences', lazy=True))
+    # contact = db.relationship('Contact', backref=db.backref('contacts', lazy=True))
 
     def __repr__(self):
-        return f"Experience {self.company_name} at {self.contact_url}"
+        return f"Experience {self.company_name} "#at {self.contact_url}
 
     def save(self):
         db.session.add(self)
@@ -359,3 +359,7 @@ class Connection(db.Model):
 
     def __repr__(self):
         return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
