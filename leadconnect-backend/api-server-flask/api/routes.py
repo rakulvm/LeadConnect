@@ -730,8 +730,9 @@ class ExperienceResource(Resource):
 class ExtensionResource(Resource):
     # @rest_api.expect(contact_model, validate=True) -- if you keep this it expects that json object is exact model shape
     # @rest_api.marshal_with(contact_model, code=201)  # needed this for serializability
-    def post(self):
-        current_user_id = 2
+    @token_required
+    def post(self,current_user):
+        current_user_id = current_user.user_id
         data = request.get_json()
         # Hanlde contact if existin
         existing_contact = Contact.get_by_contact_url(data['url'])
