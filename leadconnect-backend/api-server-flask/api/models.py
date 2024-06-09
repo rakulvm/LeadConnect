@@ -336,6 +336,14 @@ class Experience(db.Model):
         db.session.delete(self)
         db.session.commit()
 
+    @classmethod
+    def get_by_contact_url(cls, url):
+        return db.session.query(cls).filter_by(contact_url=url)
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
     def toDICT(self):
         cls_dict = {}
         cls_dict['id'] = self.id
@@ -359,6 +367,11 @@ class Connection(db.Model):
 
     def __repr__(self):
         return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
+    
+
+    @classmethod
+    def get_by_connection(cls, user_id, url):
+        return db.session.query(cls).filter_by(contact_url=url, user_id=user_id).first()
     
     def save(self):
         db.session.add(self)

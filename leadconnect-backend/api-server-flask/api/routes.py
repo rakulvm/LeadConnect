@@ -731,28 +731,47 @@ class ExtensionResource(Resource):
     # @rest_api.expect(contact_model, validate=True) -- if you keep this it expects that json object is exact model shape
     # @rest_api.marshal_with(contact_model, code=201)  # needed this for serializability
     def post(self):
+        current_user_id = 2
         data = request.get_json()
-
-        # Contact doesnt exist in the databse
-        """Create a new contact"""
-        new_contact = Contact(
-            contact_url= data['url'],
-            name=data['name'],
-            headline=data['headline'],
-            current_location=data['location'],
-            profile_pic_url=data['profilePicture'],
-            about=data['about'],
-        )
-        new_contact.save()
+        # Hanlde contact if existin
+        existing_contact = Contact.get_by_contact_url(data['url'])
+        if(existing_contact):
+            # Contact Exist
+            existing_contact.update_name(data['name'])
+            existing_contact.update_headline(data['headline'])
+            existing_contact.update_current_location(data['location'])
+            existing_contact.update_profile_pic_url(data['profilePicture'])
+            existing_contact.update_about(data['about'])
+        else:
+            # Contact doesnt exist in the databse
+            """Create a new contact"""
+            new_contact = Contact(
+                contact_url= data['url'],
+                name=data['name'],
+                headline=data['headline'],
+                current_location=data['location'],
+                profile_pic_url=data['profilePicture'],
+                about=data['about'],
+            )
+            new_contact.save()
 
         # Connection doesnt exist in the database
         # update connection table 
-        new_connection=Connection(
-            user_id = 2,
-            contact_url = data['url']
-        )
-        new_connection.save()
 
+        new_connection = Connection.get_by_connection(current_user_id, data['url'])
+        if(not new_connection):
+            new_connection=Connection(
+                user_id = current_user_id,
+                contact_url = data['url']
+            )
+            new_connection.save()
+
+
+
+        # Clear exisitng experiences if any
+        current_experiences = Experience.get_by_contact_url(data['url'])
+        for current_experience in current_experiences:
+            current_experience.delete()
 
         # Process the experience list
         experiences = data.get('experience', [])
