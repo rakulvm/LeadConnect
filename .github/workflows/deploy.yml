@@ -36,7 +36,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 14 # Adjusted node version to 14
+          node-version: 18 # Adjusted node version to 14
           cache: 'npm'
           cache-dependency-path: '**/package-lock.json' # THIS PATTERN did the trick for me.
       - name: Install dependencies
