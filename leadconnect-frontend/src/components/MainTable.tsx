@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FaSort, FaFilter, FaEnvelope, FaLinkedin, FaFacebook, FaTwitter, FaSearch } from 'react-icons/fa';
+import { FaSort, FaFilter, FaStickyNote, FaEnvelope, FaLinkedin, FaFacebook, FaTwitter, FaSearch } from 'react-icons/fa';
 import ContactModal from './AddContact'; // Adjust the path according to your folder structure
+import NotesPopup from './NotesPopup'; // Adjust the path according to your folder structure
 
 type Contact = {
   name: string;
@@ -21,6 +22,7 @@ const MainTable: React.FC = () => {
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
   const [filterValues, setFilterValues] = useState({
@@ -33,6 +35,10 @@ const MainTable: React.FC = () => {
 
   const addContact = (contact: Contact) => {
     setContacts([...contacts, contact]);
+  };
+
+  const handleNotesClick = (contact: Contact) => {
+    setSelectedContact(contact);
   };
 
   const handleIconClick = (icon: string) => {
@@ -54,6 +60,10 @@ const MainTable: React.FC = () => {
     setFilterValues({ ...filterValues, [name]: value });
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   const filteredContacts = contacts.filter(contact => {
     return (
       contact.name.toLowerCase().includes(filterValues.name.toLowerCase()) &&
@@ -62,10 +72,6 @@ const MainTable: React.FC = () => {
       contact.date.toLowerCase().includes(filterValues.date.toLowerCase())
     );
   });
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
-  };
 
   const searchFilteredContacts = filteredContacts.filter(contact =>
     contact.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -181,23 +187,24 @@ const MainTable: React.FC = () => {
             </div>
             <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
             <div className="col-span-3 flex space-x-2">
-              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaEnvelope /></span>
+              <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
+                <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
               </button>
               <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin /></span>
+                <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
               </button>
               <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaFacebook /></span>
+                <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
               </button>
               <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaTwitter /></span>
+                <span className="text-buttonBlue hover:text-blue-700"><FaTwitter/></span>
               </button>
             </div>
             <div className="col-span-1 text-lg opacity-60">{contact.date}</div>
           </div>
         ))}
       </div>
+      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} />}
     </div>
   );
 };
