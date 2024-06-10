@@ -38,6 +38,7 @@ jobs:
           cache-dependency-path: leadconnect-frontend/package-lock.json
       - name: Install dependencies
         run: npm ci
+        working-directory: leadconnect-frontend # Changed directory to leadconnect-frontend
       - name: Build
         run: npm run build
         working-directory: leadconnect-frontend # Changed directory to leadconnect-frontend
