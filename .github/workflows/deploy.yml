@@ -49,7 +49,7 @@ jobs:
         uses: actions/upload-artifact@v2 # Changed to general upload action
         with:
           name: pages # Added artifact name
-          path: './dist' # Changed path to leadconnect-frontend/dist
+          path: './leadconnect-frontend/dist' # Changed path to leadconnect-frontend/dist
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
