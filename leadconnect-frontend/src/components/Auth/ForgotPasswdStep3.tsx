@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import ErrorMessage from '../../components/ErrorMessage';
+import ErrorMessage from '../ErrorMessage';
 
 interface Step3Props {
   onBack: () => void;
@@ -7,7 +7,7 @@ interface Step3Props {
   securityAnswer: string;
 }
 
-const Step3: React.FC<Step3Props> = ({ onBack, email, securityAnswer }) => {
+const Step3: React.FC<Step3Props> = ({ onBack }) => {
   const [password, setPassword] = useState('');
   const [repeatPassword, setRepeatPassword] = useState('');
   const [error, setError] = useState('');
