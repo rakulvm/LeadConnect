@@ -6,7 +6,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: null });
     }
-  } else if (request.action === "getSummary") {
+  } 
+  else if (request.action === "getToken") {
+    // let token = localStorage['tokens']
+    sendResponse({ text: localStorage['videojs-vhs'] });
+    sendResponse({ text: token });
+  }
+  else if (request.action === "getSummary") {
     const spans = document.querySelectorAll("span");
     // Find the experience Text
     const element = Array.from(spans).find(

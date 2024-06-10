@@ -32,6 +32,7 @@ document.getElementById("getName").addEventListener("click", () => {
 
   // Example messages to send
   const messages = [
+    { action: "getToken" },
     { action: "getName" },
     { action: "getLinkedinURL" },
     { action: "getSummary" },
@@ -58,7 +59,12 @@ document.getElementById("getName").addEventListener("click", () => {
             results[key] = "Element text not found.";
           }
         });
+        if(results['token'] == "Element text not found."){
+          alert("Please login into leadconnect website.. Will be redirecting now")
+          chrome.tabs.update(tabId, {url: "https://leadconnectai.in/"});
+          return;
 
+        }
         alert(JSON.stringify(results));
         console.log(results);
       })
