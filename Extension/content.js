@@ -8,8 +8,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   } 
   else if (request.action === "getToken") {
-    // let token = localStorage['tokens']
-    sendResponse({ text: localStorage['videojs-vhs'] });
+    let token = localStorage['leadConnectToken']
     sendResponse({ text: token });
   }
   else if (request.action === "getSummary") {
