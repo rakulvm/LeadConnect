@@ -5,7 +5,8 @@ import TopNav from '../components/TopNav'
 import MainTable from '../components/MainTable'
 import Login from './Login'
 import AddContactForm from '../components/AddContact'
-import Signup from './SignUp';
+import Signup from './SignUp'
+import ForgotPasswordPage from './ForgotPasswordPage';
 
 const App: React.FC = () => {
     return (
@@ -20,6 +21,7 @@ const App: React.FC = () => {
       </div>} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/forgot-password" Component={ForgotPasswordPage} />
     </Routes>
     );
   };

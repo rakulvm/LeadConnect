@@ -49,7 +49,7 @@ const Signup: React.FC = () => {
         <img src={logo} alt="LeadConnect Logo" className="h-8 w-8 mr-2" />
         <span className="text-xl font-bold"><Link to="/">LeadConnect</Link></span>
       </div>
-      <div className="bg-white p-8 rounded shadow-lg w-full max-w-lg">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
         <h1 className="text-2xl pt-7 font-bold mb-4 text-center">Create your LeadConnect Account</h1>
         <StepIndicator currentStep={currentStep} totalSteps={4} />
         <SignupForm

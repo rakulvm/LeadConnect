@@ -88,14 +88,14 @@ const Step4: React.FC<Step4Props> = ({ prevStep, handleInputChange, formData, ha
             <button
               type="button"
               onClick={prevStep}
-              className="p-2 bg-gray-600 text-white rounded hover:bg-gray-700"
+              className="p-2 bg-gray-600 text-white rounded-lg shadow-lg hover:bg-gray-700"
             >
               Previous
             </button>
             <button
               type="button"
               onClick={handleNextStep}
-              className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              className="p-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700"
             >
               Submit
             </button>
