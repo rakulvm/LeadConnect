@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FaSun, FaUserFriends, FaPhone, FaClock, FaBolt, FaTools, FaMapMarkerAlt, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
 
 const LeftSideNav = () => {

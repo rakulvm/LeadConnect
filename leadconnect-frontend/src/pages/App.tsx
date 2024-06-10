@@ -1,16 +1,14 @@
-import { useState } from 'react'
 import { Routes, Route } from 'react-router-dom';
 import LeftSideNav from '../components/LeftSideNav'
 import TopNav from '../components/TopNav'
 import MainTable from '../components/MainTable'
 import Login from './Login'
-import AddContactForm from '../components/AddContact'
 import Signup from './SignUp';
 
 const App: React.FC = () => {
     return (
     <Routes>
-      <Route path="/" element={
+      <Route path="/LeadConnect" element={
       <div className='flex bg-backgroundColor' >
         <LeftSideNav></LeftSideNav>
         <div className='bg-red w-5/6'>
