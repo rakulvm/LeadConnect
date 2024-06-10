@@ -27,7 +27,7 @@ class Users(db.Model):
     security_question = db.Column(db.String(255), nullable=False)
     security_question_answer = db.Column(db.String(255), nullable=False)
     user_added_date = db.Column(db.TIMESTAMP, server_default=db.func.now())
-    jwt_auth_active = db.Column(db.Boolean())
+    status = db.Column(db.Boolean())
     user_details_updated_date = db.Column(db.TIMESTAMP, server_default=db.func.now(), onupdate=db.func.current_timestamp())
     pin = db.Column(db.String(4), nullable=True)
     is_authenticated = db.Column(db.Integer, nullable=True)
@@ -61,11 +61,11 @@ class Users(db.Model):
     def update_last_name(self, new_last_name):
         self.last_name = new_last_name
 
-    def check_jwt_auth_active(self):
-        return self.jwt_auth_active
+    def check_status(self):
+        return self.status
 
-    def set_jwt_auth_active(self, set_status):
-        self.jwt_auth_active = set_status
+    def set_status(self, set_status):
+        self.status = set_status
 
     @classmethod
     def get_by_id(cls, id):
@@ -148,11 +148,11 @@ class Users(db.Model):
     def update_last_name(self, new_last_name):
         self.last_name = new_last_name
 
-    def check_jwt_auth_active(self):
-        return self.jwt_auth_active
+    def check_status(self):
+        return self.status
 
-    def set_jwt_auth_active(self, set_status):
-        self.jwt_auth_active = set_status
+    def set_status(self, set_status):
+        self.status = set_status
 
     @classmethod
     def get_by_id(cls, id):
