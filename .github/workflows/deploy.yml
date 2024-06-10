@@ -46,10 +46,10 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
-        uses: actions/upload-artifact@v2 # Changed to general upload action
+        uses: actions/upload-pages-artifact@v3
         with:
-          name: pages # Added artifact name
-          path: './leadconnect-frontend/dist' # Changed path to leadconnect-frontend/dist
+          # Upload dist folder
+          path: './leadconnect-frontend/dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
