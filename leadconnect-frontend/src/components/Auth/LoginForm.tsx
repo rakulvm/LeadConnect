@@ -23,7 +23,7 @@ const LoginForm: React.FC = () => {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col">
-      <button type="button" className="flex items-center justify-center mb-4 p-2 border rounded bg-gray-800 text-white">
+      <button type="button" className="flex items-center justify-center mb-4 p-2 border rounded bg-gray-800 text-white rounded-lg shadow-lg">
         <FaGithub className="mr-2" /> Login with GitHub
       </button>
       <input

@@ -13,13 +13,15 @@ const Login: React.FC = () => {
       <div className="bg-white p-8 rounded shadow-md w-full max-w-lg">
         <h1 className="text-2xl font-bold mb-4 text-center">Login to your LeadConnect Account</h1>
         <p className="text-center mb-4">
-          Don't have a LeadConnect Account? <Link to="/signup" className="text-buttonBlue-300 underline">Sign Up</Link>
+          Don't have a LeadConnect Account? <Link to="/signup" className="text-buttonBlue underline">Sign Up</Link>
         </p>
         <LoginForm />
+        <p className="text-center mt-4">
+          Forgot your password? <Link to="/forgot-password" className="text-buttonBlue underline">Click here</Link>
+        </p>
       </div>
     </div>
   );
 };
 
 export default Login;
-
