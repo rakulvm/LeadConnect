@@ -18,7 +18,7 @@ from flask_restx import Api, Resource, fields
 import pandas as pd
 import jwt
 
-from .models import db, Users, JWTTokenBlocklist
+from .models import db, Users, JWTTokenBlocklist, Contact, Experience,Connection
 from .config import BaseConfig
 import requests
 import uuid
@@ -72,6 +72,25 @@ user_edit_model = rest_api.model('UserEditModel', {"user_id": fields.String(requ
                                                    "email_address": fields.String(required=True, min_length=4, max_length=64)
                                                    })
 
+contact_model = rest_api.model('Contact', {
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'name': fields.String(required=True, description='Name'),
+    'current_location': fields.String(required=True, description='Current Location'),
+    'headline': fields.String(required=True, description='Headline'),
+    'about': fields.String(required=True, description='About'),
+    'profile_pic_url': fields.String(required=True, description='Profile Picture URL')
+})
+
+experience_model = rest_api.model('Experience', {
+    'id': fields.Integer(readOnly=True, description='The unique identifier of the experience'),
+    'contact_url': fields.String(required=True, description='Contact URL'),
+    'company_name': fields.String(required=True, description='Company Name'),
+    'company_role': fields.String(required=True, description='Company Role'),
+    'company_location': fields.String(required=True, description='Company Location'),
+    'bulletpoints': fields.String(required=True, description='Bullet Points'),
+    'company_duration': fields.String(required=True, description='Company Duration'),
+    'company_total_duration': fields.String(required=True, description='Company Total Duration')
+})
 
 """
    Helper function for JWT token required
@@ -89,8 +108,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, BaseConfig.SECRET_KEY, algorithms=["HS256"])
-            current_user = Users.get_by_email_address(data["email"])
-            print(current_user)
+            current_user = Users.get_by_email(data["email"])
             if not current_user:
                 return {"success": False, "msg": "User does not exist"}, 400
 
@@ -100,8 +118,8 @@ def token_required(f):
 
             if token_expired is not None:
                 return {"success": False, "msg": "Token revoked."}, 400
-
-            if not current_user.check_jwt_auth_active():
+            exp_time = datetime.fromtimestamp(data['exp'], tz=timezone.utc)
+            if datetime.now(tz=timezone.utc) > exp_time:
                 return {"success": False, "msg": "Token expired."}, 400
 
         except jwt.ExpiredSignatureError:
@@ -579,3 +597,72 @@ class GitHubLogin(Resource):
                     "username": user_json['username'],
                     "token": token,
                 }}, 200
+
+
+# route to add using a user id to all tables experiences.
+@rest_api.route('/api/createcontact')
+class ExtensionResource(Resource):
+    @token_required
+    def post(self,current_user):
+        current_user_id = current_user.user_id
+        data = request.get_json()
+        # Handle contact if existing
+        existing_contact = Contact.get_by_contact_url(data['url'])
+        if(existing_contact):
+            # Contact Exist
+            existing_contact.update_name(data['name'])
+            existing_contact.update_headline(data['headline'])
+            existing_contact.update_current_location(data['location'])
+            existing_contact.update_profile_pic_url(data['profilePicture'])
+            existing_contact.update_about(data['about'])
+
+            new_contact=existing_contact
+        else:
+            # Contact doesnt exist in the databse
+            """Create a new contact"""
+            new_contact = Contact(
+                contact_url= data['url'],
+                name=data['name'],
+                headline=data['headline'],
+                current_location=data['location'],
+                profile_pic_url=data['profilePicture'],
+                about=data['about'],
+            )
+            new_contact.save()
+
+        # Connection doesnt exist in the database
+        # update connection table 
+
+        new_connection = Connection.get_by_connection(current_user_id, data['url'])
+        if(not new_connection):
+            new_connection=Connection(
+                user_id = current_user_id,
+                contact_url = data['url']
+            )
+            new_connection.save()
+
+
+
+        # Clear exisitng experiences if any
+        current_experiences = Experience.get_by_contact_url(data['url'])
+        for current_experience in current_experiences:
+            current_experience.delete()
+
+        # Process the experience list
+        experiences = data.get('experience', [])
+        # Create experience table
+        experience_object = []
+        for company in experiences:
+            for position in company['companyPositions']:
+                experience =Experience (
+                    contact_url= new_connection.contact_url,
+                    company_name = company.get("CompanyName") or company.get("companyName"),
+                    company_role = position.get("CompanyRole") or position.get("companyRole"),
+                    company_location = position["companyLocation"],
+                    bulletpoints = position["bulletPoints"],
+                    company_duration = position["companyDuration"],
+                    company_total_duration = position["companyTotalDuration"]  
+                )
+                experience.save() 
+                experience_object.append(experience.toDICT())
+        return [new_connection.toDICT(),new_contact.toDICT(),experience_object], 201

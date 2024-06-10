@@ -123,6 +123,9 @@ class Users(db.Model):
     created_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
 
+    # One-to-many relationship with Connection
+    connections = db.relationship('Connection', backref='user', lazy=True, cascade='all, delete')
+
     def __repr__(self):
         return f"User {self.username}"
 
@@ -206,3 +209,180 @@ class JWTTokenBlocklist(Base):
 #     jwt_token VARCHAR(200) NOT NULL,
 #     created_at db.TIMESTAMP NOT NULL
 # );
+
+# Class Model
+class Contact(db.Model):
+    __tablename__ = 'contacts'
+    contact_url = db.Column(db.String(255), primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    current_location = db.Column(db.String(255), nullable=False)
+    headline = db.Column(db.String(255), nullable=False)
+    about = db.Column(db.Text, nullable=False)
+    profile_pic_url = db.Column(db.String(255), nullable=False)
+
+    # One-to-many relationship with Experience
+    # experiences = db.relationship('Experience', backref='contact', lazy=True, cascade='all, delete')
+
+    # Many-to-many relationship with User through Connection
+    # users = db.relationship('User', secondary='connections', backref=db.backref('contacts', lazy='dynamic'))
+
+    def __repr__(self):
+        return f"Contact {self.contact_url}"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def update_name(self, new_name):
+        self.name = new_name
+        self.save()
+
+    def update_current_location(self, new_location):
+        self.current_location = new_location
+        self.save()
+
+    def update_headline(self, new_headline):
+        self.headline = new_headline
+        self.save()
+
+    def update_about(self, new_about):
+        self.about = new_about
+        self.save()
+
+    def update_profile_pic_url(self, new_profile_pic_url):
+        self.profile_pic_url = new_profile_pic_url
+        self.save()
+
+    @classmethod
+    def get_by_contact_url(cls, contact_url):
+        return db.session.query(cls).get(contact_url)
+
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def toDICT(self):
+        cls_dict = {}
+        cls_dict['contact_url'] = self.contact_url
+        cls_dict['name'] = self.name
+        cls_dict['current_location'] = self.current_location
+        cls_dict['headline'] = self.headline
+        cls_dict['about'] = self.about
+        cls_dict['profile_pic_url'] = self.profile_pic_url
+        return cls_dict
+
+    def toJSON(self):
+        return self.toDICT()
+    
+# Experience Model
+
+class Experience(db.Model):
+    __tablename__ = 'experiences'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
+    company_name = db.Column(db.String(255), nullable=False)
+    company_role = db.Column(db.String(255), nullable=False)
+    company_location = db.Column(db.String(255), nullable=False)
+    bulletpoints = db.Column(db.Text, nullable=False)
+    company_duration = db.Column(db.String(255), nullable=False)
+    company_total_duration = db.Column(db.String(255), nullable=False)
+    
+    # contact = db.relationship('Contact', backref=db.backref('contacts', lazy=True))
+
+    def __repr__(self):
+        return f"Experience {self.company_name} #at {self.contact_url}"
+
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_id(cls, id):
+        return db.session.query(cls).get_or_404(id)
+
+    @classmethod
+    def get_all(cls):
+        return cls.query.all()
+
+    def update_company_name(self, new_company_name):
+        self.company_name = new_company_name
+        self.save()
+
+    def update_company_role(self, new_company_role):
+        self.company_role = new_company_role
+        self.save()
+
+    def update_company_location(self, new_company_location):
+        self.company_location = new_company_location
+        self.save()
+
+    def update_bulletpoints(self, new_bulletpoints):
+        self.bulletpoints = new_bulletpoints
+        self.save()
+
+    def update_company_duration(self, new_company_duration):
+        self.company_duration = new_company_duration
+        self.save()
+
+    def update_company_total_duration(self, new_company_total_duration):
+        self.company_total_duration = new_company_total_duration
+        self.save()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    @classmethod
+    def get_by_contact_url(cls, url):
+        return db.session.query(cls).filter_by(contact_url=url)
+    
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def toDICT(self):
+        cls_dict = {}
+        cls_dict['id'] = self.id
+        cls_dict['contact_url'] = self.contact_url
+        cls_dict['company_name'] = self.company_name
+        cls_dict['company_role'] = self.company_role
+        cls_dict['company_location'] = self.company_location
+        cls_dict['bulletpoints'] = self.bulletpoints
+        cls_dict['company_duration'] = self.company_duration
+        cls_dict['company_total_duration'] = self.company_total_duration
+        return cls_dict
+
+    def toJSON(self):
+        return self.toDICT()
+    
+class Connection(db.Model):
+    __tablename__ = 'connections'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
+    contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
+
+    def __repr__(self):
+        return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
+    
+
+    @classmethod
+    def get_by_connection(cls, user_id, url):
+        return db.session.query(cls).filter_by(contact_url=url, user_id=user_id).first()
+    
+    def save(self):
+        db.session.add(self)
+        db.session.commit()
+    
+    def toDICT(self):
+        cls_dict = {}
+        cls_dict['id'] = self.id
+        cls_dict['user_id'] = self.user_id
+        cls_dict['contact_url'] = self.contact_url
+        return cls_dict
+
+    def toJSON(self):
+        return self.toDICT()
