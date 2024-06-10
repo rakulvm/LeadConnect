@@ -332,7 +332,7 @@ class Verify(Resource):
                 # create access token using JWT
                 token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
 
-                user_exists.set_jwt_auth_active(True)
+                user_exists.set_status(True)
                 user_exists.save()
 
                 return {"success": True, "token": token, "user": user_exists.toJSON()}, 200
@@ -368,7 +368,7 @@ class Login(Resource):
          # create access token uwing JWT
         token = jwt.encode({'email': email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
 
-        user_exists.set_jwt_auth_active(True)
+        user_exists.set_status(True)
         user_exists.save()
 
         return {"success": True,
@@ -511,24 +511,25 @@ class EditUser(Resource):
 
     @rest_api.expect(user_edit_model)
     @token_required
-    def post(self, current_user):
+    def post(self,current_user):
 
         req_data = request.get_json()
 
         _new_first_name = req_data.get("first_name")
         _new_last_name = req_data.get("last_name")
-        _new_email_address = req_data.get("email_address")
+        _new_email_address = req_data.get("email")
 
+        cur_user = Users.get_by_email(_new_email_address)
         if _new_first_name:
-            self.update_first_name(_new_first_name)
+            cur_user.update_first_name(new_first_name=_new_first_name)
 
         if _new_last_name:
-            self.update_last_name(_new_last_name)
+            cur_user.update_last_name(new_last_name=_new_last_name)
 
         if _new_email_address:
-            self.update_email_address(_new_email_address)
+            cur_user.update_email(new_email=_new_email_address)
 
-        self.save()
+        db.session.commit()
 
         return {"success": True}, 200
 
@@ -547,7 +548,7 @@ class LogoutUser(Resource):
         jwt_block = JWTTokenBlocklist(jwt_token=_jwt_token, created_at=datetime.now(timezone.utc))
         jwt_block.save()
 
-        current_user.set_jwt_auth_active(False)
+        current_user.set_status(False)
         db.session.commit() 
 
         return {"success": True}, 200
@@ -587,7 +588,7 @@ class GitHubLogin(Resource):
         user_json = user.toJSON()
 
         token = jwt.encode({"username": user_json['username'], 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
-        user.set_jwt_auth_active(True)
+        user.set_status(True)
         user.save()
 
         return {"success": True,
