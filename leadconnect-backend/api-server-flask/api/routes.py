@@ -602,13 +602,11 @@ class GitHubLogin(Resource):
 # route to add using a user id to all tables experiences.
 @rest_api.route('/api/createcontact')
 class ExtensionResource(Resource):
-    # @rest_api.expect(contact_model, validate=True) -- if you keep this it expects that json object is exact model shape
-    # @rest_api.marshal_with(contact_model, code=201)  # needed this for serializability
     @token_required
     def post(self,current_user):
         current_user_id = current_user.user_id
         data = request.get_json()
-        # Hanlde contact if existin
+        # Handle contact if existing
         existing_contact = Contact.get_by_contact_url(data['url'])
         if(existing_contact):
             # Contact Exist
@@ -655,25 +653,16 @@ class ExtensionResource(Resource):
         # Create experience table
         experience_object = []
         for company in experiences:
-            # print(company)
-            # break
             for position in company['companyPositions']:
-                # print("JIVIN")
-                # print(position)
-                # break
                 experience =Experience (
                     contact_url= new_connection.contact_url,
                     company_name = company.get("CompanyName") or company.get("companyName"),
                     company_role = position.get("CompanyRole") or position.get("companyRole"),
-                    # company_role = position["CompanyRole"],
                     company_location = position["companyLocation"],
                     bulletpoints = position["bulletPoints"],
                     company_duration = position["companyDuration"],
-                    company_total_duration = position["companyTotalDuration"]
-                    
+                    company_total_duration = position["companyTotalDuration"]  
                 )
-                experience.save()
-                
+                experience.save() 
                 experience_object.append(experience.toDICT())
-                # print(experience_object)
         return [new_connection.toDICT(),new_contact.toDICT(),experience_object], 201
