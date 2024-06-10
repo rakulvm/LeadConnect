@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./leadconnect-frontend/
+        working-directory: 'leadconnect-frontend'
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,6 +38,7 @@ jobs:
         with:
           node-version: 14 # Adjusted node version to 14
           cache: 'npm'
+          cache-dependency-path: '**/package-lock.json' # THIS PATTERN did the trick for me.
       - name: Install dependencies
         run: npm ci
       - name: Build
