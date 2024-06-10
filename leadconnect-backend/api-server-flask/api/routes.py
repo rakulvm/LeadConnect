@@ -108,8 +108,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, BaseConfig.SECRET_KEY, algorithms=["HS256"])
-            current_user = Users.get_by_email_address(data["email"])
-            print(current_user)
+            current_user = Users.get_by_email(data["email"])
             if not current_user:
                 return {"success": False, "msg": "User does not exist"}, 400
 
@@ -119,8 +118,8 @@ def token_required(f):
 
             if token_expired is not None:
                 return {"success": False, "msg": "Token revoked."}, 400
-
-            if not current_user.check_jwt_auth_active():
+            exp_time = datetime.fromtimestamp(data['exp'], tz=timezone.utc)
+            if datetime.now(tz=timezone.utc) > exp_time:
                 return {"success": False, "msg": "Token expired."}, 400
 
         except jwt.ExpiredSignatureError:
