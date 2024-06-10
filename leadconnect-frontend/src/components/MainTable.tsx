@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { FaSort, FaFilter, FaEnvelope, FaLinkedin, FaFacebook, FaTwitter, FaSearch } from 'react-icons/fa';
+import { FaSort, FaFilter, FaStickyNote, FaLinkedin, FaFacebook, FaTwitter, FaSearch } from 'react-icons/fa';
 import ContactModal from './AddContact'; // Adjust the path according to your folder structure
+import NotesPopup from './NotesPopup'; // Adjust the path according to your folder structure
 
 type Contact = {
   name: string;
@@ -21,13 +22,14 @@ const MainTable: React.FC = () => {
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
 
   const addContact = (contact: Contact) => {
     setContacts([...contacts, contact]);
   };
 
-  const handleIconClick = (icon: string) => {
-    alert(`You clicked on the ${icon} icon!`);
+  const handleNotesClick = (contact: Contact) => {
+    setSelectedContact(contact);
   };
 
   return (
@@ -86,19 +88,16 @@ const MainTable: React.FC = () => {
               </div>
               <span className="text-lg opacity-80 w-[25%]">{contact.frequency}</span>
             <div className="flex items-center justify-evenly pr-2 w-[20%]">
-              <button onClick={() => handleIconClick('email')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaEnvelope/></span>
+              <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
               </button>
-              <button onClick={() => handleIconClick('LinkedIn')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => alert(`You clicked on the LinkedIn icon for ${contact.name}!`)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
               </button>
-              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => alert(`You clicked on the Facebook icon for ${contact.name}!`)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
               </button>
-              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaTwitter/></span>
-              </button>
-              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+              <button onClick={() => alert(`You clicked on the Twitter icon for ${contact.name}!`)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                 <span className="text-buttonBlue hover:text-blue-700"><FaTwitter/></span>
               </button>
             </div>
@@ -106,6 +105,7 @@ const MainTable: React.FC = () => {
           </div>
         ))}
       </div>
+      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} />}
     </div>
   );
 };
