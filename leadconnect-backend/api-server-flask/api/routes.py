@@ -8,30 +8,32 @@ flask run
 """
 import os
 from datetime import datetime, timezone, timedelta
-
+from flask import jsonify
+import openai
 from functools import wraps
 
-from flask import request, url_for,send_from_directory,send_file
+from flask import request, url_for, send_from_directory, send_file
 from werkzeug.utils import secure_filename
 from flask_restx import Api, Resource, fields
 
 import pandas as pd
 import jwt
 
-from .models import db, Users, JWTTokenBlocklist, Contact, Experience,Connection
+from .models import db, Users, JWTTokenBlocklist, Contact, Experience, Connection
 from .config import BaseConfig
 import requests
 import uuid
 import random
 # import json
-from .smtp import send_email_to_admin,send_confirmation_link_to_user
+from .smtp import send_email_to_admin, send_confirmation_link_to_user
 import traceback
 # from .mock import youth_data, split_youth_name
 from io import BytesIO
 
-
 rest_api = Api(version="1.0", title="Users API")
 
+# Replace with your OpenAI API key
+openai.api_key = '<api key here>'
 """
     Flask-Restx models for api request and response data
 """
@@ -56,20 +58,35 @@ signup_model = rest_api.model('SignupModel', {
     'last_name': fields.String(required=True, description='User last name'),
     'phone_number': fields.String(description='User contact number'),
     'company': fields.String(description='User company name'),
-    'number_of_employees': fields.String(description='Number of employees in the company', enum=['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5001-10000', '10001+']),
-    'province': fields.String(required=True, description='User province in Canada', enum=['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan']),
+    'number_of_employees': fields.String(description='Number of employees in the company',
+                                         enum=['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000',
+                                               '5001-10000', '10001+']),
+    'province': fields.String(required=True, description='User province in Canada',
+                              enum=['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick',
+                                    'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island',
+                                    'Quebec', 'Saskatchewan']),
     'profile_picture_url': fields.String(description='URL to the user’s profile picture'),
-    'security_question': fields.String(required=True, description='Security question for password recovery', enum=['What is your mother’s maiden name?', 'What was the name of your first pet?', 'What was the make of your first car?', 'What is your favorite color?', 'What city were you born in?']),
+    'security_question': fields.String(required=True, description='Security question for password recovery',
+                                       enum=['What is your mother’s maiden name?',
+                                             'What was the name of your first pet?',
+                                             'What was the make of your first car?', 'What is your favorite color?',
+                                             'What city were you born in?']),
     'security_answer': fields.String(required=True, description='Answer to the security question')
 })
 login_model = rest_api.model('LoginModel', {"email": fields.String(required=True),
-                                              "password": fields.String(required=True)
+                                            "password": fields.String(required=True)
                                             })
+llm_model = rest_api.model('LLMModel', {"summary": fields.String(required=True),
+                                        "event_details": fields.String(required=True)
+                                        })
 
 user_edit_model = rest_api.model('UserEditModel', {"user_id": fields.String(required=True, min_length=1, max_length=50),
-                                                   "first_name": fields.String(required=True, min_length=2, max_length=32),
-                                                    "last_name": fields.String(required=True, min_length=2, max_length=32),
-                                                   "email_address": fields.String(required=True, min_length=4, max_length=64)
+                                                   "first_name": fields.String(required=True, min_length=2,
+                                                                               max_length=32),
+                                                   "last_name": fields.String(required=True, min_length=2,
+                                                                              max_length=32),
+                                                   "email_address": fields.String(required=True, min_length=4,
+                                                                                  max_length=64)
                                                    })
 
 contact_model = rest_api.model('Contact', {
@@ -95,6 +112,8 @@ experience_model = rest_api.model('Experience', {
 """
    Helper function for JWT token required
 """
+
+
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -141,7 +160,8 @@ class TokenCheck(Resource):
     def get(self, current_user):
         # If this point is reached, the token is valid
         return {"success": True, "msg": "Token is valid", "user_id": current_user.id}, 200
-    
+
+
 @rest_api.route('/api/users/register')
 class Register(Resource):
     @rest_api.expect(signup_model, validate=True)
@@ -158,7 +178,7 @@ class Register(Resource):
         province = req_data.get("province")
         profile_picture_url = req_data.get("profile_picture_url")
         security_question = req_data.get("security_question")
-        security_answer = req_data.get("security_answer")        
+        security_answer = req_data.get("security_answer")
         user_exists = Users.get_by_email(email)
         if user_exists:
             return {"success": False, "msg": "User already exists"}, 400
@@ -186,7 +206,7 @@ class Register(Resource):
 
         return {"status": "success", "userID": new_user.user_id, "msg": "The user was successfully registered"}, 201
 
-    
+
 """
     Flask-Restx routes
 """
@@ -198,7 +218,7 @@ class Register(Resource):
 
     def extract_date_components(date_str):
         return day, month, year
-        
+
     @rest_api.expect(signup_model, validate=True)
     def post(self):
 
@@ -229,10 +249,10 @@ class Register(Resource):
         _is_authenticated = str(0);
         _is_user_loggedin = str(0);
         _pin = ''.join([str(random.randint(0, 9)) for _ in range(4)])
-        
+
         new_user = Users(email_address=_email_address, first_name=_first_name, last_name=_last_name, license_number=_license_number, date_of_birth=_date_of_birth, last_four_ssn=_last_four_ssn, security_question=_security_question, security_question_answer=_security_question_answer, user_id=_user_id, is_authenticated=_is_authenticated, is_user_loggedin=_is_user_loggedin, pin=_pin,user_type=_user_type)
         new_user.set_password(_password)
-        
+
         db.session.add(new_user)
         db.session.commit()
         new_user.save()
@@ -245,6 +265,7 @@ class Register(Resource):
 
 """
 
+
 @rest_api.route('/api/user/forgot-password')
 class ForgotPassword(Resource):
 
@@ -252,13 +273,14 @@ class ForgotPassword(Resource):
         req_data = request.get_json()
         _email_address = req_data.get("email")
         user_exists = Users.get_by_email(_email_address)
-        
+
         if user_exists:
             # Assuming your Users model has a security_question field
             return {"status": "success", "security_question": user_exists.security_question}
         else:
             return {"status": "failed", "msg": "User does not exist."}, 404
-        
+
+
 @rest_api.route('/api/user/reset-password')
 class ResetPassword(Resource):
 
@@ -270,9 +292,9 @@ class ResetPassword(Resource):
             _security_question = req_data.get("security_question")
             _security_question_answer = req_data.get("security_answer")
             _password = req_data.get("password")
-            
+
             user_exists = Users.get_by_email_address(_email_address)
-            
+
             if user_exists:
                 # Validate security question and answer
                 if user_exists.security_question == _security_question and user_exists.security_question_answer == _security_question_answer:
@@ -286,8 +308,10 @@ class ResetPassword(Resource):
                     _verification_link = BaseConfig.VERIFICATION_LINK.format(user_id=user_exists.user_id)
 
                     send_email_to_admin(_email_address, user_exists.first_name, user_exists.last_name, _pin)
-                    send_confirmation_link_to_user(_email_address, user_exists.first_name, user_exists.last_name, _verification_link)
-                    return {"status": "success", "msg": "Password reset success. Please get the PIN from the admin to verify the authentication."}, 200
+                    send_confirmation_link_to_user(_email_address, user_exists.first_name, user_exists.last_name,
+                                                   _verification_link)
+                    return {"status": "success",
+                            "msg": "Password reset success. Please get the PIN from the admin to verify the authentication."}, 200
                 else:
                     return {"status": "failed", "msg": "Invalid security question or answer."}, 401
             else:
@@ -297,7 +321,7 @@ class ResetPassword(Resource):
             print(traceback.format_exc())
             return {"status": "failed", "msg": "Error occured contact the admin."}, 500
 
-        
+
 @rest_api.route('/api/users/verify')
 class Verify(Resource):
     """
@@ -320,17 +344,19 @@ class Verify(Resource):
         if not user_exists.check_password(_password):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
-        
+
         if user_exists.is_authenticated == 0:
             if str(user_exists.pin) != str(_pin):
-                return {"success": False, "msg": "You have entered an invalid PIN. Please check with the admin for a valid PIN."}, 401
+                return {"success": False,
+                        "msg": "You have entered an invalid PIN. Please check with the admin for a valid PIN."}, 401
             else:
                 # Update the is_authenticated to 1 in the db
                 user_exists.is_authenticated = 1
                 db.session.commit()  # Make sure to commit the changes to the database
 
                 # create access token using JWT
-                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
+                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                                   BaseConfig.SECRET_KEY)
 
                 user_exists.set_status(True)
                 user_exists.save()
@@ -339,12 +365,16 @@ class Verify(Resource):
         else:
             return {"success": False, "msg": "You are already authenticated."}, 401
 
+
 """"""
+
+
 @rest_api.route('/api/users/login')
 class Login(Resource):
     """
        Login user by taking 'login_model' input and return JWT token
     """
+
     @rest_api.expect(login_model, validate=True)
     def post(self):
         req_data = request.get_json()
@@ -357,16 +387,16 @@ class Login(Resource):
                     "msg": "This email does not exist."}, 400
 
         # Add this check for is_authenticated
-    #    if user_exists.is_authenticated == 0:
-    #        return {"success": False, "msg": "You are not authenticated. Please verify your email by using the verification link sent to your email."}, 401
+        #    if user_exists.is_authenticated == 0:
+        #        return {"success": False, "msg": "You are not authenticated. Please verify your email by using the verification link sent to your email."}, 401
 
         if not user_exists.check_password(password):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
-        
-        
-         # create access token uwing JWT
-        token = jwt.encode({'email': email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
+
+        # create access token uwing JWT
+        token = jwt.encode({'email': email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                           BaseConfig.SECRET_KEY)
 
         user_exists.set_status(True)
         user_exists.save()
@@ -374,7 +404,46 @@ class Login(Resource):
         return {"success": True,
                 "token": token,
                 "user": user_exists.toJSON()}, 200
- 
+
+
+""""""
+
+
+@rest_api.route('/api/llm')
+class LLM(Resource):
+    """
+       LLM for generating customized message to the lead
+    """
+
+    @rest_api.expect(llm_model, validate=True)
+    def post(self):
+        data = request.get_json()
+
+        summary = data.get('summary')
+        event_details = data.get('event_details')
+
+        if not summary or not event_details:
+            return jsonify({'error': 'Invalid input data'}), 400
+
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": f"Summary of the person: {summary}"},
+            {"role": "user", "content": f"Event details: {event_details}"},
+            {"role": "user", "content": "Generate a customized message for this person:"}
+        ]
+
+        try:
+            response = openai.ChatCompletion.create(
+                model="gpt-3",
+                messages=messages,
+                max_tokens=150
+            )
+            customized_message = response['choices'][0]['message']['content'].strip()
+
+            return jsonify({'customized_message': customized_message}), 200
+
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
 
 
 @rest_api.route('/api/users')
@@ -382,20 +451,24 @@ class UserList(Resource):
     """
        List all user names
     """
+
     def get(self):
         users = Users.query.all()
         user_names = [user.name for user in users]
         return {"success": True, "user_names": user_names}, 200
-    
+
+
 # Function to convert date to "mm/dd/yyyy" format
 def format_date(dt):
     if pd.isnull(dt):
         return None  # Return None if the date is NaT
     return dt.strftime("%m/%d/%Y")  # Format datetime to "mm/dd/yyyy"
 
+
 # Convert date strings to the 'YYYY-MM-DD' format
 def convert_date(date_str):
     return datetime.strptime(date_str, '%m/%d/%Y').strftime('%Y-%m-%d')
+
 
 """
 def store_to_mysql(json_data):
@@ -448,11 +521,13 @@ def store_to_mysql(json_data):
         }
 """
 
+
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):
     """
     Upload pdf
     """
+
     # @token_required
     def post(self, **kwargs):
         try:
@@ -476,15 +551,17 @@ class upload_file(Resource):
             print(traceback.format_exc())
             return {"message": "Some error occured: {}".format(str(e))}, 500
 
+
 @rest_api.route('/api/sef/pdf/<filename>', methods=['GET'])
 class upload_file(Resource):
     """
     Download a pdf
     """
+
     # @token_required
     def get(self, filename):
         try:
-            filename = filename+".pdf"
+            filename = filename + ".pdf"
             # Ensure the file exists
             basedir = os.path.abspath(os.path.dirname(__file__))
             upload_path = os.path.join(basedir, rest_api.app.config['UPLOAD_FOLDER'])
@@ -501,7 +578,8 @@ class upload_file(Resource):
             print(traceback.format_exc())
             print(f"An error occurred: {str(e)}")
             return {"success": False, "message": "An error occurred"}, 500
-        
+
+
 # end of the create SEF
 @rest_api.route('/api/users/edit')
 class EditUser(Resource):
@@ -511,7 +589,7 @@ class EditUser(Resource):
 
     @rest_api.expect(user_edit_model)
     @token_required
-    def post(self,current_user):
+    def post(self, current_user):
 
         req_data = request.get_json()
 
@@ -542,16 +620,16 @@ class LogoutUser(Resource):
 
     @token_required
     def post(self, current_user):
-
         _jwt_token = request.headers["authorization"]
 
         jwt_block = JWTTokenBlocklist(jwt_token=_jwt_token, created_at=datetime.now(timezone.utc))
         jwt_block.save()
 
         current_user.set_status(False)
-        db.session.commit() 
+        db.session.commit()
 
         return {"success": True}, 200
+
 
 @rest_api.route('/api/sessions/oauth/github/')
 class GitHubLogin(Resource):
@@ -561,7 +639,7 @@ class GitHubLogin(Resource):
         client_secret = BaseConfig.GITHUB_CLIENT_SECRET
         root_url = 'https://github.com/login/oauth/access_token'
 
-        params = { 'client_id': client_id, 'client_secret': client_secret, 'code': code }
+        params = {'client_id': client_id, 'client_secret': client_secret, 'code': code}
 
         data = requests.post(root_url, params=params, headers={
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -573,7 +651,7 @@ class GitHubLogin(Resource):
         user_data = requests.get('https://api.github.com/user', headers={
             "Authorization": "Bearer " + access_token
         }).json()
-        
+
         user_exists = Users.get_by_first_name(user_data['login'])
         if user_exists:
             user = user_exists
@@ -584,10 +662,11 @@ class GitHubLogin(Resource):
             except:
                 user = Users(username=user_data['login'])
                 user.save()
-        
+
         user_json = user.toJSON()
 
-        token = jwt.encode({"username": user_json['username'], 'exp': datetime.utcnow() + timedelta(minutes=30)}, BaseConfig.SECRET_KEY)
+        token = jwt.encode({"username": user_json['username'], 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                           BaseConfig.SECRET_KEY)
         user.set_status(True)
         user.save()
 
@@ -604,12 +683,12 @@ class GitHubLogin(Resource):
 @rest_api.route('/api/createcontact')
 class ExtensionResource(Resource):
     @token_required
-    def post(self,current_user):
+    def post(self, current_user):
         current_user_id = current_user.user_id
         data = request.get_json()
         # Handle contact if existing
         existing_contact = Contact.get_by_contact_url(data['url'])
-        if(existing_contact):
+        if (existing_contact):
             # Contact Exist
             existing_contact.update_name(data['name'])
             existing_contact.update_headline(data['headline'])
@@ -617,12 +696,12 @@ class ExtensionResource(Resource):
             existing_contact.update_profile_pic_url(data['profilePicture'])
             existing_contact.update_about(data['about'])
 
-            new_contact=existing_contact
+            new_contact = existing_contact
         else:
             # Contact doesnt exist in the databse
             """Create a new contact"""
             new_contact = Contact(
-                contact_url= data['url'],
+                contact_url=data['url'],
                 name=data['name'],
                 headline=data['headline'],
                 current_location=data['location'],
@@ -632,17 +711,15 @@ class ExtensionResource(Resource):
             new_contact.save()
 
         # Connection doesnt exist in the database
-        # update connection table 
+        # update connection table
 
         new_connection = Connection.get_by_connection(current_user_id, data['url'])
-        if(not new_connection):
-            new_connection=Connection(
-                user_id = current_user_id,
-                contact_url = data['url']
+        if (not new_connection):
+            new_connection = Connection(
+                user_id=current_user_id,
+                contact_url=data['url']
             )
             new_connection.save()
-
-
 
         # Clear exisitng experiences if any
         current_experiences = Experience.get_by_contact_url(data['url'])
@@ -655,15 +732,15 @@ class ExtensionResource(Resource):
         experience_object = []
         for company in experiences:
             for position in company['companyPositions']:
-                experience =Experience (
-                    contact_url= new_connection.contact_url,
-                    company_name = company.get("CompanyName") or company.get("companyName"),
-                    company_role = position.get("CompanyRole") or position.get("companyRole"),
-                    company_location = position["companyLocation"],
-                    bulletpoints = position["bulletPoints"],
-                    company_duration = position["companyDuration"],
-                    company_total_duration = position["companyTotalDuration"]  
+                experience = Experience(
+                    contact_url=new_connection.contact_url,
+                    company_name=company.get("CompanyName") or company.get("companyName"),
+                    company_role=position.get("CompanyRole") or position.get("companyRole"),
+                    company_location=position["companyLocation"],
+                    bulletpoints=position["bulletPoints"],
+                    company_duration=position["companyDuration"],
+                    company_total_duration=position["companyTotalDuration"]
                 )
-                experience.save() 
+                experience.save()
                 experience_object.append(experience.toDICT())
-        return [new_connection.toDICT(),new_contact.toDICT(),experience_object], 201
+        return [new_connection.toDICT(), new_contact.toDICT(), experience_object], 201
