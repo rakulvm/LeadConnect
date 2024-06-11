@@ -73,7 +73,7 @@ signup_model = rest_api.model('SignupModel', {
                                              'What city were you born in?']),
     'security_answer': fields.String(required=True, description='Answer to the security question')
 })
-login_model = rest_api.model('LoginModel', {"email": fields.String(required=True),
+login_model = rest_api.model('LoginModel', {"username": fields.String(required=True),
                                             "password": fields.String(required=True)
                                             })
 llm_model = rest_api.model('LLMModel', {"summary": fields.String(required=True),
@@ -379,9 +379,9 @@ class Login(Resource):
     def post(self):
         req_data = request.get_json()
 
-        email_address = req_data.get("email")
+        username = req_data.get("username")
         password = req_data.get("password")
-        user_exists = Users.get_by_email(email_address)
+        user_exists = Users.get_by_username(username)
         if not user_exists:
             return {"success": False,
                     "msg": "This email does not exist."}, 400
@@ -395,7 +395,7 @@ class Login(Resource):
                     "msg": "Wrong credentials."}, 400
 
         # create access token uwing JWT
-        token = jwt.encode({'email': email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+        token = jwt.encode({'username': username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
                            BaseConfig.SECRET_KEY)
 
         user_exists.set_status(True)
