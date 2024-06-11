@@ -67,6 +67,19 @@ document.getElementById("getName").addEventListener("click", () => {
         }
         alert(JSON.stringify(results));
         console.log(results);
+        const url = 'http://localhost:5000/api/createcontact';
+        const token = results['token'];
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Authorization': `${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(results)
+        })
+          .then(response => response.json())
+          .then(data => console.log('Success:', data))
+          .catch(error => console.error('Error:', error));
       })
       .catch((error) => {
         console.error("Error in sending messages:", error);
