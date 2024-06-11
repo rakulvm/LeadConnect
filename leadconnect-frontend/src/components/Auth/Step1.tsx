@@ -82,7 +82,7 @@ const Step1: React.FC<Step1Props> = ({ nextStep, handleInputChange, formData }) 
           <button
             type="button"
             onClick={handleNextStep}
-            className="p-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full mt-4"
+            className="p-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700 w-full mt-4"
           >
             Next
           </button>

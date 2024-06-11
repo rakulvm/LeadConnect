@@ -8,7 +8,7 @@ const SubmitButton: React.FC<SubmitButtonProps> = ({ type }) => {
   return (
     <button
       type="submit"
-      className="p-2 bg-buttonBlue text-cardWhite rounded border-2 border-transparent"
+      className="p-2 bg-buttonBlue text-cardWhite rounded-lg shadow-lg rounded border-2 border-transparent"
     >
       {type}
     </button>
