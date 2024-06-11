@@ -12,4 +12,5 @@ def make_shell_context():
             }
 
 if __name__ == '__main__':
-    app.run(debug=True, host="0.0.0.0")
+    context = ('/etc/letsencrypt/live/leadconnectai.in/fullchain.pem', '/etc/letsencrypt/live/leadconnectai.in/privkey.pem')
+    app.run(debug=True, host="leadconnectai.in", ssl_context=context)
