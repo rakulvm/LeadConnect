@@ -127,7 +127,7 @@ def token_required(f):
 
         try:
             data = jwt.decode(token, BaseConfig.SECRET_KEY, algorithms=["HS256"])
-            current_user = Users.get_by_email(data["email"])
+            current_user = Users.get_by_username(data["username"])
             if not current_user:
                 return {"success": False, "msg": "User does not exist"}, 400
 
@@ -390,12 +390,13 @@ class Login(Resource):
         #    if user_exists.is_authenticated == 0:
         #        return {"success": False, "msg": "You are not authenticated. Please verify your email by using the verification link sent to your email."}, 401
 
+        user_id = user_exists.user_id
         if not user_exists.check_password(password):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
 
         # create access token uwing JWT
-        token = jwt.encode({'username': username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+        token = jwt.encode({'user_id':user_id,'username': username,'exp': datetime.utcnow() + timedelta(minutes=30)},
                            BaseConfig.SECRET_KEY)
 
         user_exists.set_status(True)
@@ -520,7 +521,40 @@ def store_to_mysql(json_data):
             "total_failed": total_failed
         }
 """
-
+@rest_api.route('/api/users/contacts')
+class get_user_contacts(Resource):
+    @token_required
+    def get(self,current_user):
+        user_id = current_user.user_id
+    
+        connections = db.session.query(Connection).filter(Connection.user_id == user_id).all()
+        contact_urls = [connection.contact_url for connection in connections]
+        user_contacts = db.session.query(Contact).filter(Contact.contact_url.in_(contact_urls)).all()
+        contacts = []
+        for contact in user_contacts:
+        
+            experiences = Experience.query.filter_by(contact_url=contact.contact_url).all()
+            experience_data = []
+            for exp in experiences:
+                experience_data.append({
+                    'company_name': exp.company_name,
+                    'company_role': exp.company_role,
+                    'company_location': exp.company_location,
+                    'bulletpoints': exp.bulletpoints,
+                    'company_duration': exp.company_duration,
+                    'company_total_duration': exp.company_total_duration
+                })
+        
+            contacts.append({
+                'contact_url': contact.contact_url,
+                'name': contact.name,
+                'current_location': contact.current_location,
+                'headline': contact.headline,
+                'about': contact.about,
+                'profile_pic_url': contact.profile_pic_url,
+                'experiences': experience_data
+            })
+        return jsonify({'contacts': contacts})
 
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):

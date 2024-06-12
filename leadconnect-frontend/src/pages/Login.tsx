@@ -1,10 +1,14 @@
 import React,{useState} from 'react';
-import { Link } from 'react-router-dom';
+import { Link ,useNavigate} from 'react-router-dom';
 import LoginForm from '../components/Auth/LoginForm';
 import logo from '../assets/logo.jpg'; // Adjust the import path as needed
 
-const Login: React.FC = () => {
+interface LoginProps {
+  onLogin: (jwt: string) => void;
+}
+const Login: React.FC<LoginProps> = ({onLogin}) => {
 
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -32,8 +36,13 @@ const Login: React.FC = () => {
       }
 
       const result = await response.json();
-      console.log(result);
-
+      if (result && result.token) {
+        console.log(result);
+        onLogin(result.token);
+        navigate("/main")
+      } else {
+        throw new Error('Token not received');      
+      }
       // Handle successful response here
       // For example, redirect to another page or show a success message
     } catch (error) {
