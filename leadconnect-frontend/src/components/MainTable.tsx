@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin } from 'react-icons/fa';
-import ContactModal from './AddContact'; 
-import NotesPopup from './NotesPopup'; 
+import ContactModal from './AddContact';
+import NotesPopup from './NotesPopup';
 
 type Contact = {
   name: string;
@@ -18,7 +18,6 @@ const MainTable: React.FC = () => {
     { name: 'Rakul', role: 'DevOps Engineer', frequency: 'Every month', date: 'jan 5' },
     { name: 'Hayden', role: 'Full Stack Developer', frequency: 'Every week', date: 'may 5' },
     { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'dec 5' },
-
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -102,7 +101,7 @@ const MainTable: React.FC = () => {
 
   return (
     <div className="h-screen p-1 bg-cardWhite flex flex-col relative">
-      <div className="ml-4 mr-3 flex justify-between items-center mb-4">
+      <div className="ml-4 mr-3 flex justify-between items-center mb-4 sticky top-0 bg-cardWhite z-10">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
           <p className="text-lg color-secondaryTextColor">{searchFilteredContacts.length} total contacts</p>
@@ -115,7 +114,7 @@ const MainTable: React.FC = () => {
         </button>
       </div>
       <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
-      <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4 mr-16">
+      <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4 mr-16 sticky top-16 z-10">
         <div className="ml-3 flex items-center space-x-4">
           <input
             type="checkbox"
@@ -202,40 +201,42 @@ const MainTable: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-cardWhite rounded-lg flex-grow overflow-y-auto scrollbar-thin">
-        {searchFilteredContacts.map((contact, index) => (
-          <div key={index} className="grid grid-cols-12 gap-4 m-4 p-0.5 hover:bg-highlightBlue items-center">
-            <div className="col-span-5 flex items-center space-x-4">
-              <input
-                type="checkbox"
-                className="form-checkbox h-4 w-4 text-buttonBlue"
-                onChange={() => handleSelectContact(contact.name)}
-                checked={selectedContacts.has(contact.name)}
-              />
-              <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-12 h-12 rounded-full" />
-              <div className="flex items-center">
-                <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                <p className="text-lg opacity-60 ml-2">{contact.role}</p>
+      <div className="flex-grow overflow-hidden">
+        <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
+          {searchFilteredContacts.map((contact, index) => (
+            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 items-center">
+              <div className="col-span-5 flex items-center space-x-4">
+                <input
+                  type="checkbox"
+                  className="form-checkbox h-4 w-4 text-buttonBlue"
+                  onChange={() => handleSelectContact(contact.name)}
+                  checked={selectedContacts.has(contact.name)}
+                />
+                <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-10 h-10 rounded-full" />
+                <div className="flex items-center">
+                  <p className="font-semibold text-lg opacity-80">{contact.name}</p>
+                  <p className="text-lg opacity-60 ml-2">{contact.role}</p>
+                </div>
               </div>
+              <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
+              <div className="col-span-3 flex space-x-2">
+                <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
+                </button>
+                <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
+                </button>
+                <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
+                </button>
+                <button onClick={() => handleDeleteContact(contact.name)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
+                </button>
+              </div>
+              <div className="col-span-1 text-lg opacity-60">{contact.date}</div>
             </div>
-            <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
-            <div className="col-span-3 flex space-x-2">
-              <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
-              </button>
-              <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
-              </button>
-              <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
-              </button>
-              <button onClick={() => handleDeleteContact(contact.name)} className="bg-highlightBlue text-buttonBlue px-3 py-2 rounded-full transition duration-300 ease-in-out">
-                <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
-              </button>
-            </div>
-            <div className="col-span-1 text-lg opacity-60">{contact.date}</div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
       {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} />}
     </div>
