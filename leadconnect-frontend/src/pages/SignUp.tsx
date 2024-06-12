@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import SignupForm from '../components/Auth/SignupForm';
 import StepIndicator from '../components/StepIndicator';
 import logo from '../assets/logo.jpg';
 
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     username: '',
@@ -51,9 +52,11 @@ const Signup: React.FC = () => {
         throw new Error('Network response was not ok');
       }
 
-      const result = await response.json();
-      console.log(result);
-
+      else {
+        const result = await response.json();
+        console.log(result);
+        navigate("/login");
+      }
     } catch (error) {
       console.error('There was a problem with the fetch operation:', error);
     }

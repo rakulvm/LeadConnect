@@ -4,22 +4,31 @@ import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 
 type Contact = {
+  about: string;
+  contact_url: string;
+  current_location: string;
+  experiences: Experience[];
+  headline: string;
   name: string;
-  role: string;
+  profile_pic_url: string;
   frequency: string;
   date: string;
 };
 
-const MainTable: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>([
-    { name: 'Sundhar K', role: 'Developer', frequency: 'Every 2 weeks', date: 'jul 5' },
-    { name: 'Sarvan', role: 'Mentor', frequency: 'Don\'t keep in touch', date: 'jun 5' },
-    { name: 'Rathinas', role: 'Actor', frequency: 'Every week', date: 'jul 5' },
-    { name: 'Rakul', role: 'DevOps Engineer', frequency: 'Every month', date: 'jan 5' },
-    { name: 'Hayden', role: 'Full Stack Developer', frequency: 'Every week', date: 'may 5' },
-    { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'dec 5' },
-  ]);
+type Experience = {
+  bulletpoints: string;
+  company_duration: string;
+  company_location: string;
+  company_name: string;
+  company_role: string;
+  company_total_duration: string;
+};
 
+type MainTableProps = {
+  contacts: Contact[];
+};
+
+const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -33,9 +42,11 @@ const MainTable: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
 
+  /*
   const addContact = (contact: Contact) => {
-    setContacts([...contacts, contact]);
+  //setContacts([...contacts, contact]);
   };
+  */
 
   const handleNotesClick = (contact: Contact) => {
     setSelectedContact(contact);
@@ -51,7 +62,7 @@ const MainTable: React.FC = () => {
       const dateB = new Date(b.date).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-    setContacts(sortedContacts);
+  //  setContacts(sortedContacts);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -65,7 +76,7 @@ const MainTable: React.FC = () => {
   };
 
   const handleDeleteContact = (contactName: string) => {
-    setContacts(contacts.filter(contact => contact.name !== contactName));
+   // setContacts(contacts.filter(contact => contact.name !== contactName));
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,7 +100,7 @@ const MainTable: React.FC = () => {
   const filteredContacts = contacts.filter(contact => {
     return (
       contact.name.toLowerCase().includes(filterValues.name.toLowerCase()) &&
-      contact.role.toLowerCase().includes(filterValues.role.toLowerCase()) &&
+      contact.experiences[0].company_role.toLowerCase().includes(filterValues.role.toLowerCase()) &&
       contact.frequency.toLowerCase().includes(filterValues.frequency.toLowerCase()) &&
       contact.date.toLowerCase().includes(filterValues.date.toLowerCase())
     );
@@ -113,7 +124,7 @@ const MainTable: React.FC = () => {
           + Add new contact
         </button>
       </div>
-      <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
+      {/*<ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />*/}
       <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4 mr-16 sticky top-16 z-10">
         <div className="ml-3 flex items-center space-x-4">
           <input
@@ -212,10 +223,10 @@ const MainTable: React.FC = () => {
                   onChange={() => handleSelectContact(contact.name)}
                   checked={selectedContacts.has(contact.name)}
                 />
-                <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-10 h-10 rounded-full" />
+                <img src="{contact.profile_pic_url}" alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                  <p className="text-lg opacity-60 ml-2">{contact.role}</p>
+                  <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
               <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
@@ -223,9 +234,11 @@ const MainTable: React.FC = () => {
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
                 </button>
-                <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <a href={`${contact.contact_url}`} target="_blank" rel="noopener noreferrer">
+                <button  className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
                 </button>
+                </a>
                 <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
                 </button>
