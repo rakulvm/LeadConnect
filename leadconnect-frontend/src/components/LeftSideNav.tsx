@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { FaSun, FaUserFriends, FaPhone, FaClock, FaBolt, FaTools, FaMapMarkerAlt, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
+import React, { useState } from 'react';
+import { FaSun, FaUserFriends, FaPhone, FaClock, FaBolt, FaTools, FaStickyNote, FaMapMarkerAlt, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
 
 const LeftSideNav = () => {
   const [groups, setGroups] = useState([
@@ -72,13 +72,7 @@ const LeftSideNav = () => {
           <span className='text-l'><FaPhone /></span><span className='ml-2 text-lg font-medium'>Keep-in-touch</span>
         </a>
         <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-l'><FaBolt /></span>  <span className='ml-2 text-lg font-medium'>Quick action</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-l'><FaTools /></span> <span className='ml-2 text-lg font-medium'>Merge and fix</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
-          <span className='text-l'><FaMapMarkerAlt /></span>  <span className='ml-2 text-lg font-medium'>Location</span>
+          <span className='text-l'><FaStickyNote /></span>  <span className='ml-2 text-lg font-medium'>Notes</span>
         </a>
         <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaClock /></span> <span className='ml-2 text-lg font-medium'>Timeline</span>
