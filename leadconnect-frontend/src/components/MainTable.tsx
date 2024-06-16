@@ -76,6 +76,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
   };
 
   const handleDeleteContact = (contactName: string) => {
+    console.log("Attempting to delete contact " + contactName)
    // setContacts(contacts.filter(contact => contact.name !== contactName));
   };
 
@@ -111,7 +112,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
   );
 
   return (
-    <div className="h-screen p-1 bg-cardWhite flex flex-col relative">
+    <div className="h-[89%] p-1 bg-cardWhite flex flex-col relative">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4 sticky top-0 bg-cardWhite z-10">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
@@ -215,7 +216,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
       <div className="flex-grow overflow-hidden">
         <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
           {searchFilteredContacts.map((contact, index) => (
-            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 items-center">
+            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
               <div className="col-span-5 flex items-center space-x-4">
                 <input
                   type="checkbox"
