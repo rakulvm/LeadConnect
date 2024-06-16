@@ -1,5 +1,3 @@
-let temp = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJ1c2VybmFtZSI6ImhheWRlbiIsImV4cCI6MTcxODU1OTYwOX0.nttXto-nCRTFbLlQifbTsRYIYpa4AvuFWNywmYSGyaE"
-localStorage.setItem("leadconnect_token", temp);
 
 // Refactor
 function convertToCamelCase(str) {
@@ -79,7 +77,16 @@ document.getElementById("getName").addEventListener("click", () => {
           },
           body: JSON.stringify(results)
         })
-          .then(response => response.json())
+        .then(response => {
+          if (response.status === 401) {
+            // If unauthorized, remove the token from local storage
+            localStorage.removeItem("leadconnect_token");
+            window.location = "login.html";
+            throw new Error('Unauthorized');
+
+          }
+          return response.json();
+        })
           .then(data => console.log('Success:', data))
           .catch(error => console.error('Error:', error));
       })
