@@ -8,7 +8,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     }
   } 
   else if (request.action === "getToken") {
-    let token = localStorage['leadConnectToken']
+    let token = localStorage['token']
     sendResponse({ text: token });
   }
   else if (request.action === "getSummary") {

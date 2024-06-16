@@ -1,3 +1,9 @@
+let token = localStorage.getItem("leadconnect_token");
+if(token && token.length > 5){
+  window.location = "popup.html";
+
+}
+
 // Refactor
 function convertToCamelCase(str) {
   // Remove "get" from the start of the string
@@ -32,13 +38,8 @@ document.getElementById("getName").addEventListener("click", () => {
 
   // Example messages to send
   const messages = [
-    { action: "getName" },
-    { action: "getLinkedinURL" },
-    { action: "getSummary" },
-    { action: "getHeadline" },
-    { action: "getLocation" },
-    { action: "getProfilePicture" },
-    { action: "getExperience" },
+    { action: "getToken" },
+
   ];
 
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
@@ -58,27 +59,17 @@ document.getElementById("getName").addEventListener("click", () => {
             results[key] = "Element text not found.";
           }
         });
-        // if(results['token'] == "Element text not found."){
-        //   alert("Please login into leadconnect website.. Will be redirecting now")
-        //   chrome.tabs.update(tabId, {url: "https://leadconnectai.in/"});
-        //   return;
+        if(results['token'] == "Element text not found."){
+          // If not on our website then redirect
 
-        // }
-        alert(JSON.stringify(results));
-        console.log(results);
-        let token = localStorage.getItem("leadconnect_token");
-        const url = 'http://localhost:5000/api/createcontact';
-        fetch(url, {
-          method: 'POST',
-          headers: {
-            'Authorization': `${token}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(results)
-        })
-          .then(response => response.json())
-          .then(data => console.log('Success:', data))
-          .catch(error => console.error('Error:', error));
+          alert("Please login into leadconnect website.. Will be redirecting now")
+          // chrome.tabs.update(tabId, {url: "https://leadconnectai.in/"});
+
+
+    
+          return;
+        }
+        localStorage.setItem("leadconnect_token", results['token']);
       })
       .catch((error) => {
         console.error("Error in sending messages:", error);
