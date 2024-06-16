@@ -44,7 +44,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, add
     >
       <form onSubmit={handleSubmit} className="bg-cardWhite p-4 rounded-lg shadow-lg">
         <div className="mb-4">
-          <label className="block text-gray-700 text-lg font-bold mb-2">Name</label>
+          <label className="block color-secondaryTextColor text-lg font-bold mb-2">Name</label>
           <input
             type="text"
             className="border border-gray-300 px-4 py-2 rounded-lg w-full"
@@ -53,7 +53,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, add
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-lg font-bold mb-2">Role</label>
+          <label className="block color-secondaryTextColor text-lg font-bold mb-2">Role</label>
           <input
             type="text"
             className="border border-gray-300 px-4 py-2 rounded-lg w-full"
@@ -62,7 +62,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, add
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-lg font-bold mb-2">Frequency</label>
+          <label className="block color-secondaryTextColor text-lg font-bold mb-2">Frequency</label>
           <input
             type="text"
             className="border border-gray-300 px-4 py-2 rounded-lg w-full"
@@ -71,7 +71,7 @@ const ContactModal: React.FC<ContactModalProps> = ({ isOpen, onRequestClose, add
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700 text-lg font-bold mb-2">Date</label>
+          <label className="block color-secondaryTextColor text-lg font-bold mb-2">Date</label>
           <input
             type="text"
             className="border border-gray-300 px-4 py-2 rounded-lg w-full"
