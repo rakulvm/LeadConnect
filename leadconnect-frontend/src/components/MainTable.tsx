@@ -224,7 +224,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
                   onChange={() => handleSelectContact(contact.name)}
                   checked={selectedContacts.has(contact.name)}
                 />
-                <img src="{contact.profile_pic_url}" alt="profile" className="w-10 h-10 rounded-full" />
+                <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
                   <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
