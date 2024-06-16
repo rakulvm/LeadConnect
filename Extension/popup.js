@@ -1,3 +1,6 @@
+let temp = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJ1c2VybmFtZSI6ImhheWRlbiIsImV4cCI6MTcxODU1OTYwOX0.nttXto-nCRTFbLlQifbTsRYIYpa4AvuFWNywmYSGyaE"
+localStorage.setItem("leadconnect_token", temp);
+
 // Refactor
 function convertToCamelCase(str) {
   // Remove "get" from the start of the string

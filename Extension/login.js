@@ -1,3 +1,6 @@
+
+let temp = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJ1c2VybmFtZSI6ImhheWRlbiIsImV4cCI6MTcxODU1NTg3MH0.qJH56GBKHtjm7hg__K1uveelqyGvOk34HYKaEWTwXVw"
+localStorage.setItem("leadconnect_token", temp);
 let token = localStorage.getItem("leadconnect_token");
 if(token && token.length > 5){
   window.location = "popup.html";
