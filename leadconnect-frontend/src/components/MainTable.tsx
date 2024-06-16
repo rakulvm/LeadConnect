@@ -76,6 +76,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
   };
 
   const handleDeleteContact = (contactName: string) => {
+    console.log("Attempting to delete contact " + contactName)
    // setContacts(contacts.filter(contact => contact.name !== contactName));
   };
 
