@@ -721,42 +721,42 @@ class ExtensionResource(Resource):
         current_user_id = current_user.user_id
         data = request.get_json()
         # Handle contact if existing
-        existing_contact = Contact.get_by_contact_url(data['url'])
+        existing_contact = Contact.get_by_contact_url(data['linkedinURL'])
         if (existing_contact):
             # Contact Exist
             existing_contact.update_name(data['name'])
             existing_contact.update_headline(data['headline'])
             existing_contact.update_current_location(data['location'])
             existing_contact.update_profile_pic_url(data['profilePicture'])
-            existing_contact.update_about(data['about'])
+            existing_contact.update_about(data['summary'])
 
             new_contact = existing_contact
         else:
             # Contact doesnt exist in the databse
             """Create a new contact"""
             new_contact = Contact(
-                contact_url=data['url'],
+                contact_url=data['linkedinURL'],
                 name=data['name'],
                 headline=data['headline'],
                 current_location=data['location'],
                 profile_pic_url=data['profilePicture'],
-                about=data['about'],
+                about=data['summary'],
             )
             new_contact.save()
 
         # Connection doesnt exist in the database
         # update connection table
 
-        new_connection = Connection.get_by_connection(current_user_id, data['url'])
+        new_connection = Connection.get_by_connection(current_user_id, data['linkedinURL'])
         if (not new_connection):
             new_connection = Connection(
                 user_id=current_user_id,
-                contact_url=data['url']
+                contact_url=data['linkedinURL']
             )
             new_connection.save()
 
         # Clear exisitng experiences if any
-        current_experiences = Experience.get_by_contact_url(data['url'])
+        current_experiences = Experience.get_by_contact_url(data['linkedinURL'])
         for current_experience in current_experiences:
             current_experience.delete()
 
