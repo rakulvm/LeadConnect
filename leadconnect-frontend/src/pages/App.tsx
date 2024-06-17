@@ -82,6 +82,11 @@ const App: React.FC = () => {
    fetchContacts();
     
   }, [token]);
+
+  const deleteContact = (url: string) => {
+    const temp = contacts.filter(contact => contact.contact_url !== url);
+    setContacts(temp);
+  }
     return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
@@ -95,7 +100,7 @@ const App: React.FC = () => {
           <LeftSideNav></LeftSideNav>
           <div className='bg-red w-5/6'>
             <TopNav></TopNav>
-            <MainTable contacts={contacts} />
+            <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
             {error && <div>Error fetching contacts: {error}</div>}
           </div>
         </div>
