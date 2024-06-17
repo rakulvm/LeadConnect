@@ -1,13 +1,13 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import LeftSideNav from '../components/LeftSideNav'
-import TopNav from '../components/TopNav'
-import MainTable from '../components/MainTable'
-import Login from './Login'
-import React,{useEffect, useState} from 'react';
-import AddContactForm from '../components/AddContact'
-import Signup from './SignUp'
+import LeftSideNav from '../components/LeftSideNav';
+import TopNav from '../components/TopNav';
+import MainTable from '../components/MainTable';
+import Login from './Login';
+import React, { useEffect, useState } from 'react';
+import AddContactForm from '../components/AddContact';
+import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
-
+import KeepInTouch from '../components/KeepInTouch'; // Import the KeepInTouch component
 
 interface Experience {
   bulletpoints: string;
@@ -29,6 +29,7 @@ interface Contact {
   frequency: string;
   date: string;
 }
+
 interface ContactResponse {
   contacts: Contact[];
 }
@@ -48,8 +49,8 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-   if (!token) return;
-    
+    if (!token) return;
+
     const fetchContacts = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
@@ -78,16 +79,11 @@ const App: React.FC = () => {
         }
       }
     };
-    
-   fetchContacts();
-    
+
+    fetchContacts();
   }, [token]);
 
-  const deleteContact = (url: string) => {
-    const temp = contacts.filter(contact => contact.contact_url !== url);
-    setContacts(temp);
-  }
-    return (
+  return (
     <Routes>
       <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login onLogin={(jwt: string) => {
@@ -95,20 +91,31 @@ const App: React.FC = () => {
         localStorage.setItem('token', jwt);
         navigate('/main');
       }} />} />
-            <Route path="/main" element={
+      <Route path="/main" element={
         <div className='flex bg-backgroundColor'>
-          <LeftSideNav></LeftSideNav>
+          <LeftSideNav />
           <div className='bg-red w-5/6'>
-            <TopNav></TopNav>
-            <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+            <TopNav />
+            <MainTable contacts={contacts} token={null} deleteContact={function (url: string): void {
+              throw new Error('Function not implemented.');
+            } } />
             {error && <div>Error fetching contacts: {error}</div>}
           </div>
         </div>
       } />
+      <Route path="/keepintouch" element={
+        <div className='flex bg-backgroundColor'>
+          <LeftSideNav />
+          <div className='bg-red w-5/6'>
+            <TopNav />
+            <KeepInTouch />
+          </div>
+        </div>
+      } />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" Component={ForgotPasswordPage} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
     </Routes>
-    );
-  };
+  );
+};
 
-export default App
+export default App;
