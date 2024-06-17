@@ -386,3 +386,7 @@ class Connection(db.Model):
 
     def toJSON(self):
         return self.toDICT()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

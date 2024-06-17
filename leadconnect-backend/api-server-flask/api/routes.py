@@ -778,3 +778,10 @@ class ExtensionResource(Resource):
                 experience.save()
                 experience_object.append(experience.toDICT())
         return [new_connection.toDICT(), new_contact.toDICT(), experience_object], 201
+    @token_required
+    def delete(self, current_user):
+        data = request.get_json()
+        print(data)
+        user_connection = Connection.get_by_connection(current_user.user_id, data['linkedinURL'])
+        user_connection.delete()
+        return {"status":"deleted"}
