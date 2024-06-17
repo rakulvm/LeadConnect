@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { FaSun, FaUserFriends, FaPhone, FaClock, FaBolt, FaTools, FaStickyNote, FaMapMarkerAlt, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaSun, FaUserFriends, FaPhone, FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const LeftSideNav = () => {
   const [groups, setGroups] = useState([
@@ -61,29 +62,28 @@ const LeftSideNav = () => {
         </div>
         <span className='ml-4 text-xl font-bold color-secondaryTextColor'>Lead Connect</span>
       </div>
-      <nav className='flex-grow overflow-y-auto space-y-2 opacity-75'>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+      <nav className='flex-shrink-0 space-y-2 opacity-75'>
+        <Link to="/main" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaSun /></span> <span className='ml-2 text-lg font-medium'>Today</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        </Link>
+        <Link to="/contacts" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaUserFriends /></span> <span className='ml-2 text-lg font-medium'>Contacts</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        </Link>
+        <Link to="/keepintouch" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaPhone /></span><span className='ml-2 text-lg font-medium'>Keep-in-touch</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        </Link>
+        <Link to="/notes" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaStickyNote /></span>  <span className='ml-2 text-lg font-medium'>Notes</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        </Link>
+        <Link to="/timeline" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaClock /></span> <span className='ml-2 text-lg font-medium'>Timeline</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+        </Link>
+        <Link to="/network" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
           <span className='text-l'><FaNetworkWired /></span> <span className='ml-2 text-lg font-medium'>Network</span>
-        </a>
+        </Link>
       </nav>
-
-      <div className='mb-20 mt-4'>
-        <div className='flex items-center justify-between mb-6'>
+      <div className='mt-12'> {/* Set margin-top to 0 */}
+        <div className='flex items-center justify-between mb-2'> {/* Reduced margin-bottom */}
           <h3 className='text-gray-500 text-lg font-bold'>GROUPS</h3>
           <div className='flex items-center space-x-2'>
             <span className='text-gray-500 cursor-pointer' onClick={handleSort}><FaSort /></span>
