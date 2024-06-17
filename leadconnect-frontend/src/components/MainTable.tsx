@@ -26,9 +26,11 @@ type Experience = {
 
 type MainTableProps = {
   contacts: Contact[];
+  token: string | null;
+  deleteContact: (url:string) => void;
 };
 
-const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
+const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -47,6 +49,33 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
   //setContacts([...contacts, contact]);
   };
   */
+
+  
+  const handleDeleteContact = async (url:string) => {
+    deleteContact(url);
+    try {
+      const response = await fetch('http://localhost:5000/api/createcontact', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({
+          linkedinURL: url
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        // setError(err.message);
+      } else {
+        // setError('An unknown error occurred');
+      }
+    }
+  };
 
   const handleNotesClick = (contact: Contact) => {
     setSelectedContact(contact);
@@ -73,11 +102,6 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleDeleteContact = (contactName: string) => {
-    console.log("Attempting to delete contact " + contactName)
-   // setContacts(contacts.filter(contact => contact.name !== contactName));
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -243,7 +267,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts }) => {
                 <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
                 </button>
-                <button onClick={() => handleDeleteContact(contact.name)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <button onClick={() => handleDeleteContact(contact.contact_url)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
                 </button>
               </div>

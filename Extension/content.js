@@ -40,8 +40,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const element = document.querySelector(
       ".pv-top-card__non-self-photo-wrapper img"
     );
+    const profilePictureURL = element.getAttribute("src");
+    const defaultURL = "https://static.vecteezy.com/system/resources/previews/026/630/551/original/profile-icon-symbol-design-illustration-vector.jpg";
+
+    const finalProfilePictureURL = profilePictureURL && profilePictureURL.startsWith("http") 
+    ? profilePictureURL 
+    : defaultURL;
     if (element) {
-      sendResponse({ text: element.getAttribute("src") });
+      sendResponse({ text: finalProfilePictureURL });
     } else {
       sendResponse({ text: null });
     }
@@ -60,7 +66,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const targetSpan = Array.from(spans).find(
       (span) => span.textContent.trim() === "Experience"
     );
-
+    // handle no experience
+    if(!targetSpan){
+      sendResponse({ text: [] });
+    }
     // Locate the parent dic of the experience section
     const experienceSection =
       targetSpan.parentElement.parentElement.parentElement.parentElement
