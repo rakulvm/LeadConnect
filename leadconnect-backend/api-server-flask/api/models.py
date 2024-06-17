@@ -285,6 +285,7 @@ class Experience(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
     company_name = db.Column(db.String(255), nullable=False)
+    company_logo = db.Column(db.String(255), nullable=False)
     company_role = db.Column(db.String(255), nullable=False)
     company_location = db.Column(db.String(255), nullable=False)
     bulletpoints = db.Column(db.Text, nullable=False)
@@ -349,6 +350,7 @@ class Experience(db.Model):
         cls_dict['id'] = self.id
         cls_dict['contact_url'] = self.contact_url
         cls_dict['company_name'] = self.company_name
+        cls_dict['company_logo'] = self.company_logo
         cls_dict['company_role'] = self.company_role
         cls_dict['company_location'] = self.company_location
         cls_dict['bulletpoints'] = self.bulletpoints

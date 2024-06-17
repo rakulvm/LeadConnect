@@ -87,6 +87,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           experiences[i].querySelectorAll("span")[0].textContent;
         company["CompanyName"] = companyName;
 
+        // Company Logo
+        const companyLogo = experiences[i].querySelector('img').src;
+        company["CompanyLogo"] = companyLogo;;
+
         // Extract the dynamic class that linkedin uses to extract company roles
         let newexperienceEach = experiences[i].querySelectorAll(
           ".pvs-entity__sub-components"
@@ -155,6 +159,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const companyName =
           experiences[i].querySelectorAll("span")[3].textContent;
         company["companyName"] = companyName?.trim().split(" · ")[0];
+
+        // Company Logo
+        const companyLogo = experiences[i].querySelector('img').src;
+        company["CompanyLogo"] = companyLogo;
 
         // Company Location
         let companyData = experiences[i].querySelectorAll("span:not([class])");
