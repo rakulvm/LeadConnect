@@ -102,6 +102,7 @@ experience_model = rest_api.model('Experience', {
     'id': fields.Integer(readOnly=True, description='The unique identifier of the experience'),
     'contact_url': fields.String(required=True, description='Contact URL'),
     'company_name': fields.String(required=True, description='Company Name'),
+    'company_logo': fields.String(required=True, description='Company Logo'),
     'company_role': fields.String(required=True, description='Company Role'),
     'company_location': fields.String(required=True, description='Company Location'),
     'bulletpoints': fields.String(required=True, description='Bullet Points'),
@@ -538,6 +539,7 @@ class get_user_contacts(Resource):
             for exp in experiences:
                 experience_data.append({
                     'company_name': exp.company_name,
+                    'company_logo': exp.company_logo,
                     'company_role': exp.company_role,
                     'company_location': exp.company_location,
                     'bulletpoints': exp.bulletpoints,
@@ -769,6 +771,7 @@ class ExtensionResource(Resource):
                 experience = Experience(
                     contact_url=new_connection.contact_url,
                     company_name=company.get("CompanyName") or company.get("companyName"),
+                    company_logo = company.get("CompanyLogo"),
                     company_role=position.get("CompanyRole") or position.get("companyRole"),
                     company_location=position["companyLocation"],
                     bulletpoints=position["bulletPoints"],
