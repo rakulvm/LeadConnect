@@ -97,8 +97,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         company["CompanyName"] = companyName;
 
         // Company Logo
-        const companyLogo = experiences[i].querySelector('img').src;
-        company["CompanyLogo"] = companyLogo;;
+        let companyLogo = experiences[i].querySelector('img')?.src;
+        companyLogo = companyLogo? companyLogo : ""
+        company["CompanyLogo"] = companyLogo;
 
         // Extract the dynamic class that linkedin uses to extract company roles
         let newexperienceEach = experiences[i].querySelectorAll(
@@ -170,7 +171,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         company["companyName"] = companyName?.trim().split(" · ")[0];
 
         // Company Logo
-        const companyLogo = experiences[i].querySelector('img').src;
+        let companyLogo = experiences[i].querySelector('img')?.src;
+        companyLogo = companyLogo? companyLogo : ""
         company["CompanyLogo"] = companyLogo;
 
         // Company Location
