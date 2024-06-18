@@ -13,6 +13,7 @@ type Contact = {
   profile_pic_url: string;
   frequency: string;
   last_interacted: string;
+  notes: string; // Add this line
 };
 
 type Experience = {
@@ -43,14 +44,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [notes, setNotes] = useState<{ [key: string]: string }>({}); // Add state for notes
 
-  /*
-  const addContact = (contact: Contact) => {
-  //setContacts([...contacts, contact]);
-  };
-  */
-
-  
   const handleDeleteContact = async (url:string) => {
     deleteContact(url);
     try {
@@ -79,7 +74,46 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
 
   const handleNotesClick = (contact: Contact) => {
     setSelectedContact(contact);
+    /*
+    setNotes({ ...notes, [contact.contact_url]: contact.notes });
   };
+
+  const handleNoteChange = (contact_url: string, newNote: string) => {
+    setNotes({
+      ...notes,
+      [contact_url]: newNote,
+    });
+  };
+
+  const saveNotes = async (contact_url: string) => {
+    if (!token) {
+        console.error('No token found');
+        return;
+    }
+    try {
+        const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,  // Ensure 'Bearer ' is included
+            },
+            body: JSON.stringify({
+                contact_url,
+                notes: notes[contact_url],
+            }),
+        });
+        if (!response.ok) {
+            throw new Error('Failed to save notes');
+        }
+        alert('Notes saved successfully');
+    } catch (error) {
+        console.error('Error saving notes:', error);
+        alert('Failed to save notes');
+    }
+    */
+};
+
+
 
   const handleIconClick = (icon: string) => {
     alert(`You clicked on the ${icon} icon!`);
@@ -91,7 +125,6 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
       const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-  //  setContacts(sortedContacts);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -276,7 +309,11 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
           ))}
         </div>
       </div>
-      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} />}
+      {selectedContact && <NotesPopup contactName={selectedContact.name} notes={selectedContact.notes} onClose={() => setSelectedContact(null)} onSave={function (): void {
+        throw new Error('Function not implemented.');
+      } } onNoteChange={function (contact_url: string, newNote: string): void {
+        throw new Error('Function not implemented.');
+      } } />}
     </div>
   );
 };

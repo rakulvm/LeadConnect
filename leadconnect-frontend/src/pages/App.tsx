@@ -35,6 +35,7 @@ interface Contact {
   profile_pic_url: string;
   frequency: string;
   last_interacted: string;
+  notes: string;  // Add this line
 }
 
 interface ContactResponse {
