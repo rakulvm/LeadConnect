@@ -115,6 +115,12 @@ experience_model = rest_api.model('Experience', {
 """
 
 
+import jwt
+from functools import wraps
+from flask import request, jsonify
+from .models import Users, JWTTokenBlocklist
+from .config import BaseConfig
+
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
@@ -556,15 +562,42 @@ class get_user_contacts(Resource):
                 'profile_pic_url': contact.profile_pic_url,
                 'experiences': experience_data
             }
-            # Adding frequency and last_interacted to contact data
+
             connection = next((conn for conn in connections if conn.contact_url == contact.contact_url), None)
             if connection:
                 contact_data['frequency'] = connection.frequency
                 contact_data['last_interacted'] = connection.last_interacted
+                contact_data['notes'] = connection.notes  # Add notes to the contact data
 
             contacts.append(contact_data)
         return jsonify({'contacts': contacts})
 
+    """"
+    @token_required
+    def post(self, current_user):
+        data = request.get_json()
+        contact_url = data.get('contact_url')
+        notes = data.get('notes')
+
+        if not contact_url or not notes:
+            print('Invalid input:', data)
+            return {'success': False, 'msg': 'Invalid input'}, 400
+
+        connection = Connection.query.filter_by(user_id=current_user.user_id, contact_url=contact_url).first()
+
+        if not connection:
+            print('Connection not found for user:', current_user.user_id, 'and contact URL:', contact_url)
+            return {'success': False, 'msg': 'Connection not found'}, 404
+
+        print('Updating notes for connection:', connection.id)
+        connection.notes = notes
+        db.session.commit()
+
+        return {'success': True, 'msg': 'Notes updated successfully'}
+
+
+
+"""
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):
     """
