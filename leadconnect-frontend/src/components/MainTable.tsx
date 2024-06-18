@@ -12,7 +12,7 @@ type Contact = {
   name: string;
   profile_pic_url: string;
   frequency: string;
-  date: string;
+  last_interacted: string;
 };
 
 type Experience = {
@@ -39,7 +39,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
     name: '',
     role: '',
     frequency: '',
-    date: ''
+    last_interacted: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
@@ -87,8 +87,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
 
   const handleSort = () => {
     const sortedContacts = [...contacts].sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
+      const dateA = new Date(a.last_interacted).getTime();
+      const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
   //  setContacts(sortedContacts);
@@ -127,7 +127,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
       contact.name.toLowerCase().includes(filterValues.name.toLowerCase()) &&
       contact.experiences[0].company_role.toLowerCase().includes(filterValues.role.toLowerCase()) &&
       contact.frequency.toLowerCase().includes(filterValues.frequency.toLowerCase()) &&
-      contact.date.toLowerCase().includes(filterValues.date.toLowerCase())
+      contact.last_interacted.toLowerCase().includes(filterValues.last_interacted.toLowerCase())
     );
   });
 
@@ -222,7 +222,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
                 type="text"
                 name="date"
                 placeholder="Filter by date"
-                value={filterValues.date}
+                value={filterValues.last_interacted}
                 onChange={handleFilterChange}
                 className="border border-gray-300 p-2 rounded-lg"
               />
@@ -271,7 +271,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
                   <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
                 </button>
               </div>
-              <div className="col-span-1 text-lg opacity-60">{contact.date}</div>
+              <div className="col-span-1 text-lg opacity-60">{contact.last_interacted}</div>
             </div>
           ))}
         </div>
