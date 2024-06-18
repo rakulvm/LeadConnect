@@ -8,6 +8,13 @@ import AddContactForm from '../components/AddContact';
 import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
 import KeepInTouch from '../components/KeepInTouch'; // Import the KeepInTouch component
+import { format } from 'date-fns'; // Import date-fns
+
+interface Connection {
+  contact_url: string;
+  name: string;
+  profile_pic_url: string;
+}
 
 interface Experience {
   bulletpoints: string;
@@ -27,7 +34,7 @@ interface Contact {
   name: string;
   profile_pic_url: string;
   frequency: string;
-  date: string;
+  last_interacted: string;
 }
 
 interface ContactResponse {
@@ -36,6 +43,7 @@ interface ContactResponse {
 
 const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]); // Added state for connections
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -67,8 +75,7 @@ const App: React.FC = () => {
         }
         const augmentedData = data.contacts.map((contact: Contact) => ({
           ...contact,
-          frequency: 'Every week', // Default value, replace as needed
-          date: 'Jul 5', // Default value, replace as needed
+          last_interacted: format(new Date(contact.last_interacted), 'MMM d'), // Format the last_interacted date
         }));
         setContacts(augmentedData);
       } catch (err: unknown) {
@@ -80,41 +87,70 @@ const App: React.FC = () => {
       }
     };
 
+    const fetchConnections = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/users/get_notifications', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: Connection[] = await response.json();
+        setConnections(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+      }
+    };
+
     fetchContacts();
+    fetchConnections();
+
   }, [token]);
 
+  const deleteContact = (url: string) => {
+    const temp = contacts.filter(contact => contact.contact_url !== url);
+    setContacts(temp);
+  }
+
   return (
-    <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<Login onLogin={(jwt: string) => {
-        setToken(jwt);
-        localStorage.setItem('token', jwt);
-        navigate('/main');
-      }} />} />
-      <Route path="/main" element={
-        <div className='flex bg-backgroundColor'>
-          <LeftSideNav />
-          <div className='bg-red w-5/6'>
-            <TopNav />
-            <MainTable contacts={contacts} token={null} deleteContact={function (url: string): void {
-              throw new Error('Function not implemented.');
-            } } />
-            {error && <div>Error fetching contacts: {error}</div>}
+    <>
+      {/*<NotificationComponent connections={connections} />*/}
+      <Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login onLogin={(jwt: string) => {
+          setToken(jwt);
+          localStorage.setItem('token', jwt);
+          navigate('/main');
+        }} />} />
+        <Route path="/main" element={
+          <div className='flex bg-backgroundColor'>
+            <LeftSideNav />
+            <div className='bg-red w-5/6'>
+              <TopNav />
+              <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+              {error && <div>Error fetching contacts: {error}</div>}
+            </div>
           </div>
-        </div>
-      } />
-      <Route path="/keepintouch" element={
-        <div className='flex bg-backgroundColor'>
-          <LeftSideNav />
-          <div className='bg-red w-5/6'>
-            <TopNav />
-            <KeepInTouch />
+        } />
+        <Route path="/keepintouch" element={
+          <div className='flex bg-backgroundColor'>
+            <LeftSideNav />
+            <div className='bg-red w-5/6'>
+              <TopNav />
+              <KeepInTouch />
+            </div>
           </div>
-        </div>
-      } />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-    </Routes>
+        } />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      </Routes>
+    </>
   );
 };
 
