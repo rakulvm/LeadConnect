@@ -547,7 +547,7 @@ class get_user_contacts(Resource):
                     'company_total_duration': exp.company_total_duration
                 })
         
-            contacts.append({
+            contact_data ={
                 'contact_url': contact.contact_url,
                 'name': contact.name,
                 'current_location': contact.current_location,
@@ -555,7 +555,14 @@ class get_user_contacts(Resource):
                 'about': contact.about,
                 'profile_pic_url': contact.profile_pic_url,
                 'experiences': experience_data
-            })
+            }
+            # Adding frequency and last_interacted to contact data
+            connection = next((conn for conn in connections if conn.contact_url == contact.contact_url), None)
+            if connection:
+                contact_data['frequency'] = connection.frequency
+                contact_data['last_interacted'] = connection.last_interacted
+
+            contacts.append(contact_data)
         return jsonify({'contacts': contacts})
 
 @rest_api.route('/api/sef/pdf_upload')
@@ -788,3 +795,44 @@ class ExtensionResource(Resource):
         user_connection = Connection.get_by_connection(current_user.user_id, data['linkedinURL'])
         user_connection.delete()
         return {"status":"deleted"}
+
+def get_next_interaction_date(interaction):
+    last_interacted = interaction.last_interacted
+    frequency = interaction.frequency
+
+    if frequency == 'Weekly':
+        return last_interacted + timedelta(weeks=1)
+    elif frequency == 'Biweekly':
+        return last_interacted + timedelta(weeks=2)
+    elif frequency == 'Monthly':
+        return last_interacted + timedelta(days=30)
+    elif frequency == 'Bimonthly':
+        return last_interacted + timedelta(days=60)
+    elif frequency == 'Once in 3 months':
+        return last_interacted + timedelta(days=90)
+    elif frequency == 'Once in 6 months':
+        return last_interacted + timedelta(days=180)
+    
+
+@rest_api.route('/api/users/get_notifications')
+class get_reminders(Resource):
+    @token_required
+    def get(self,current_user):
+        user_id = current_user.user_id
+        today = datetime.today().date()
+        reminders = []
+        interactions = Connection.query.filter(Connection.user_id==user_id)
+        for interaction in interactions:
+            next_interaction_date = get_next_interaction_date(interaction)
+            if today >= next_interaction_date:
+                contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
+                if contact:
+                    connection = next((conn for conn in interactions if conn.contact_url == contact.contact_url), None)
+                    if connection:
+                        reminders.append({
+                            'name': contact.name,
+                            'contact_url': interaction.contact_url,
+                            'profile_pic_url':contact.profile_pic_url
+                        })
+
+        return jsonify(reminders)
