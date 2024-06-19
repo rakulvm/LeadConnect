@@ -869,3 +869,26 @@ class get_reminders(Resource):
                         })
 
         return jsonify(reminders)
+
+
+@rest_api.route('/api/users/contacts/notes', methods=['POST'])
+class UpdateUserNotes(Resource):
+    @token_required
+    def post(self, current_user):
+        data = request.get_json()
+        contact_url = data.get('contact_url')
+        notes = data.get('notes')
+
+        if not contact_url or not notes:
+            return {'success': False, 'msg': 'Invalid input'}, 400
+
+        connection = Connection.query.filter_by(user_id=current_user.user_id, contact_url=contact_url).first()
+
+        if not connection:
+            return {'success': False, 'msg': 'Connection not found'}, 404
+
+        connection.notes = notes
+        db.session.commit()
+
+        return {'success': True, 'msg': 'Notes updated successfully'}
+

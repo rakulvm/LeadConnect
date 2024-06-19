@@ -13,7 +13,7 @@ type Contact = {
   profile_pic_url: string;
   frequency: string;
   last_interacted: string;
-  notes: string; // Add this line
+  notes: string; // Add notes field
 };
 
 type Experience = {
@@ -27,11 +27,12 @@ type Experience = {
 
 type MainTableProps = {
   contacts: Contact[];
+  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>; // Add this prop
   token: string | null;
-  deleteContact: (url:string) => void;
+  deleteContact: (url: string) => void;
 };
 
-const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact }) => {
+const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, deleteContact }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -44,9 +45,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
-  const [notes, setNotes] = useState<{ [key: string]: string }>({}); // Add state for notes
 
-  const handleDeleteContact = async (url:string) => {
+  const handleDeleteContact = async (url: string) => {
     deleteContact(url);
     try {
       const response = await fetch('http://localhost:5000/api/createcontact', {
@@ -62,7 +62,6 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         // setError(err.message);
@@ -74,46 +73,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
 
   const handleNotesClick = (contact: Contact) => {
     setSelectedContact(contact);
-    /*
-    setNotes({ ...notes, [contact.contact_url]: contact.notes });
   };
-
-  const handleNoteChange = (contact_url: string, newNote: string) => {
-    setNotes({
-      ...notes,
-      [contact_url]: newNote,
-    });
-  };
-
-  const saveNotes = async (contact_url: string) => {
-    if (!token) {
-        console.error('No token found');
-        return;
-    }
-    try {
-        const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`,  // Ensure 'Bearer ' is included
-            },
-            body: JSON.stringify({
-                contact_url,
-                notes: notes[contact_url],
-            }),
-        });
-        if (!response.ok) {
-            throw new Error('Failed to save notes');
-        }
-        alert('Notes saved successfully');
-    } catch (error) {
-        console.error('Error saving notes:', error);
-        alert('Failed to save notes');
-    }
-    */
-};
-
-
 
   const handleIconClick = (icon: string) => {
     alert(`You clicked on the ${icon} icon!`);
@@ -125,6 +85,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
       const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
+    setContacts(sortedContacts);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -290,18 +251,18 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
               <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
               <div className="col-span-3 flex space-x-2">
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
+                  <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote /></span>
                 </button>
                 <a href={`${contact.contact_url}`} target="_blank" rel="noopener noreferrer">
-                <button  className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
-                </button>
+                  <button className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                    <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin /></span>
+                  </button>
                 </a>
                 <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
+                  <span className="text-buttonBlue hover:text-blue-700"><FaFacebook /></span>
                 </button>
                 <button onClick={() => handleDeleteContact(contact.contact_url)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
+                  <span className="text-buttonBlue hover:text-blue-700"><FaTrash /></span>
                 </button>
               </div>
               <div className="col-span-1 text-lg opacity-60">{contact.last_interacted}</div>
@@ -309,11 +270,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
           ))}
         </div>
       </div>
-      {selectedContact && <NotesPopup contactName={selectedContact.name} notes={selectedContact.notes} onClose={() => setSelectedContact(null)} onSave={function (): void {
-        throw new Error('Function not implemented.');
-      } } onNoteChange={function (contact_url: string, newNote: string): void {
-        throw new Error('Function not implemented.');
-      } } />}
+      {selectedContact && <NotesPopup contactName={selectedContact.name} contactUrl={selectedContact.contact_url} initialNote={selectedContact.notes} token={token} onClose={() => setSelectedContact(null)} />}
     </div>
   );
 };

@@ -1,9 +1,9 @@
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import LeftSideNav from '../components/LeftSideNav';
 import TopNav from '../components/TopNav';
 import MainTable from '../components/MainTable';
 import Login from './Login';
-import React, { useEffect, useState } from 'react';
 import AddContactForm from '../components/AddContact';
 import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
@@ -35,7 +35,7 @@ interface Contact {
   profile_pic_url: string;
   frequency: string;
   last_interacted: string;
-  notes: string;  // Add this line
+  notes: string; // Add notes field
 }
 
 interface ContactResponse {
@@ -44,7 +44,7 @@ interface ContactResponse {
 
 const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]); // Added state for connections
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -76,7 +76,7 @@ const App: React.FC = () => {
         }
         const augmentedData = data.contacts.map((contact: Contact) => ({
           ...contact,
-          last_interacted: format(new Date(contact.last_interacted), 'MMM d'), // Format the last_interacted date
+          last_interacted: format(new Date(contact.last_interacted), 'MMM d'),
         }));
         setContacts(augmentedData);
       } catch (err: unknown) {
@@ -111,7 +111,6 @@ const App: React.FC = () => {
 
     fetchContacts();
     fetchConnections();
-
   }, [token]);
 
   const deleteContact = (url: string) => {
@@ -134,7 +133,7 @@ const App: React.FC = () => {
             <LeftSideNav />
             <div className='bg-red w-5/6'>
               <TopNav />
-              <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+              <MainTable contacts={contacts} setContacts={setContacts} token={token} deleteContact={deleteContact} />
               {error && <div>Error fetching contacts: {error}</div>}
             </div>
           </div>
