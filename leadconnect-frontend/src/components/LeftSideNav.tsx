@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
-import { FaSun, FaUserFriends, FaPhone, FaClock, FaBolt, FaTools, FaStickyNote, FaMapMarkerAlt, FaNetworkWired, FaSort, FaPlus, FaTrash } from 'react-icons/fa';
+import { useState } from 'react';
+import { FaSun, FaUserFriends, FaPhone, FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const LeftSideNav = () => {
+  const navigate = useNavigate();
+
   const [groups, setGroups] = useState([
     { name: 'Sports', value: 8, emoji: '⚽' },
     { name: 'Friends', value: 5, emoji: '👫' },
@@ -53,11 +56,43 @@ const LeftSideNav = () => {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      console.log('Token:', token);
+      const response = await fetch('http://127.0.0.1:5000/api/users/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Response status:', response.status);
+      const data = await response.json();
+      console.log('Response data:', data);
+
+      if (data.success) {
+        localStorage.removeItem(`token`);
+        window.location.href = '/';
+      } else {
+        alert(data.message || 'Failed to logout');
+      }
+    } catch (error) {
+      console.error('Error logging out', error);
+      alert('Error logging out');
+    }
+  };
+
+  const handleProfile = () => {
+    navigate('/profile');
+  };
+
   return (
     <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 flex flex-col mr-[0.2rem]'>
       <div className='flex items-center mb-4'>
         <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-lg'>
-          <img src='/assets/logo.jpg' alt='Logo' className='w-8' />
+          <img src='/src/assets/logo.jpg' alt='Logo' className='w-8' />
         </div>
         <span className='ml-4 text-xl font-bold color-secondaryTextColor'>Lead Connect</span>
       </div>
@@ -103,6 +138,18 @@ const LeftSideNav = () => {
           ))}
         </div>
       </div>
+      <button
+        onClick={handleProfile}
+        className='mt-2 mb-2 bg-white text-gray-500 border border-gray-500 px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-gray-500 hover:text-white'
+      >
+        <FaUser className='mr-2' /> Profile
+      </button>
+      <button
+        onClick={handleLogout}
+        className='mt-auto bg-buttonBlue text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-blue-600'
+      >
+        <FaSignOutAlt className='mr-2' /> Logout
+      </button>
     </div>
   );
 }
