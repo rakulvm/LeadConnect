@@ -5,6 +5,10 @@ export FLASK_APP=run.py
 export FLASK_ENV=development
 flask run
 
+
+SET FLASK_APP=run.py
+SET FLASK_ENV=development
+flask run
 """
 import os
 from datetime import datetime, timezone, timedelta
