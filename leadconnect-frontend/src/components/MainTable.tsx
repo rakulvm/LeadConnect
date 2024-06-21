@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin} from 'react-icons/fa';
+import {FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin, FaRobot} from 'react-icons/fa';
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 import ChatComponent from "./ChatComponent.tsx";
@@ -281,7 +281,7 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
                                 </a>
                                 <button onClick={() => handleOpenChat(contact)}
                                         className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                                    <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
+                                    <span className="text-buttonBlue hover:text-blue-700"><FaRobot/></span>
                                 </button>
                                 <button onClick={() => handleDeleteContact(contact.contact_url)}
                                         className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
