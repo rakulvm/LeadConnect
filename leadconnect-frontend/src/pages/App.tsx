@@ -5,6 +5,7 @@ import MainTable from '../components/MainTable'
 import Login from './Login'
 import React,{useEffect, useState} from 'react';
 import AddContactForm from '../components/AddContact'
+import Profile from '../components/Profile'
 import Signup from './SignUp'
 import ForgotPasswordPage from './ForgotPasswordPage';
 import { format } from 'date-fns';
@@ -62,7 +63,7 @@ const App: React.FC = () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
           headers: {
-            Authorization: `${token}`,
+            'Authorization': `${localStorage.getItem('token')}`,
           },
         });
         if (!response.ok) {
@@ -122,27 +123,42 @@ const App: React.FC = () => {
       <>
     {/*<NotificationComponent connections={connections} />*/}
     <Routes>
-      <Route path="/" element={<Navigate to="/login" />} />
-      <Route path="/login" element={<Login onLogin={(jwt: string) => {
-        setToken(jwt);
-        localStorage.setItem('token', jwt);
-        navigate('/main');
-      }} />} />
-            <Route path="/main" element={
-        <div className='flex bg-backgroundColor'>
-          <LeftSideNav></LeftSideNav>
-          <div className='bg-red w-5/6'>
-            <TopNav></TopNav>
-            <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
-            {error && <div>Error fetching contacts: {error}</div>}
-          </div>
-        </div>
-      } />
-      <Route path="/signup" element={<Signup />} />
-      <Route path="/forgot-password" Component={ForgotPasswordPage} />
-    </Routes>
+        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/login" element={<Login onLogin={(jwt: string) => {
+          setToken(jwt);
+          localStorage.setItem('token', jwt);
+          navigate('/main');
+        }} />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" Component={ForgotPasswordPage} />
+
+        {/* Protected Routes */}
+        <Route
+          path="/main"
+          element={
+            token ? (
+              <div className="flex bg-backgroundColor">
+                <LeftSideNav />
+                <div className="bg-red w-5/6">
+                  <TopNav />
+                  <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+                  {error && <div>Error fetching contacts: {error}</div>}
+                </div>
+              </div>
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            token ? <Profile /> : <Navigate to="/login" />
+          }
+        />
+      </Routes>
     </>
-    );
+  );
   };
 
 export default App

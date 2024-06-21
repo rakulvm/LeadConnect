@@ -1,4 +1,4 @@
-# -*- encoding: utf-8 -*-
+# -- encoding: utf-8 --
 
 """
 export FLASK_APP=run.py
@@ -583,7 +583,7 @@ class upload_file(Resource):
 
             if file and '.' in file.filename and file.filename.rsplit('.', 1)[1].lower() in ['pdf']:
                 filename = secure_filename(file.filename)
-                basedir = os.path.abspath(os.path.dirname(__file__))
+                basedir = os.path.abspath(os.path.dirname(_file_))
                 upload_path = os.path.join(basedir, rest_api.app.config['UPLOAD_FOLDER'])
                 file.save(os.path.join(upload_path, filename))  # Directly use 'upload_path' here
                 file_url = url_for('static', filename=os.path.join('pdfs', filename), _external=True)
@@ -606,7 +606,7 @@ class upload_file(Resource):
         try:
             filename = filename + ".pdf"
             # Ensure the file exists
-            basedir = os.path.abspath(os.path.dirname(__file__))
+            basedir = os.path.abspath(os.path.dirname(_file_))
             upload_path = os.path.join(basedir, rest_api.app.config['UPLOAD_FOLDER'])
             if not os.path.exists(os.path.join(upload_path, filename)):
                 return {'success': False, 'message': 'File does not exist'}, 404
@@ -624,35 +624,49 @@ class upload_file(Resource):
 
 
 # end of the create SEF
-@rest_api.route('/api/users/edit')
-class EditUser(Resource):
-    """
-       Edits User's username or password or both using 'user_edit_model' input
-    """
-
-    @rest_api.expect(user_edit_model)
+@rest_api.route('/api/users/profile')
+class UserProfileAPI(Resource):
     @token_required
-    def post(self, current_user):
+    def get(self, current_user):
+        user_id = current_user.user_id
+        user = Users.query.filter_by(user_id=user_id).first() 
+        if user:
+            return jsonify({
+                "username": user.username,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "phone_number": user.phone_number,
+                "company": user.company,
+                "number_of_employees": user.number_of_employees,
+                "province": user.province,
+                "profile_picture_url": user.profile_picture_url,
+                "security_question": user.security_question,
+                "security_answer": user.security_answer,
+            })
+        else:
+            return jsonify({"error": "User not found"}), 404
 
-        req_data = request.get_json()
-
-        _new_first_name = req_data.get("first_name")
-        _new_last_name = req_data.get("last_name")
-        _new_email_address = req_data.get("email")
-
-        cur_user = Users.get_by_email(_new_email_address)
-        if _new_first_name:
-            cur_user.update_first_name(new_first_name=_new_first_name)
-
-        if _new_last_name:
-            cur_user.update_last_name(new_last_name=_new_last_name)
-
-        if _new_email_address:
-            cur_user.update_email(new_email=_new_email_address)
-
-        db.session.commit()
-
-        return {"success": True}, 200
+    @token_required
+    def put(self, current_user):
+        data = request.json
+        user = current_user
+        if user:
+            user.email = data.get('email', user.email)
+            user.first_name = data.get('first_name', user.first_name)
+            user.last_name = data.get('last_name', user.last_name)
+            user.phone_number = data.get('phone_number', user.phone_number)
+            user.company = data.get('company', user.company)
+            user.number_of_employees = data.get('number_of_employees', user.number_of_employees)
+            user.province = data.get('province', user.province)
+            user.profile_picture_url = data.get('profile_picture_url', user.profile_picture_url)
+            user.security_question = data.get('security_question', user.security_question)
+            user.security_answer = data.get('security_answer', user.security_answer)
+            user.set_password(data.get('password', user.password_hash))  # Assuming password change is allowed
+            db.session.commit()
+            return jsonify({"message": "Profile updated successfully"})
+        else:
+            return jsonify({"error": "User not found"}), 404
 
 
 @rest_api.route('/api/users/logout')
@@ -663,15 +677,16 @@ class LogoutUser(Resource):
 
     @token_required
     def post(self, current_user):
-        _jwt_token = request.headers["authorization"]
+        user_id = current_user.user_id
+        user = Users.query.filter_by(user_id=user_id).first() 
 
-        jwt_block = JWTTokenBlocklist(jwt_token=_jwt_token, created_at=datetime.now(timezone.utc))
-        jwt_block.save()
+        if user and user.status == 1: 
+            user.status = 0  
+            db.session.commit()
 
-        current_user.set_status(False)
-        db.session.commit()
-
-        return {"success": True}, 200
+            return {"success": True, "message": "User logged out successfully"}, 200
+        else:
+            return {"success": False, "message": "User is already logged out or does not exist"}, 400
 
 
 @rest_api.route('/api/sessions/oauth/github/')
