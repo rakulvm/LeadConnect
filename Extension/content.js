@@ -6,7 +6,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else {
       sendResponse({ text: null });
     }
-  } else if (request.action === "getSummary") {
+  } 
+  else if (request.action === "getToken") {
+    let token = localStorage['token']
+    sendResponse({ text: token });
+  }
+  else if (request.action === "getSummary") {
     const spans = document.querySelectorAll("span");
     // Find the experience Text
     const element = Array.from(spans).find(
@@ -35,8 +40,14 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const element = document.querySelector(
       ".pv-top-card__non-self-photo-wrapper img"
     );
+    const profilePictureURL = element.getAttribute("src");
+    const defaultURL = "https://static.vecteezy.com/system/resources/previews/026/630/551/original/profile-icon-symbol-design-illustration-vector.jpg";
+
+    const finalProfilePictureURL = profilePictureURL && profilePictureURL.startsWith("http") 
+    ? profilePictureURL 
+    : defaultURL;
     if (element) {
-      sendResponse({ text: element.getAttribute("src") });
+      sendResponse({ text: finalProfilePictureURL });
     } else {
       sendResponse({ text: null });
     }
@@ -55,7 +66,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     const targetSpan = Array.from(spans).find(
       (span) => span.textContent.trim() === "Experience"
     );
-
+    // handle no experience
+    if(!targetSpan){
+      sendResponse({ text: [] });
+    }
     // Locate the parent dic of the experience section
     const experienceSection =
       targetSpan.parentElement.parentElement.parentElement.parentElement
@@ -81,6 +95,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const companyName =
           experiences[i].querySelectorAll("span")[0].textContent;
         company["CompanyName"] = companyName;
+
+        // Company Logo
+        let companyLogo = experiences[i].querySelector('img')?.src;
+        companyLogo = companyLogo? companyLogo : ""
+        company["CompanyLogo"] = companyLogo;
 
         // Extract the dynamic class that linkedin uses to extract company roles
         let newexperienceEach = experiences[i].querySelectorAll(
@@ -150,6 +169,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         const companyName =
           experiences[i].querySelectorAll("span")[3].textContent;
         company["companyName"] = companyName?.trim().split(" · ")[0];
+
+        // Company Logo
+        let companyLogo = experiences[i].querySelector('img')?.src;
+        companyLogo = companyLogo? companyLogo : ""
+        company["CompanyLogo"] = companyLogo;
 
         // Company Location
         let companyData = experiences[i].querySelectorAll("span:not([class])");

@@ -285,6 +285,7 @@ class Experience(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
     company_name = db.Column(db.String(255), nullable=False)
+    company_logo = db.Column(db.String(255), nullable=False)
     company_role = db.Column(db.String(255), nullable=False)
     company_location = db.Column(db.String(255), nullable=False)
     bulletpoints = db.Column(db.Text, nullable=False)
@@ -349,6 +350,7 @@ class Experience(db.Model):
         cls_dict['id'] = self.id
         cls_dict['contact_url'] = self.contact_url
         cls_dict['company_name'] = self.company_name
+        cls_dict['company_logo'] = self.company_logo
         cls_dict['company_role'] = self.company_role
         cls_dict['company_location'] = self.company_location
         cls_dict['bulletpoints'] = self.bulletpoints
@@ -364,6 +366,8 @@ class Connection(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
+    frequency = db.Column(db.Enum('Weekly', 'Biweekly', 'Monthly', 'Bimonthly', 'Once in 3 months', 'Once in 6 months'), default='Weekly', nullable=False)
+    last_interacted = db.Column(db.Date, default=datetime.utcnow,nullable=False)
 
     def __repr__(self):
         return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
@@ -382,7 +386,13 @@ class Connection(db.Model):
         cls_dict['id'] = self.id
         cls_dict['user_id'] = self.user_id
         cls_dict['contact_url'] = self.contact_url
+        cls_dict['frequency'] = self.frequency
+        cls_dict['last_interacted'] = self.last_interacted
         return cls_dict
 
     def toJSON(self):
         return self.toDICT()
+
+    def delete(self):
+        db.session.delete(self)
+        db.session.commit()

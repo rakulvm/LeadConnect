@@ -4,22 +4,33 @@ import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 
 type Contact = {
+  about: string;
+  contact_url: string;
+  current_location: string;
+  experiences: Experience[];
+  headline: string;
   name: string;
-  role: string;
+  profile_pic_url: string;
   frequency: string;
-  date: string;
+  last_interacted: string;
 };
 
-const MainTable: React.FC = () => {
-  const [contacts, setContacts] = useState<Contact[]>([
-    { name: 'Sundhar K', role: 'Developer', frequency: 'Every 2 weeks', date: 'jul 5' },
-    { name: 'Sarvan', role: 'Mentor', frequency: 'Don\'t keep in touch', date: 'jun 5' },
-    { name: 'Rathinas', role: 'Actor', frequency: 'Every week', date: 'jul 5' },
-    { name: 'Rakul', role: 'DevOps Engineer', frequency: 'Every month', date: 'jan 5' },
-    { name: 'Hayden', role: 'Full Stack Developer', frequency: 'Every week', date: 'may 5' },
-    { name: 'Jivin', role: 'Backend Engineer', frequency: 'Every 6 months', date: 'dec 5' },
-  ]);
+type Experience = {
+  bulletpoints: string;
+  company_duration: string;
+  company_location: string;
+  company_name: string;
+  company_role: string;
+  company_total_duration: string;
+};
 
+type MainTableProps = {
+  contacts: Contact[];
+  token: string | null;
+  deleteContact: (url:string) => void;
+};
+
+const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -28,13 +39,42 @@ const MainTable: React.FC = () => {
     name: '',
     role: '',
     frequency: '',
-    date: ''
+    last_interacted: ''
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
 
+  /*
   const addContact = (contact: Contact) => {
-    setContacts([...contacts, contact]);
+  //setContacts([...contacts, contact]);
+  };
+  */
+
+  
+  const handleDeleteContact = async (url:string) => {
+    deleteContact(url);
+    try {
+      const response = await fetch('http://localhost:5000/api/createcontact', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({
+          linkedinURL: url
+        }),
+      });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        // setError(err.message);
+      } else {
+        // setError('An unknown error occurred');
+      }
+    }
   };
 
   const handleNotesClick = (contact: Contact) => {
@@ -47,11 +87,11 @@ const MainTable: React.FC = () => {
 
   const handleSort = () => {
     const sortedContacts = [...contacts].sort((a, b) => {
-      const dateA = new Date(a.date).getTime();
-      const dateB = new Date(b.date).getTime();
+      const dateA = new Date(a.last_interacted).getTime();
+      const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-    setContacts(sortedContacts);
+  //  setContacts(sortedContacts);
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -62,10 +102,6 @@ const MainTable: React.FC = () => {
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleDeleteContact = (contactName: string) => {
-    setContacts(contacts.filter(contact => contact.name !== contactName));
   };
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -89,9 +125,9 @@ const MainTable: React.FC = () => {
   const filteredContacts = contacts.filter(contact => {
     return (
       contact.name.toLowerCase().includes(filterValues.name.toLowerCase()) &&
-      contact.role.toLowerCase().includes(filterValues.role.toLowerCase()) &&
+      contact.experiences[0].company_role.toLowerCase().includes(filterValues.role.toLowerCase()) &&
       contact.frequency.toLowerCase().includes(filterValues.frequency.toLowerCase()) &&
-      contact.date.toLowerCase().includes(filterValues.date.toLowerCase())
+      contact.last_interacted.toLowerCase().includes(filterValues.last_interacted.toLowerCase())
     );
   });
 
@@ -100,7 +136,7 @@ const MainTable: React.FC = () => {
   );
 
   return (
-    <div className="h-screen p-1 bg-cardWhite flex flex-col relative">
+    <div className="h-[89%] p-1 bg-cardWhite flex flex-col relative">
       <div className="ml-4 mr-3 flex justify-between items-center mb-4 sticky top-0 bg-cardWhite z-10">
         <div>
           <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
@@ -113,7 +149,7 @@ const MainTable: React.FC = () => {
           + Add new contact
         </button>
       </div>
-      <ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />
+      {/*<ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />*/}
       <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4 mr-16 sticky top-16 z-10">
         <div className="ml-3 flex items-center space-x-4">
           <input
@@ -186,7 +222,7 @@ const MainTable: React.FC = () => {
                 type="text"
                 name="date"
                 placeholder="Filter by date"
-                value={filterValues.date}
+                value={filterValues.last_interacted}
                 onChange={handleFilterChange}
                 className="border border-gray-300 p-2 rounded-lg"
               />
@@ -204,7 +240,7 @@ const MainTable: React.FC = () => {
       <div className="flex-grow overflow-hidden">
         <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
           {searchFilteredContacts.map((contact, index) => (
-            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 items-center">
+            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
               <div className="col-span-5 flex items-center space-x-4">
                 <input
                   type="checkbox"
@@ -212,10 +248,10 @@ const MainTable: React.FC = () => {
                   onChange={() => handleSelectContact(contact.name)}
                   checked={selectedContacts.has(contact.name)}
                 />
-                <img src="https://teams.microsoft.com/l/message/48:notes/1716240767333?context=%7B%22contextType%22%3A%22chat%22%7D" alt="profile" className="w-10 h-10 rounded-full" />
+                <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                  <p className="text-lg opacity-60 ml-2">{contact.role}</p>
+                  <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
               <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
@@ -223,17 +259,19 @@ const MainTable: React.FC = () => {
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
                 </button>
-                <button onClick={() => handleIconClick('Twitter')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <a href={`${contact.contact_url}`} target="_blank" rel="noopener noreferrer">
+                <button  className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
                 </button>
+                </a>
                 <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
                 </button>
-                <button onClick={() => handleDeleteContact(contact.name)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                <button onClick={() => handleDeleteContact(contact.contact_url)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
                 </button>
               </div>
-              <div className="col-span-1 text-lg opacity-60">{contact.date}</div>
+              <div className="col-span-1 text-lg opacity-60">{contact.last_interacted}</div>
             </div>
           ))}
         </div>

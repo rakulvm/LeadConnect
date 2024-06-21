@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link,useNavigate } from 'react-router-dom';
 import SignupForm from '../components/Auth/SignupForm';
 import StepIndicator from '../components/StepIndicator';
 import logo from '../assets/logo.jpg';
 
 const Signup: React.FC = () => {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({
     username: '',
@@ -37,11 +38,30 @@ const Signup: React.FC = () => {
     });
   };
 
-  const handleSubmit = () => {
-    // will submit form data to the backend 
-    // doing it later
-    console.log(formData);
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:5000/api/users/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      else {
+        const result = await response.json();
+        console.log(result);
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error('There was a problem with the fetch operation:', error);
+    }
   };
+
 
   return (
     <div className="min-h-screen py-12 flex flex-col items-center justify-center bg-backgroundColor">
@@ -49,7 +69,7 @@ const Signup: React.FC = () => {
         <img src={logo} alt="LeadConnect Logo" className="h-8 w-8 mr-2" />
         <span className="text-xl font-bold"><Link to="/">LeadConnect</Link></span>
       </div>
-      <div className="bg-white p-8 rounded shadow-lg w-full max-w-lg">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
         <h1 className="text-2xl pt-7 font-bold mb-4 text-center">Create your LeadConnect Account</h1>
         <StepIndicator currentStep={currentStep} totalSteps={4} />
         <SignupForm
