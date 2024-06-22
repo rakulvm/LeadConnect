@@ -37,7 +37,7 @@ from io import BytesIO
 rest_api = Api(version="1.0", title="Users API")
 
 # Replace with your OpenAI API key
-openai.api_key = '<api key here>'
+openai.api_key = ''
 """
     Flask-Restx models for api request and response data
 """
@@ -80,9 +80,12 @@ signup_model = rest_api.model('SignupModel', {
 login_model = rest_api.model('LoginModel', {"username": fields.String(required=True),
                                             "password": fields.String(required=True)
                                             })
-llm_model = rest_api.model('LLMModel', {"summary": fields.String(required=True),
-                                        "event_details": fields.String(required=True)
-                                        })
+
+llm_model = rest_api.model('LLMModel', {
+    'experiences': fields.List(fields.String, required=True, description='List of experiences'),
+    'initial_context': fields.Boolean(required=True,
+                                      description='Flag to indicate if this is the initial context setting')
+})
 
 user_edit_model = rest_api.model('UserEditModel', {"user_id": fields.String(required=True, min_length=1, max_length=50),
                                                    "first_name": fields.String(required=True, min_length=2,
@@ -324,7 +327,7 @@ class ResetPassword(Resource):
         except Exception as e:
             # Handle database errors
             print(traceback.format_exc())
-            return {"status": "failed", "msg": "Error occured contact the admin."}, 500
+            return {"status": "failed", "msg": "Error occurred, Please contact the admin."}, 500
 
 
 @rest_api.route('/api/users/verify')
@@ -401,7 +404,7 @@ class Login(Resource):
                     "msg": "Wrong credentials."}, 400
 
         # create access token uwing JWT
-        token = jwt.encode({'user_id':user_id,'username': username,'exp': datetime.utcnow() + timedelta(minutes=30)},
+        token = jwt.encode({'user_id': user_id, 'username': username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
                            BaseConfig.SECRET_KEY)
 
         user_exists.set_status(True)
@@ -425,31 +428,58 @@ class LLM(Resource):
     def post(self):
         data = request.get_json()
 
-        summary = data.get('summary')
-        event_details = data.get('event_details')
+        experiences = data.get('experiences')
+        question = data.get('question')
+        initial_context = data.get('initial_context')
 
-        if not summary or not event_details:
-            return jsonify({'error': 'Invalid input data'}), 400
+        if not experiences:
+            return {'customized_message': "Error occurred, Please contact the admin."}
 
-        messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": f"Summary of the person: {summary}"},
-            {"role": "user", "content": f"Event details: {event_details}"},
-            {"role": "user", "content": "Generate a customized message for this person:"}
-        ]
+        if initial_context:
+            # Take only the last two experiences or one if there's only one
+            # selected_experiences = experiences[-2:]
+            summary = " ".join(experiences)
+            messages = [
+                {"role": "system", "content": "You are my lead management and email message generator bot."},
+                {"role": "user", "content": f"Summary of the person: {summary}"},
+                {"role": "user",
+                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person."}
+            ]
 
-        try:
-            response = openai.ChatCompletion.create(
-                model="gpt-3",
-                messages=messages,
-                max_tokens=150
-            )
-            customized_message = response['choices'][0]['message']['content'].strip()
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    max_tokens=150
+                )
+                summary_message = response['choices'][0]['message']['content'].strip()
+                return jsonify({'customized_message': summary_message})
 
-            return jsonify({'customized_message': customized_message}), 200
+            except Exception as e:
+                return {'customized_message': "Error occurred, Please contact the admin."}
 
-        except Exception as e:
-            return jsonify({'error': str(e)}), 500
+        else:
+            # Use the stored summary to generate a customized message
+            try:
+                summary = " ".join(experiences)
+
+                messages = [
+                    {"role": "system", "content": "You are my lead management and email message generator bot."},
+                    {"role": "user", "content": f"Summary of the person: {summary}"},
+                    {"role": "user", "content": question}
+                ]
+
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    max_tokens=150
+                )
+                customized_message = response['choices'][0]['message']['content'].strip()
+
+                return {'customized_message': customized_message}
+
+            except Exception as e:
+                return {'customized_message': "Error occurred, Please contact the admin."}
 
 
 @rest_api.route('/api/users')
@@ -526,18 +556,20 @@ def store_to_mysql(json_data):
             "total_failed": total_failed
         }
 """
+
+
 @rest_api.route('/api/users/contacts')
 class get_user_contacts(Resource):
     @token_required
-    def get(self,current_user):
+    def get(self, current_user):
         user_id = current_user.user_id
-    
+
         connections = db.session.query(Connection).filter(Connection.user_id == user_id).all()
         contact_urls = [connection.contact_url for connection in connections]
         user_contacts = db.session.query(Contact).filter(Contact.contact_url.in_(contact_urls)).all()
         contacts = []
         for contact in user_contacts:
-        
+
             experiences = Experience.query.filter_by(contact_url=contact.contact_url).all()
             experience_data = []
             for exp in experiences:
@@ -550,8 +582,8 @@ class get_user_contacts(Resource):
                     'company_duration': exp.company_duration,
                     'company_total_duration': exp.company_total_duration
                 })
-        
-            contact_data ={
+
+            contact_data = {
                 'contact_url': contact.contact_url,
                 'name': contact.name,
                 'current_location': contact.current_location,
@@ -568,6 +600,7 @@ class get_user_contacts(Resource):
 
             contacts.append(contact_data)
         return jsonify({'contacts': contacts})
+
 
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):
@@ -596,7 +629,7 @@ class upload_file(Resource):
                 return {'success': False, 'message': 'Invalid file type'}, 400
         except Exception as e:
             print(traceback.format_exc())
-            return {"message": "Some error occured: {}".format(str(e))}, 500
+            return {"message": "Some error occurred: {}".format(str(e))}, 500
 
 
 @rest_api.route('/api/sef/pdf/<filename>', methods=['GET'])
@@ -633,7 +666,7 @@ class UserProfileAPI(Resource):
     @token_required
     def get(self, current_user):
         user_id = current_user.user_id
-        user = Users.query.filter_by(user_id=user_id).first() 
+        user = Users.query.filter_by(user_id=user_id).first()
         if user:
             return jsonify({
                 "username": user.username,
@@ -682,10 +715,10 @@ class LogoutUser(Resource):
     @token_required
     def post(self, current_user):
         user_id = current_user.user_id
-        user = Users.query.filter_by(user_id=user_id).first() 
+        user = Users.query.filter_by(user_id=user_id).first()
 
-        if user and user.status == 1: 
-            user.status = 0  
+        if user and user.status == 1:
+            user.status = 0
             db.session.commit()
 
             return {"success": True, "message": "User logged out successfully"}, 200
@@ -797,7 +830,7 @@ class ExtensionResource(Resource):
                 experience = Experience(
                     contact_url=new_connection.contact_url,
                     company_name=company.get("CompanyName") or company.get("companyName"),
-                    company_logo = company.get("CompanyLogo"),
+                    company_logo=company.get("CompanyLogo"),
                     company_role=position.get("CompanyRole") or position.get("companyRole"),
                     company_location=position["companyLocation"],
                     bulletpoints=position["bulletPoints"],
@@ -807,13 +840,15 @@ class ExtensionResource(Resource):
                 experience.save()
                 experience_object.append(experience.toDICT())
         return [new_connection.toDICT(), new_contact.toDICT(), experience_object], 201
+
     @token_required
     def delete(self, current_user):
         data = request.get_json()
         print(data)
         user_connection = Connection.get_by_connection(current_user.user_id, data['linkedinURL'])
         user_connection.delete()
-        return {"status":"deleted"}
+        return {"status": "deleted"}
+
 
 def get_next_interaction_date(interaction):
     last_interacted = interaction.last_interacted
@@ -831,16 +866,16 @@ def get_next_interaction_date(interaction):
         return last_interacted + timedelta(days=90)
     elif frequency == 'Once in 6 months':
         return last_interacted + timedelta(days=180)
-    
+
 
 @rest_api.route('/api/users/get_notifications')
 class get_reminders(Resource):
     @token_required
-    def get(self,current_user):
+    def get(self, current_user):
         user_id = current_user.user_id
         today = datetime.today().date()
         reminders = []
-        interactions = Connection.query.filter(Connection.user_id==user_id)
+        interactions = Connection.query.filter(Connection.user_id == user_id)
         for interaction in interactions:
             next_interaction_date = get_next_interaction_date(interaction)
             if today >= next_interaction_date:
@@ -851,7 +886,7 @@ class get_reminders(Resource):
                         reminders.append({
                             'name': contact.name,
                             'contact_url': interaction.contact_url,
-                            'profile_pic_url':contact.profile_pic_url
+                            'profile_pic_url': contact.profile_pic_url
                         })
 
         return jsonify(reminders)
