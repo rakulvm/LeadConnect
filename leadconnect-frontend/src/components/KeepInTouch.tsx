@@ -1,31 +1,68 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { Contact } from '../types'; // Import the shared Contact type
 
-type Contact = {
-  name: string;
+type ContactWithInitial = Contact & {
   initial: string;
 };
 
 type ContactsState = {
-  dontKeepInTouch: Contact[];
-  uncategorized: Contact[];
-  everyWeek: Contact[];
-  everyTwoWeeks: Contact[];
-  everyMonth: Contact[];
-  everyThreeMonths: Contact[];
+  dontKeepInTouch: ContactWithInitial[];
+  uncategorized: ContactWithInitial[];
+  everyWeek: ContactWithInitial[];
+  everyTwoWeeks: ContactWithInitial[];
+  everyMonth: ContactWithInitial[];
+  everyThreeMonths: ContactWithInitial[];
 };
 
-const initialData: ContactsState = {
-  dontKeepInTouch: [{ name: 'Aaron Kalb', initial: 'A' }],
-  uncategorized: [{ name: 'Aishwarya Mahesh', initial: 'A' }],
-  everyWeek: [{ name: 'Adam Kell', initial: 'A' }],
-  everyTwoWeeks: [{ name: 'Adrian Sanborn', initial: 'A' }],
-  everyMonth: [{ name: 'Adam Guild', initial: 'A' }],
-  everyThreeMonths: [{ name: 'Albert Chow', initial: 'A' }],
+const categorizeContacts = (contacts: Contact[]): ContactsState => {
+  const categorizedContacts: ContactsState = {
+    dontKeepInTouch: [],
+    uncategorized: [],
+    everyWeek: [],
+    everyTwoWeeks: [],
+    everyMonth: [],
+    everyThreeMonths: [],
+  };
+
+  contacts.forEach(contact => {
+    const initial = contact.name.charAt(0);
+    const categorizedContact: ContactWithInitial = { ...contact, initial };
+
+    switch (contact.frequency) {
+      case 'Weekly':
+        categorizedContacts.everyWeek.push(categorizedContact);
+        break;
+      case 'Biweekly':
+        categorizedContacts.everyTwoWeeks.push(categorizedContact);
+        break;
+      case 'Monthly':
+        categorizedContacts.everyMonth.push(categorizedContact);
+        break;
+      case 'Once in 3 months':
+        categorizedContacts.everyThreeMonths.push(categorizedContact);
+        break;
+      default:
+        categorizedContacts.uncategorized.push(categorizedContact);
+        break;
+    }
+  });
+
+  return categorizedContacts;
 };
 
-const KeepInTouch: React.FC = () => {
-  const [contacts, setContacts] = useState<ContactsState>(initialData);
+type KeepInTouchProps = {
+  contacts: Contact[];
+};
+
+const KeepInTouch: React.FC<KeepInTouchProps> = ({ contacts }) => {
+  const [categorizedContacts, setCategorizedContacts] = useState<ContactsState>(() =>
+    categorizeContacts(contacts)
+  );
+
+  useEffect(() => {
+    setCategorizedContacts(categorizeContacts(contacts));
+  }, [contacts]);
 
   const onDragEnd = (result: DropResult) => {
     const { source, destination } = result;
@@ -34,14 +71,14 @@ const KeepInTouch: React.FC = () => {
 
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
 
-    const sourceList = Array.from(contacts[source.droppableId as keyof ContactsState]);
+    const sourceList = Array.from(categorizedContacts[source.droppableId as keyof ContactsState]);
     const [movedItem] = sourceList.splice(source.index, 1);
 
-    const destinationList = Array.from(contacts[destination.droppableId as keyof ContactsState]);
+    const destinationList = Array.from(categorizedContacts[destination.droppableId as keyof ContactsState]);
     destinationList.splice(destination.index, 0, movedItem);
 
-    setContacts({
-      ...contacts,
+    setCategorizedContacts({
+      ...categorizedContacts,
       [source.droppableId]: sourceList,
       [destination.droppableId]: destinationList,
     });
@@ -58,7 +95,7 @@ const KeepInTouch: React.FC = () => {
       </div>
       <DragDropContext onDragEnd={onDragEnd}>
         <div className='grid grid-cols-1 md:grid-cols-6 gap-4'>
-          {Object.keys(contacts).map((key) => (
+          {Object.keys(categorizedContacts).map((key) => (
             <Droppable droppableId={key} key={key}>
               {(provided, snapshot) => (
                 <div
@@ -69,7 +106,7 @@ const KeepInTouch: React.FC = () => {
                   <h2 className='font-bold mb-2'>
                     {key.replace(/([a-z])([A-Z])/g, '$1 $2')}
                   </h2>
-                  {contacts[key as keyof ContactsState].map((contact, index) => (
+                  {categorizedContacts[key as keyof ContactsState].map((contact, index) => (
                     <Draggable
                       draggableId={contact.name}
                       index={index}

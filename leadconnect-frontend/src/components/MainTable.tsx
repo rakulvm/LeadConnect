@@ -1,33 +1,12 @@
 import React, { useState } from 'react';
 import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin } from 'react-icons/fa';
+import { Contact, Experience } from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 
-type Contact = {
-  about: string;
-  contact_url: string;
-  current_location: string;
-  experiences: Experience[];
-  headline: string;
-  name: string;
-  profile_pic_url: string;
-  frequency: string;
-  last_interacted: string;
-  notes: string; // Add notes field
-};
-
-type Experience = {
-  bulletpoints: string;
-  company_duration: string;
-  company_location: string;
-  company_name: string;
-  company_role: string;
-  company_total_duration: string;
-};
-
 type MainTableProps = {
   contacts: Contact[];
-  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>; // Add this prop
+  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>;
   token: string | null;
   deleteContact: (url: string) => void;
 };
@@ -234,8 +213,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
       <div className="flex-grow overflow-hidden">
         <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
           {searchFilteredContacts.map((contact, index) => (
-            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
-              <div className="col-span-5 flex items-center space-x-4">
+            <div key={index} className="grid grid-cols-12 gap-3 px-4 py-2 border-b border-gray-100 hover:border-l-2 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
+              <div className="col-span-6 flex items-center space-x-2">
                 <input
                   type="checkbox"
                   className="form-checkbox h-4 w-4 text-buttonBlue"
@@ -245,10 +224,10 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                 <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                  <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
+                  <p className="text-l opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
-              <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
+              <div className="col-span-2 ml-12 text-lg opacity-80">{contact.frequency}</div>
               <div className="col-span-3 flex space-x-2">
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote /></span>
