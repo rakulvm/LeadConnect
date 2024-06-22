@@ -363,7 +363,7 @@ class Verify(Resource):
                 db.session.commit()  # Make sure to commit the changes to the database
 
                 # create access token using JWT
-                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(days=60)},
                                    BaseConfig.SECRET_KEY)
 
                 user_exists.set_status(True)
