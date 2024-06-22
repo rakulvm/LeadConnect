@@ -67,7 +67,7 @@ const Profile: React.FC = () => {
           security_answer: data.security_answer || '',
         });
       })
-      .catch((error) => setError('Failed to load user data.'));
+      .catch((error) => setError('Failed to load user data. Error: '+error.toString()));
   }, []);
 
   const handleInputChange = (field: keyof FormData, value: string) => {
