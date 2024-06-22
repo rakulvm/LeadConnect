@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './../chat.css';
-import { FaTimes, FaPlus, FaPaperPlane } from "react-icons/fa"; // Import the CSS file
+import { FaTimes, FaPlus, FaPaperPlane, FaRobot, FaUser } from "react-icons/fa";
+import axios from 'axios';
 
 type Contact = {
     about: string;
@@ -29,21 +30,68 @@ type ChatComponentProps = {
 
 const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
     const [message, setMessage] = useState('');
-    const [chatHistory, setChatHistory] = useState<{ text: string, time: string }[]>([]);
+    const [chatHistory, setChatHistory] = useState<{ text: string, time: string, sender: string }[]>([]);
     const [chatVisible, setChatVisible] = useState(false);
     const [modalVisible, setModalVisible] = useState(false);
-    const [loading, setLoading] = useState(true);
-    const [experienceLoaded, setExperienceLoaded] = useState(false);
+    const [loading, setLoading] = useState(false);
     const chatBoxRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+    const chatBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setLoading(false);
-            setExperienceLoaded(true);
-        }, 5000);
-        return () => clearTimeout(timer);
-    }, []);
+        const initialMessages = [
+            {
+                text: 'Hi, Please wait I am contextualizing this chat with ' + contact.name + ' data.',
+                time: new Date().toLocaleTimeString(),
+                sender: 'bot'
+            },
+            {
+                text: 'Below is the summary of that user.',
+                time: new Date().toLocaleTimeString(),
+                sender: 'bot'
+            }
+        ];
+
+        const fetchData = async () => {
+            setLoading(true);
+            try {
+                const experiences = contact.experiences.map(exp => exp.bulletpoints);
+                const response = await axios.post('http://localhost:5000/api/llm', {
+                    experiences,
+                    initial_context: true
+                });
+
+                const fetchedMessages = [
+                    {
+                        text: response.data.customized_message,
+                        time: new Date().toLocaleTimeString(),
+                        sender: 'bot'
+                    },
+                    {
+                        text: `You can ask below things to this person: 
+                             - "Do you have any openings in your company?"
+                             - "I have an interview in a few days in your company and need your guidance."
+                             - "Are you free for a coffee chat this month?"
+                             - "I am trying to learn emerging technologies and your profile looks good. Can you guide me on how to start with my preparation?"`,
+                        time: new Date().toLocaleTimeString(),
+                        sender: 'bot'
+                    }
+                ];
+
+                setChatHistory([...initialMessages, ...fetchedMessages]);
+            } catch (error) {
+                console.error('Error sending experiences:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        setChatHistory(initialMessages);
+        fetchData();
+    }, [contact.experiences]);
+    useEffect(() => {
+        scrollToBottom();
+    }, [chatHistory]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -81,11 +129,39 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
         };
     }, [chatBoxRef, inputRef]);
 
-    const handleSendMessage = () => {
+    const scrollToBottom = () => {
+        if (chatBodyRef.current) {
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+        }
+    };
+
+    const handleSendMessage = async () => {
         if (message.trim()) {
             const currentTime = new Date().toLocaleTimeString();
-            setChatHistory([...chatHistory, { text: message, time: currentTime }]);
+            const userMessage = { text: message, time: currentTime, sender: 'user' };
+            setChatHistory(prevHistory => [...prevHistory, userMessage]);
             setMessage('');
+
+            try {
+                setLoading(true);
+
+                const experiences = contact.experiences.map(exp => exp.bulletpoints);
+                const response = await axios.post('http://localhost:5000/api/llm', {
+                    experiences,
+                    question: message,
+                    initial_context: false
+                });
+                const botMessage = {
+                    text: response.data.customized_message,
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                };
+                setChatHistory(prevHistory => [...prevHistory, botMessage]);
+            } catch (error) {
+                console.error('Error sending message:', error);
+            } finally {
+                setLoading(false);
+            }
         }
     };
 
@@ -101,33 +177,45 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
         <div className={`app-container ${chatVisible ? 'blur-background' : ''}`}>
             <div className={`chat-box ${chatVisible ? 'visible' : ''}`} ref={chatBoxRef}>
                 <div className="chat-box-header">
-                    <h3>Lead Bot <span style={{ fontWeight: "bold" }}>: {chatVisible ? contact.name : ''}</span> </h3>
+                    <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
+                    <span style={{ fontWeight: "bold", lineHeight: "2" }}> {chatVisible ? contact.name : ''}</span>
                     <p id="addExtra" onClick={toggleChatVisibility}>
                         <span className="text-buttonBlue hover:text-blue-700"><FaTimes size={24} /></span>
                     </p>
                 </div>
-                <div className="chat-box-body">
-                    {loading && <div className="loading">Loading...</div>}
-                    {experienceLoaded && contact.experiences.map((exp, index) => (
-                        <div key={index} className="chat-box-body-receive">
-                            <p>{exp.bulletpoints}</p>
-                            <span>{new Date().toLocaleTimeString()}</span>
-                        </div>
-                    ))}
+                <div className="chat-box-body" ref={chatBodyRef}>
                     {chatHistory.map((msg, index) => (
-                        <div key={index} className="chat-box-body-send">
-                            <p>{msg.text}</p>
-                            <span>{msg.time}</span>
-                        </div>
+                        msg.text && (
+                            <div key={index} className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'}`}>
+                                <p>{msg.text}</p>
+                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                    <span style={{
+                                        fontSize: "14px",
+                                        fontWeight: "bold",
+                                        lineHeight: 1,
+                                        display: "flex",
+                                        flexDirection: "row",
+                                        flex: "1"
+                                    }}>{msg.sender === 'bot' ? <FaRobot className="chat-icon-receive" /> :
+                                        <FaUser className="chat-icon-send" />} {msg.sender === 'bot' ? 'Bot' : 'You'}</span>
+                                    <span>{msg.time}</span>
+                                </div>
+                            </div>
+                        )
                     ))}
                 </div>
+                {loading && (
+                    <div className="dot-falling-container">
+                        <div className="dot-falling"></div>
+                    </div>
+                )}
                 <div className="chat-box-footer">
                     <button id="addExtra" onClick={toggleModalVisibility}>
                         <span className="text-buttonBlue hover:text-blue-700"><FaPlus size={24} /></span>
                     </button>
                     <input
                         ref={inputRef}
-                        placeholder="Enter Your Message"
+                        placeholder="Type Here"
                         type="text"
                         value={message}
                         onChange={(e) => setMessage(e.target.value)}
@@ -139,8 +227,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
             </div>
 
             <div className="chat-button" onClick={toggleChatVisibility}
-                style={{ display: chatVisible ? 'none' : 'block' }}>
-                <span></span>
+                style={{ display: chatVisible ? 'none' : 'flex' }}>
+                <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
+                {contact.name}
             </div>
 
             {modalVisible && (
