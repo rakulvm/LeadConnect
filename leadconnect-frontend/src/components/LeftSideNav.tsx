@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FaSun, FaUserFriends, FaPhone, FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-
 
 const LeftSideNav = () => {
   const navigate = useNavigate();
@@ -75,7 +74,7 @@ const LeftSideNav = () => {
       console.log('Response data:', data);
 
       if (data.success) {
-        localStorage.removeItem(`token`);
+        localStorage.removeItem('token');
         window.location.href = '/';
       } else {
         alert(data.message || 'Failed to logout');

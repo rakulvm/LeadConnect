@@ -1,19 +1,29 @@
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import LeftSideNav from '../components/LeftSideNav'
-import TopNav from '../components/TopNav'
-import MainTable from '../components/MainTable'
-import Login from './Login'
-import React,{useEffect, useState} from 'react';
-import AddContactForm from '../components/AddContact'
-import Profile from '../components/Profile'
-import Signup from './SignUp'
+import LeftSideNav from '../components/LeftSideNav';
+import TopNav from '../components/TopNav';
+import MainTable from '../components/MainTable';
+import Login from './Login';
+import React, { useEffect, useState } from 'react';
+import AddContactForm from '../components/AddContact';
+import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
-import { format } from 'date-fns';
+import KeepInTouch from '../components/KeepInTouch'; // Import the KeepInTouch component
+import Profile from '../components/Profile'; // Import the Profile component
+import { format } from 'date-fns'; // Import date-fns
 
 interface Connection {
   contact_url: string;
-  name:string;
-  profile_pic_url:string;
+  name: string;
+  profile_pic_url: string;
+}
+
+interface Experience {
+  bulletpoints: string;
+  company_duration: string;
+  company_location: string;
+  company_name: string;
+  company_role: string;
+  company_total_duration: string;
 }
 
 interface Contact {
@@ -26,15 +36,6 @@ interface Contact {
   profile_pic_url: string;
   frequency: string;
   last_interacted: string;
-}
-
-interface Experience {
-  bulletpoints: string;
-  company_duration: string;
-  company_location: string;
-  company_name: string;
-  company_role: string;
-  company_total_duration: string;
 }
 
 interface ContactResponse {
@@ -57,8 +58,8 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
-   if (!token) return;
-    
+    if (!token) return;
+
     const fetchContacts = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
@@ -75,9 +76,7 @@ const App: React.FC = () => {
         }
         const augmentedData = data.contacts.map((contact: Contact) => ({
           ...contact,
-          //frequency: 'Every week', // Default value, replace as needed
-          //date: 'Jul 5', // Default value, replace as needed
-          last_interacted:format(new Date(contact.last_interacted), 'MMM d'),
+          last_interacted: format(new Date(contact.last_interacted), 'MMM d'), // Format the last_interacted date
         }));
         setContacts(augmentedData);
       } catch (err: unknown) {
@@ -91,7 +90,7 @@ const App: React.FC = () => {
 
     const fetchConnections = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:5000//api/users/get_notifications', {
+        const response = await fetch('http://127.0.0.1:5000/api/users/get_notifications', {
           headers: {
             Authorization: `${token}`,
           },
@@ -109,56 +108,62 @@ const App: React.FC = () => {
         }
       }
     };
-    
-   fetchContacts();
-   fetchConnections();
-    
+
+    fetchContacts();
+    fetchConnections();
+
   }, [token]);
 
   const deleteContact = (url: string) => {
     const temp = contacts.filter(contact => contact.contact_url !== url);
     setContacts(temp);
   }
-    return (
-      <>
-    {/*<NotificationComponent connections={connections} />*/}
-    <Routes>
+
+  return (
+    <>
+      {/*<NotificationComponent connections={connections} />*/}
+      <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={(jwt: string) => {
           setToken(jwt);
           localStorage.setItem('token', jwt);
           navigate('/main');
         }} />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/forgot-password" Component={ForgotPasswordPage} />
-
-        {/* Protected Routes */}
-        <Route
-          path="/main"
-          element={
-            token ? (
-              <div className="flex bg-backgroundColor">
-                <LeftSideNav />
-                <div className="bg-red w-5/6">
-                  <TopNav />
-                  <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
-                  {error && <div>Error fetching contacts: {error}</div>}
-                </div>
+        <Route path="/main" element={
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+                {error && <div>Error fetching contacts: {error}</div>}
               </div>
-            ) : (
-              <Navigate to="/login" />
-            )
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            token ? <Profile /> : <Navigate to="/login" />
-          }
-        />
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+        <Route path="/keepintouch" element={
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <KeepInTouch />
+              </div>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
+        } />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/profile" element={
+          token ? <Profile /> : <Navigate to="/login" />
+        } />
       </Routes>
     </>
   );
-  };
+};
 
-export default App
+export default App;
