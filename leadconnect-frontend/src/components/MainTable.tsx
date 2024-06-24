@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin, FaRobot } from 'react-icons/fa';
-import { Contact, Experience } from '../types'; // Import the shared types
+import { Contact } from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
-import ChatComponent from './ChatComponent.tsx'; // Import the ChatComponent
+import ChatComponent from './ChatComponent';
 
 type MainTableProps = {
   contacts: Contact[];
@@ -260,7 +260,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
         </div>
       </div>
       {showChat && currentContact && <ChatComponent contact={currentContact} />}
-      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} contactUrl={''} initialNote={''} token={null} />}
+      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} contactUrl={selectedContact.contact_url} initialNote={selectedContact.notes || ''} token={token} />}
     </div>
   );
 };
