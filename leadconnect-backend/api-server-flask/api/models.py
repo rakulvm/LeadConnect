@@ -367,12 +367,12 @@ class Connection(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
     frequency = db.Column(db.Enum('Weekly', 'Biweekly', 'Monthly', 'Bimonthly', 'Once in 3 months', 'Once in 6 months'), default='Weekly', nullable=False)
-    last_interacted = db.Column(db.Date, default=datetime.utcnow,nullable=False)
+    last_interacted = db.Column(db.Date, default=datetime.utcnow, nullable=False)
+    notes = db.Column(db.Text, nullable=True)  # New field
 
     def __repr__(self):
         return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
-    
-
+   
     @classmethod
     def get_by_connection(cls, user_id, url):
         return db.session.query(cls).filter_by(contact_url=url, user_id=user_id).first()
@@ -388,6 +388,7 @@ class Connection(db.Model):
         cls_dict['contact_url'] = self.contact_url
         cls_dict['frequency'] = self.frequency
         cls_dict['last_interacted'] = self.last_interacted
+        cls_dict['notes'] = self.notes  # Add notes to dict
         return cls_dict
 
     def toJSON(self):
