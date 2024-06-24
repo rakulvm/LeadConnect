@@ -19,12 +19,17 @@ const NotesPopup: React.FC<NotesPopupProps> = ({ contactName, contactUrl, initia
   }, [initialNote]);
 
   const handleSave = async () => {
+    if (!token) {
+      alert('Authorization token is missing');
+      return;
+    }
+
     try {
       const response = await fetch('http://127.0.0.1:5000/api/users/contacts/notes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `${token}`,
+          Authorization: token,
         },
         body: JSON.stringify({ contact_url: contactUrl, notes: note }),
       });
@@ -38,12 +43,17 @@ const NotesPopup: React.FC<NotesPopupProps> = ({ contactName, contactUrl, initia
   };
 
   const handleEdit = async () => {
+    if (!token) {
+      alert('Authorization token is missing');
+      return;
+    }
+
     try {
       const response = await fetch('http://127.0.0.1:5000/api/users/contacts/notes', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `${token}`,
+          Authorization: token,
         },
         body: JSON.stringify({ contact_url: contactUrl, notes: note }),
       });
@@ -74,7 +84,7 @@ const NotesPopup: React.FC<NotesPopupProps> = ({ contactName, contactUrl, initia
         <textarea
           className='w-full h-2/3 p-2 border rounded-md mb-4'
           placeholder='Write your notes here...'
-          value={note}
+          value={note || ''} // Ensure value is not null
           onChange={(e) => setNote(e.target.value)}
           readOnly={!isEditing}
         ></textarea>

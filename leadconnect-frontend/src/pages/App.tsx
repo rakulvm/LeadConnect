@@ -7,9 +7,9 @@ import KeepInTouch from '../components/KeepInTouch';
 import Login from './Login';
 import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
-import Profile from '../components/Profile'; // Import the Profile component
+import Profile from '../components/Profile';
 import { format } from 'date-fns';
-import { Contact, Connection } from '../types'; // Import the shared types
+import { Contact, Connection } from '../types';
 
 interface ContactResponse {
   contacts: Contact[];
@@ -17,7 +17,7 @@ interface ContactResponse {
 
 const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
-  const [connections, setConnections] = useState<Connection[]>([]); // Added state for connections
+  const [connections, setConnections] = useState<Connection[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
