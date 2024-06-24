@@ -8,6 +8,7 @@ import AddContactForm from '../components/AddContact';
 import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
 import KeepInTouch from '../components/KeepInTouch'; // Import the KeepInTouch component
+import Profile from '../components/Profile'; // Import the Profile component
 import { format } from 'date-fns'; // Import date-fns
 
 interface Connection {
@@ -63,7 +64,7 @@ const App: React.FC = () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
           headers: {
-            Authorization: `${token}`,
+            'Authorization': `${localStorage.getItem('token')}`,
           },
         });
         if (!response.ok) {
@@ -129,26 +130,37 @@ const App: React.FC = () => {
           navigate('/main');
         }} />} />
         <Route path="/main" element={
-          <div className='flex bg-backgroundColor'>
-            <LeftSideNav />
-            <div className='bg-red w-5/6'>
-              <TopNav />
-              <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
-              {error && <div>Error fetching contacts: {error}</div>}
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <MainTable contacts={contacts} token={token} deleteContact={deleteContact} />
+                {error && <div>Error fetching contacts: {error}</div>}
+              </div>
             </div>
-          </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
         <Route path="/keepintouch" element={
-          <div className='flex bg-backgroundColor'>
-            <LeftSideNav />
-            <div className='bg-red w-5/6'>
-              <TopNav />
-              <KeepInTouch />
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <KeepInTouch />
+              </div>
             </div>
-          </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/profile" element={
+          token ? <Profile /> : <Navigate to="/login" />
+        } />
       </Routes>
     </>
   );
