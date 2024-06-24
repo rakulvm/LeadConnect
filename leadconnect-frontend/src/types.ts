@@ -19,4 +19,11 @@ export type Experience = {
     last_interacted: string;
     notes: string; // Add notes field
   };
+
+  export interface Connection {
+    contact_url: string;
+    name: string;
+    profile_pic_url: string;
+  };
+  
   

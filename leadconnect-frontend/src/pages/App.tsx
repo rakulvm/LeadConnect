@@ -7,8 +7,9 @@ import KeepInTouch from '../components/KeepInTouch';
 import Login from './Login';
 import Signup from './SignUp';
 import ForgotPasswordPage from './ForgotPasswordPage';
+import Profile from '../components/Profile'; // Import the Profile component
 import { format } from 'date-fns';
-import { Contact } from '../types'; // Import the shared Contact type
+import { Contact, Connection } from '../types'; // Import the shared types
 
 interface ContactResponse {
   contacts: Contact[];
@@ -16,6 +17,7 @@ interface ContactResponse {
 
 const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
+  const [connections, setConnections] = useState<Connection[]>([]); // Added state for connections
   const [error, setError] = useState<string | null>(null);
   const [token, setToken] = useState<string | null>(null);
 
@@ -59,7 +61,29 @@ const App: React.FC = () => {
       }
     };
 
+    const fetchConnections = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5000/api/users/get_notifications', {
+          headers: {
+            Authorization: `${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data: Connection[] = await response.json();
+        setConnections(data);
+      } catch (err: unknown) {
+        if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('An unknown error occurred');
+        }
+      }
+    };
+
     fetchContacts();
+    fetchConnections();
   }, [token]);
 
   const deleteContact = (url: string) => {
@@ -77,26 +101,37 @@ const App: React.FC = () => {
           navigate('/main');
         }} />} />
         <Route path="/main" element={
-          <div className='flex bg-backgroundColor'>
-            <LeftSideNav />
-            <div className='bg-red w-5/6'>
-              <TopNav />
-              <MainTable contacts={contacts} setContacts={setContacts} token={token} deleteContact={deleteContact} />
-              {error && <div>Error fetching contacts: {error}</div>}
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <MainTable contacts={contacts} setContacts={setContacts} token={token} deleteContact={deleteContact} />
+                {error && <div>Error fetching contacts: {error}</div>}
+              </div>
             </div>
-          </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
         <Route path="/keepintouch" element={
-          <div className='flex bg-backgroundColor'>
-            <LeftSideNav />
-            <div className='bg-red w-5/6'>
-              <TopNav />
-              <KeepInTouch contacts={contacts} />
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <KeepInTouch contacts={contacts} />
+              </div>
             </div>
-          </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/profile" element={
+          token ? <Profile /> : <Navigate to="/login" />
+        } />
       </Routes>
     </>
   );

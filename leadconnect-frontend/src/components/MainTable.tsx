@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin } from 'react-icons/fa';
+import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin, FaRobot } from 'react-icons/fa';
 import { Contact, Experience } from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
+import ChatComponent from './ChatComponent.tsx'; // Import the ChatComponent
 
 type MainTableProps = {
   contacts: Contact[];
-  setContacts: React.Dispatch<React.SetStateAction<Contact[]>>;
+  setContacts?: React.Dispatch<React.SetStateAction<Contact[]>>; // Optional prop
   token: string | null;
   deleteContact: (url: string) => void;
 };
@@ -24,6 +25,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [showChat, setShowChat] = useState(false);
+  const [currentContact, setCurrentContact] = useState<Contact | null>(null);
 
   const handleDeleteContact = async (url: string) => {
     deleteContact(url);
@@ -58,13 +61,20 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
     alert(`You clicked on the ${icon} icon!`);
   };
 
+  const handleOpenChat = (contact: Contact) => {
+    setCurrentContact(contact);
+    setShowChat(true);
+  };
+
   const handleSort = () => {
     const sortedContacts = [...contacts].sort((a, b) => {
       const dateA = new Date(a.last_interacted).getTime();
       const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-    setContacts(sortedContacts);
+    if (setContacts) {
+      setContacts(sortedContacts);
+    }
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -213,8 +223,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
       <div className="flex-grow overflow-hidden">
         <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
           {searchFilteredContacts.map((contact, index) => (
-            <div key={index} className="grid grid-cols-12 gap-3 px-4 py-2 border-b border-gray-100 hover:border-l-2 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
-              <div className="col-span-6 flex items-center space-x-2">
+            <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
+              <div className="col-span-5 flex items-center space-x-4">
                 <input
                   type="checkbox"
                   className="form-checkbox h-4 w-4 text-buttonBlue"
@@ -224,10 +234,10 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                 <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                  <p className="text-l opacity-60 ml-2">{contact.experiences[0].company_role}</p>
+                  <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
-              <div className="col-span-2 ml-12 text-lg opacity-80">{contact.frequency}</div>
+              <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
               <div className="col-span-3 flex space-x-2">
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote /></span>
@@ -237,8 +247,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                     <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin /></span>
                   </button>
                 </a>
-                <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaFacebook /></span>
+                <button onClick={() => handleOpenChat(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaRobot /></span>
                 </button>
                 <button onClick={() => handleDeleteContact(contact.contact_url)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaTrash /></span>
@@ -249,7 +259,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
           ))}
         </div>
       </div>
-      {selectedContact && <NotesPopup contactName={selectedContact.name} contactUrl={selectedContact.contact_url} initialNote={selectedContact.notes} token={token} onClose={() => setSelectedContact(null)} />}
+      {showChat && currentContact && <ChatComponent contact={currentContact} />}
+      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} contactUrl={''} initialNote={''} token={null} />}
     </div>
   );
 };
