@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DraggableProvided, DraggableStateSnapshot, DroppableProvided, DroppableStateSnapshot } from '@hello-pangea/dnd';
 import { Contact } from '../types'; // Import the shared Contact type
 
 type ContactWithInitial = Contact & {
@@ -97,7 +97,7 @@ const KeepInTouch: React.FC<KeepInTouchProps> = ({ contacts }) => {
         <div className='grid grid-cols-1 md:grid-cols-6 gap-4'>
           {Object.keys(categorizedContacts).map((key) => (
             <Droppable droppableId={key} key={key}>
-              {(provided, snapshot) => (
+              {(provided: DroppableProvided, snapshot: DroppableStateSnapshot) => (
                 <div
                   className={`border-slate-200 border-[1px] p-2 rounded ${snapshot.isDraggingOver ? 'bg-blue-100' : 'bg-white'}`}
                   ref={provided.innerRef}
@@ -112,12 +112,12 @@ const KeepInTouch: React.FC<KeepInTouchProps> = ({ contacts }) => {
                       index={index}
                       key={contact.name}
                     >
-                      {(provided) => (
+                      {(provided: DraggableProvided, snapshot: DraggableStateSnapshot) => (
                         <div
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className='flex items-center mb-2 p-2 border rounded bg-white'
+                          className={`flex items-center mb-2 p-2 border rounded ${snapshot.isDragging ? 'bg-blue-50' : 'bg-white'}`}
                         >
                           <div className='bg-blue-500 text-white rounded-full w-8 h-8 flex items-center justify-center mr-2'>
                             {contact.initial}
