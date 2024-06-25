@@ -68,11 +68,15 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                         sender: 'bot'
                     },
                     {
-                        text: `You can ask below things to this person: 
-                             - "Do you have any openings in your company?"
-                             - "I have an interview in a few days in your company and need your guidance."
-                             - "Are you free for a coffee chat this month?"
-                             - "I am trying to learn emerging technologies and your profile looks good. Can you guide me on how to start with my preparation?"`,
+                        text: `<div>
+    <p>You can ask below things to this person:</p>
+    <ul style="list-style-type: disc; padding-left: 20px;">
+        <li>Do you have any openings in your company?</li>
+        <li>I have an interview in a few days in your company and need your guidance.</li>
+        <li>Are you free for a coffee chat this month?</li>
+        <li>I am trying to learn emerging technologies and your profile looks good. Can you guide me on how to start with my preparation?</li>
+    </ul>
+</div>`,
                         time: new Date().toLocaleTimeString(),
                         sender: 'bot'
                     }
@@ -114,6 +118,8 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
 
         document.addEventListener('mousedown', handleClickOutside);
         document.addEventListener('keydown', handleEscKey);
+
+        document.addEventListener('enterkey', handleSendMessage);
 
         if (inputRef.current) {
             inputRef.current.addEventListener('keydown', handleEnterKey);
@@ -187,8 +193,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                     {chatHistory.map((msg, index) => (
                         msg.text && (
                             <div key={index} className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'}`}>
-                                <p>{msg.text}</p>
-                                <div style={{ display: "flex", flexDirection: "row" }}>
+                                <div dangerouslySetInnerHTML={{__html: msg.text}}/>
+
+                                <div style={{display: "flex", flexDirection: "row"}}>
                                     <span style={{
                                         fontSize: "14px",
                                         fontWeight: "bold",
@@ -196,9 +203,11 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                                         display: "flex",
                                         flexDirection: "row",
                                         flex: "1"
-                                    }}>{msg.sender === 'bot' ? <FaRobot className="chat-icon-receive" /> :
-                                        <FaUser className="chat-icon-send" />} {msg.sender === 'bot' ? 'Bot' : 'You'}</span>
+                                    }}>{msg.sender === 'bot' ? <FaRobot className="chat-icon-receive"/> :
+                                        <FaUser
+                                            className="chat-icon-send"/>} {msg.sender === 'bot' ? 'Bot' : 'You'}</span>
                                     <span>{msg.time}</span>
+
                                 </div>
                             </div>
                         )

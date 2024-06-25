@@ -45,16 +45,9 @@ const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]); // Added state for connections
   const [error, setError] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token') || null);
 
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
 
   useEffect(() => {
    if (!token) return;
@@ -67,6 +60,8 @@ const App: React.FC = () => {
           },
         });
         if (!response.ok) {
+        localStorage.removeItem("token");
+        navigate("/login")
           throw new Error('Network response was not ok');
         }
         const data: ContactResponse = await response.json();
@@ -80,6 +75,7 @@ const App: React.FC = () => {
           last_interacted:format(new Date(contact.last_interacted), 'MMM d'),
         }));
         setContacts(augmentedData);
+        navigate("/main")
       } catch (err: unknown) {
         if (err instanceof Error) {
           setError(err.message);
@@ -122,8 +118,8 @@ const App: React.FC = () => {
     return (
       <>
     {/*<NotificationComponent connections={connections} />*/}
+
     <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={(jwt: string) => {
           setToken(jwt);
           localStorage.setItem('token', jwt);
@@ -150,6 +146,8 @@ const App: React.FC = () => {
             )
           }
         />
+
+        <Route path="/" element={<Navigate to="/login" />} />
         <Route
           path="/profile"
           element={

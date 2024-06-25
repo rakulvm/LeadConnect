@@ -37,7 +37,7 @@ from io import BytesIO
 rest_api = Api(version="1.0", title="Users API")
 
 # Replace with your OpenAI API key
-openai.api_key = ''
+openai.api_key = 'sk-proj-nU1b69npFykGXbx08dz7T3BlbkFJU8MHDL1epcKvUGvpVkbU'
 """
     Flask-Restx models for api request and response data
 """
@@ -443,7 +443,7 @@ class LLM(Resource):
                 {"role": "system", "content": "You are my lead management and email message generator bot."},
                 {"role": "user", "content": f"Summary of the person: {summary}"},
                 {"role": "user",
-                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person."}
+                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person. Always reply with HTML code, since i want to add it to my website."}
             ]
 
             try:
@@ -466,6 +466,7 @@ class LLM(Resource):
                 messages = [
                     {"role": "system", "content": "You are my lead management and email message generator bot."},
                     {"role": "user", "content": f"Summary of the person: {summary}"},
+                    {"role": "user", "content": f"Always reply with HTML code, since i want to add it to my website."},
                     {"role": "user", "content": question}
                 ]
 

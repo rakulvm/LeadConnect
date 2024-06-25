@@ -3,6 +3,8 @@ import {FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedi
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 import ChatComponent from "./ChatComponent.tsx";
+import LeftSideNav from "./LeftSideNav.tsx";
+import RightSideNav from "./RightSideNav.tsx";
 
 type Contact = {
     about: string;
@@ -34,6 +36,7 @@ type MainTableProps = {
 const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+    const [experienceView, setExperienceView] = useState<Contact | null>(null);
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [filterDropdownVisible, setFilterDropdownVisible] = useState(false);
     const [filterValues, setFilterValues] = useState({
@@ -143,12 +146,14 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
         contact.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    // @ts-ignore
     return (
+        <>
         <div className="h-[89%] p-1 bg-cardWhite flex flex-col relative">
             <div className="ml-4 mr-3 flex justify-between items-center mb-4 sticky top-0 bg-cardWhite z-10">
                 <div>
-                    <h2 className="text-2xl opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
-                    <p className="text-lg color-secondaryTextColor">{searchFilteredContacts.length} total contacts</p>
+                    <h2 className="text-lg opacity-75 font-bold color-secondaryTextColor">All contacts</h2>
+                    <p className="text-sm color-secondaryTextColor">{searchFilteredContacts.length} total contacts</p>
                 </div>
                 <button
                     className="bg-buttonBlue text-cardWhite px-3 py-2 rounded-lg hover:bg-blue-600"
@@ -167,20 +172,20 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
                         onChange={handleSelectAll}
                         checked={selectedContacts.size === contacts.length}
                     />
-                    <span className="text-lg opacity-85 color-secondaryTextColor">Select all</span>
+                    <span className="text-md opacity-85 color-secondaryTextColor">Select all</span>
                 </div>
-                <div className="flex items-center space-x-4 relative">
+                <div className="flex items-center space-x-4 relative text-md">
                     <button
-                        className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg border-slate-200 border-[1px] hover:bg-gray-300">
+                        className="text-md bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg border-slate-200 border-[1px] hover:bg-gray-300">
                         Properties
                     </button>
                     <button onClick={handleSort}
-                            className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
+                            className="text-md bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300">
                         <span className="mr-2"><FaSort/></span> Sort
                     </button>
                     <button
                         onClick={() => setFilterDropdownVisible(!filterDropdownVisible)}
-                        className="bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300"
+                        className="text-md bg-cardWhite opacity-85 color-secondaryTextColor px-4 py-2 rounded-lg flex items-center border-slate-200 border-[1px] hover:bg-gray-300"
                     >
                         <span className="mr-2"><FaFilter/></span> Filter
                     </button>
@@ -253,8 +258,9 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
                 <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
                     {searchFilteredContacts.map((contact, index) => (
                         <div key={index}
+                             onClick={()=>setExperienceView(contact)}
                              className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
-                            <div className="col-span-5 flex items-center space-x-4">
+                            <div className="col-span-6 flex items-center text-sm space-x-4">
                                 <input
                                     type="checkbox"
                                     className="form-checkbox h-4 w-4 text-buttonBlue"
@@ -262,12 +268,12 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
                                     checked={selectedContacts.has(contact.name)}
                                 />
                                 <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full"/>
-                                <div className="flex items-center">
-                                    <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                                    <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
+                                <div className="flex" style={{width:"100%"}}>
+                                    <p className="font-semibold text-sm opacity-80" style={{flex:1}}>{contact.name}</p>
+                                    <p className="text-sm opacity-60"  style={{flex:2}}>{contact.experiences[0].company_role}</p>
                                 </div>
                             </div>
-                            <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
+                            <div className="col-span-2 text-sm opacity-80 space-x-2">{contact.frequency}</div>
                             <div className="col-span-3 flex space-x-2">
                                 <button onClick={() => handleNotesClick(contact)}
                                         className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
@@ -288,15 +294,18 @@ const MainTable: React.FC<MainTableProps> = ({contacts, token, deleteContact}) =
                                     <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
                                 </button>
                             </div>
-                            <div className="col-span-1 text-lg opacity-60">{contact.last_interacted}</div>
+                            <div className="col-span-1 text-sm opacity-60">{contact.last_interacted}</div>
                         </div>
                     ))}
                 </div>
             </div>
+
             {showChat && currentContact && <ChatComponent contact={currentContact}/>}
             {selectedContact &&
                 <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)}/>}
+            {/*<RightSideNav contact={experienceView} setExperienceView={setExperienceView}/>*/}
         </div>
+    </>
     );
 };
 
