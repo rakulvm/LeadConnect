@@ -25,7 +25,7 @@ import requests
 import uuid
 import random
 # import json
-from .smtp import send_email_to_admin, send_confirmation_link_to_user
+from .smtp import send_email_to_admin, send_confirmation_link_to_user, send_simple_message
 import traceback
 # from .mock import youth_data, split_youth_name
 from io import BytesIO
@@ -356,9 +356,8 @@ class Verify(Resource):
                 db.session.commit()  # Make sure to commit the changes to the database
 
                 # create access token using JWT
-                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=30)},
+                token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(minutes=60)},
                                    BaseConfig.SECRET_KEY)
-
                 user_exists.set_status(True)
                 user_exists.save()
 
@@ -396,10 +395,9 @@ class Login(Resource):
             return {"success": False,
                     "msg": "Wrong credentials."}, 400
 
-        # create access token uwing JWT
-        token = jwt.encode({'user_id':user_id,'username': username,'exp': datetime.utcnow() + timedelta(minutes=30)},
+        # create access token using JWT
+        token = jwt.encode({'user_id':user_id,'username': username,'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=60)},
                            BaseConfig.SECRET_KEY)
-
         user_exists.set_status(True)
         user_exists.save()
 
@@ -813,18 +811,18 @@ def get_next_interaction_date(interaction):
     elif frequency == 'Once in 6 months':
         return last_interacted + timedelta(days=180)
     
-
-@rest_api.route('/api/users/get_notifications')
+"""
+@rest_api.route('/api/users/notifications')
 class get_reminders(Resource):
     @token_required
     def get(self,current_user):
         user_id = current_user.user_id
-        today = datetime.today().date()
+        tommorrow = datetime.today().date() + + timedelta(days=1)
         reminders = []
         interactions = Connection.query.filter(Connection.user_id==user_id)
         for interaction in interactions:
             next_interaction_date = get_next_interaction_date(interaction)
-            if today >= next_interaction_date:
+            if tommorrow == next_interaction_date:
                 contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
                 if contact:
                     connection = next((conn for conn in interactions if conn.contact_url == contact.contact_url), None)
@@ -833,6 +831,40 @@ class get_reminders(Resource):
                             'name': contact.name,
                             'contact_url': interaction.contact_url,
                             'profile_pic_url':contact.profile_pic_url
-                        })
+                        })  
 
         return jsonify(reminders)
+"""
+
+
+@rest_api.route('/api/users/notifications')
+class GetReminders(Resource):
+    def get(self):
+        users = Users.query.all()  # Fetch all users
+        tomorrow = datetime.today().date() + timedelta(days=1)
+        all_reminders = {}
+
+        for user in users:
+            reminders = []
+            interactions = Connection.query.filter(Connection.user_id == user.user_id).all()
+            for interaction in interactions:
+                next_interaction_date = get_next_interaction_date(interaction)
+                if tomorrow == next_interaction_date:
+                    contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
+                    if contact:
+                        reminders.append({
+                            'name': contact.name,
+                            'contact_url': interaction.contact_url,
+                            'profile_pic_url': contact.profile_pic_url
+                        })
+            if reminders:
+                all_reminders[user.email] = reminders
+        
+        for email, reminders in all_reminders.items():
+            contact_list = "\n".join([f"{contact['name']} ({contact['profile_pic_url']})" for contact in reminders])
+            email_subject = "Your Contacts to Reach Out Today"
+            email_body = f"Hi,\n\nYou need to contact the following people tomorrow:\n\n{contact_list}\n\nBest regards,\nYour Team"
+            send_simple_message(to=email, subject=email_subject, body=email_body, contacts=reminders)
+        
+        return jsonify(all_reminders)
+

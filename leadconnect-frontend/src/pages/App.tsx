@@ -37,7 +37,9 @@ interface Experience {
 }
 
 interface ContactResponse {
-  contacts: Contact[];
+  success?: boolean;
+  msg?: string;
+  contacts?: Contact[];
 }
 
 const App: React.FC = () => {
@@ -57,7 +59,11 @@ const App: React.FC = () => {
 
   useEffect(() => {
    if (!token) return;
-    
+   const handleTokenExpiration = () => {
+    setToken(null);
+    localStorage.removeItem('token');
+    navigate("/login");
+  };
     const fetchContacts = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/contacts', {
@@ -65,10 +71,15 @@ const App: React.FC = () => {
             Authorization: `${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
         const data: ContactResponse = await response.json();
+    if (!response.ok) {
+      if (data.success === false) {
+        handleTokenExpiration();
+        return;
+      } else {
+        throw new Error(data.msg || 'Network response was not ok');
+      }
+    }
         if (!Array.isArray(data.contacts)) {
           throw new Error('Expected an array of contacts');
         }
