@@ -1,36 +1,18 @@
 import React, { useState } from 'react';
-import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin } from 'react-icons/fa';
+import { FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin, FaRobot } from 'react-icons/fa';
+import { Contact } from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
-
-type Contact = {
-  about: string;
-  contact_url: string;
-  current_location: string;
-  experiences: Experience[];
-  headline: string;
-  name: string;
-  profile_pic_url: string;
-  frequency: string;
-  last_interacted: string;
-};
-
-type Experience = {
-  bulletpoints: string;
-  company_duration: string;
-  company_location: string;
-  company_name: string;
-  company_role: string;
-  company_total_duration: string;
-};
+import ChatComponent from './ChatComponent';
 
 type MainTableProps = {
   contacts: Contact[];
+  setContacts?: React.Dispatch<React.SetStateAction<Contact[]>>; // Optional prop
   token: string | null;
-  deleteContact: (url:string) => void;
+  deleteContact: (url: string) => void;
 };
 
-const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact }) => {
+const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, deleteContact }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -43,15 +25,10 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
+  const [showChat, setShowChat] = useState(false);
+  const [currentContact, setCurrentContact] = useState<Contact | null>(null);
 
-  /*
-  const addContact = (contact: Contact) => {
-  //setContacts([...contacts, contact]);
-  };
-  */
-
-  
-  const handleDeleteContact = async (url:string) => {
+  const handleDeleteContact = async (url: string) => {
     deleteContact(url);
     try {
       const response = await fetch('http://localhost:5000/api/createcontact', {
@@ -67,7 +44,6 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
-
     } catch (err: unknown) {
       if (err instanceof Error) {
         // setError(err.message);
@@ -85,13 +61,20 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
     alert(`You clicked on the ${icon} icon!`);
   };
 
+  const handleOpenChat = (contact: Contact) => {
+    setCurrentContact(contact);
+    setShowChat(true);
+  };
+
   const handleSort = () => {
     const sortedContacts = [...contacts].sort((a, b) => {
       const dateA = new Date(a.last_interacted).getTime();
       const dateB = new Date(b.last_interacted).getTime();
       return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
     });
-  //  setContacts(sortedContacts);
+    if (setContacts) {
+      setContacts(sortedContacts);
+    }
     setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
   };
 
@@ -257,18 +240,18 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
               <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
               <div className="col-span-3 flex space-x-2">
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote/></span>
+                  <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote /></span>
                 </button>
                 <a href={`${contact.contact_url}`} target="_blank" rel="noopener noreferrer">
-                <button  className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin/></span>
-                </button>
+                  <button className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                    <span className="text-buttonBlue hover:text-blue-700"><FaLinkedin /></span>
+                  </button>
                 </a>
-                <button onClick={() => handleIconClick('Facebook')} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaFacebook/></span>
+                <button onClick={() => handleOpenChat(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
+                  <span className="text-buttonBlue hover:text-blue-700"><FaRobot /></span>
                 </button>
                 <button onClick={() => handleDeleteContact(contact.contact_url)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
-                  <span className="text-buttonBlue hover:text-blue-700"><FaTrash/></span>
+                  <span className="text-buttonBlue hover:text-blue-700"><FaTrash /></span>
                 </button>
               </div>
               <div className="col-span-1 text-lg opacity-60">{contact.last_interacted}</div>
@@ -276,7 +259,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, token, deleteContact })
           ))}
         </div>
       </div>
-      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} />}
+      {showChat && currentContact && <ChatComponent contact={currentContact} />}
+      {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} contactUrl={selectedContact.contact_url} initialNote={selectedContact.notes || ''} token={token} />}
     </div>
   );
 };
