@@ -880,7 +880,27 @@ class ExtensionResource(Resource):
         user_connection.delete()
         return {"status": "deleted"}
 
+@rest_api.route('/api/users/contacts/notes', methods=['POST'])
+class UpdateUserNotes(Resource):
+    @token_required
+    def post(self, current_user):
+        data = request.get_json()
+        contact_url = data.get('contact_url')
+        notes = data.get('notes')
 
+        if not contact_url or not notes:
+            return {'success': False, 'msg': 'Invalid input'}, 400
+
+        connection = Connection.query.filter_by(user_id=current_user.user_id, contact_url=contact_url).first()
+
+        if not connection:
+            return {'success': False, 'msg': 'Connection not found'}, 404
+
+        connection.notes = notes
+        db.session.commit()
+
+        return {'success': True, 'msg': 'Notes updated successfully'}
+    
 def get_next_interaction_date(interaction):
     last_interacted = interaction.last_interacted
     frequency = interaction.frequency
@@ -954,29 +974,6 @@ class GetReminders(Resource):
             send_simple_message(to=email, subject=email_subject, body=email_body, contacts=reminders)
         
         return jsonify(all_reminders)
-
-
-
-
-@rest_api.route('/api/users/contacts/notes', methods=['POST'])
-class UpdateUserNotes(Resource):
-    @token_required
-    def post(self, current_user):
-        data = request.get_json()
-        contact_url = data.get('contact_url')
-        notes = data.get('notes')
-
-        if not contact_url or not notes:
-            return {'success': False, 'msg': 'Invalid input'}, 400
-
-        connection = Connection.query.filter_by(user_id=current_user.user_id, contact_url=contact_url).first()
-
-        if not connection:
-            return {'success': False, 'msg': 'Connection not found'}, 404
-
-        connection.notes = notes
-        db.session.commit()
-
-        return {'success': True, 'msg': 'Notes updated successfully'}
+        """
 
 
