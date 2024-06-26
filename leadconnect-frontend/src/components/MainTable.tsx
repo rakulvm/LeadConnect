@@ -4,6 +4,7 @@ import { Contact } from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';
 import ChatComponent from './ChatComponent';
+import InDepthContactInfo from './InDepthContactInfo';
 
 type MainTableProps = {
   contacts: Contact[];
@@ -27,6 +28,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
   const [selectedContacts, setSelectedContacts] = useState<Set<string>>(new Set());
   const [showChat, setShowChat] = useState(false);
   const [currentContact, setCurrentContact] = useState<Contact | null>(null);
+  const [showInDepthContactInfo, setShowInDepthContactInfo] = useState(false);
+  const [selectedInDepthContact, setSelectedInDepthContact] = useState<Contact | null>(null);
 
   const handleDeleteContact = async (url: string) => {
     deleteContact(url);
@@ -103,6 +106,11 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
       newSelectedContacts.add(contactName);
     }
     setSelectedContacts(newSelectedContacts);
+  };
+
+  const handleShowInDepthContactInfo = (contact: Contact) => {
+    setSelectedInDepthContact(contact);
+    setShowInDepthContactInfo(true);
   };
 
   const filteredContacts = contacts.filter(contact => {
@@ -233,7 +241,12 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                 />
                 <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
-                  <p className="font-semibold text-lg opacity-80">{contact.name}</p>
+                  <p
+                    className="font-semibold text-lg opacity-80 cursor-pointer"
+                    onClick={() => handleShowInDepthContactInfo(contact)}
+                  >
+                    {contact.name}
+                  </p>
                   <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
@@ -261,6 +274,12 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
       </div>
       {showChat && currentContact && <ChatComponent contact={currentContact} />}
       {selectedContact && <NotesPopup contactName={selectedContact.name} onClose={() => setSelectedContact(null)} contactUrl={selectedContact.contact_url} initialNote={selectedContact.notes || ''} token={token} />}
+      {showInDepthContactInfo && selectedInDepthContact && (
+        <InDepthContactInfo
+          contact={selectedInDepthContact}
+          onClose={() => setShowInDepthContactInfo(false)}
+        />
+      )}
     </div>
   );
 };
