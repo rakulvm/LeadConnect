@@ -12,25 +12,26 @@ import { format } from 'date-fns';
 import { Contact, Connection } from '../types';
 
 interface ContactResponse {
-  contacts: Contact[];
+  success?: boolean;
+  msg?: string;
+  contacts?: Contact[];
 }
 
 const App: React.FC = () => {
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token')|| null) ;
 
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const storedToken = localStorage.getItem('token');
-    if (storedToken) {
-      setToken(storedToken);
-    }
-  }, []);
 
   useEffect(() => {
+    const handleTokenExpiration = () => {
+     setToken(null);
+     localStorage.removeItem('token');
+     navigate("/login");
+   };
     if (!token) return;
 
     const fetchContacts = async () => {
@@ -40,17 +41,28 @@ const App: React.FC = () => {
             Authorization: `${token}`,
           },
         });
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
         const data: ContactResponse = await response.json();
+    if (!response.ok) {
+      if (data.success === false) {
+       localStorage.removeItem('token');
+        return;
+      } else {
+        throw new Error(data.msg || 'Network response was not ok');
+      }
+    }
         if (!Array.isArray(data.contacts)) {
           throw new Error('Expected an array of contacts');
         }
-        const augmentedData = data.contacts.map((contact: Contact) => ({
-          ...contact,
-          last_interacted: format(new Date(contact.last_interacted), 'MMM d'),
-        }));
+        const augmentedData = data.contacts.map((contact) => {
+          const parsedDate = new Date(contact.last_interacted);
+          console.log(`Original: ${contact.last_interacted}, Parsed: ${parsedDate}`);
+          return {
+            ...contact,
+            last_interacted: format(parsedDate, 'MMM d'),
+          };
+        });
+        console.log(augmentedData)
+        console.log("fff")
         setContacts(augmentedData);
       } catch (err: unknown) {
         if (err instanceof Error) {
@@ -60,7 +72,7 @@ const App: React.FC = () => {
         }
       }
     };
-
+/*
     const fetchConnections = async () => {
       try {
         const response = await fetch('http://127.0.0.1:5000/api/users/get_notifications', {
@@ -81,9 +93,9 @@ const App: React.FC = () => {
         }
       }
     };
-
+*/
     fetchContacts();
-    fetchConnections();
+//    fetchConnections();
   }, [token]);
 
   const deleteContact = (url: string) => {
@@ -96,6 +108,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login onLogin={(jwt: string) => {
+          console.log(jwt)
           setToken(jwt);
           localStorage.setItem('token', jwt);
           navigate('/main');
