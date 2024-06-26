@@ -132,7 +132,6 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
           + Add new contact
         </button>
       </div>
-      {/*<ContactModal isOpen={isModalOpen} onRequestClose={() => setIsModalOpen(false)} addContact={addContact} />*/}
       <div className="flex justify-between items-center bg-cardWhite p-1 rounded-lg mb-4 mr-16 sticky top-16 z-10">
         <div className="ml-3 flex items-center space-x-4">
           <input
@@ -224,7 +223,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
         <div className="bg-cardWhite rounded-lg overflow-y-auto scrollbar-thin h-full">
           {searchFilteredContacts.map((contact, index) => (
             <div key={index} className="grid grid-cols-12 gap-4 px-4 py-2 border-b border-gray-100 hover:border-l-4 hover:border-l-blue-400 hover:bg-highlightBlue items-center">
-              <div className="col-span-5 flex items-center space-x-4">
+              <div className="col-span-7 flex items-center space-x-4 whitespace-nowrap">
                 <input
                   type="checkbox"
                   className="form-checkbox h-4 w-4 text-buttonBlue"
@@ -237,8 +236,8 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                   <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
-              <div className="col-span-3 text-lg opacity-80">{contact.frequency}</div>
-              <div className="col-span-3 flex space-x-2">
+              <div className="col-span-2 text-lg opacity-80">{contact.frequency}</div>
+              <div className="col-span-2 flex space-x-1">
                 <button onClick={() => handleNotesClick(contact)} className="bg-highlightBlue text-buttonBlue px-2 py-2 rounded-full transition duration-300 ease-in-out">
                   <span className="text-buttonBlue hover:text-blue-700"><FaStickyNote /></span>
                 </button>
