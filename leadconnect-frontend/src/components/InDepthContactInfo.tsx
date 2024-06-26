@@ -70,9 +70,12 @@ const InDepthContactInfo: React.FC<InDepthContactInfoProps> = ({ contact, onClos
   };
 
   return (
-    <div className="fixed inset-0 flex justify-end items-start z-50">
+    <div className="fixed inset-0 flex justify-end items-start z-50 top-[10%]" style={{pointerEvents: "none"}}>
+
+      <div className='w-[60%] h-full' ></div>
       <div
-        className="bg-cardWhite rounded-l-lg w-1/3 h-full p-6 relative overflow-y-auto"
+        className="bg-cardWhite rounded-l-lg w-[40%] h-full p-6 relative overflow-y-auto border-highlightBlue border-2"
+        style={{pointerEvents: "auto"}}
       >
         <button
           onClick={onClose}
@@ -88,7 +91,7 @@ const InDepthContactInfo: React.FC<InDepthContactInfoProps> = ({ contact, onClos
             className="w-24 h-24 rounded-full -mt-12 border-4 border-white"
           />
           <h2 className="text-2xl font-bold mt-4">{contact.name}</h2>
-          <p className="text-secondaryTextColor text-lg">{contact.headline}</p>
+          <p className="text-black-100 text-lg">{contact.headline}</p>
           <div className="w-full mt-6">
             <h3 className="text-xl font-semibold mb-2">About</h3>
             {renderTextWithToggle(contact.about, isAboutExpanded, toggleAboutSection)}

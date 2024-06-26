@@ -99,6 +99,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
   };
 
   const handleSelectContact = (contactName: string) => {
+    setShowInDepthContactInfo(false);
     const newSelectedContacts = new Set(selectedContacts);
     if (newSelectedContacts.has(contactName)) {
       newSelectedContacts.delete(contactName);
