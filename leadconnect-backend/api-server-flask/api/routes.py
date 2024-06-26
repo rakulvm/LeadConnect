@@ -918,7 +918,7 @@ def get_next_interaction_date(interaction):
     elif frequency == 'Once in 6 months':
         return last_interacted + timedelta(days=180)
 
-
+""""
 @rest_api.route('/api/users/get_notifications')
 class get_reminders(Resource):
     @token_required
@@ -974,6 +974,6 @@ class GetReminders(Resource):
             send_simple_message(to=email, subject=email_subject, body=email_body, contacts=reminders)
         
         return jsonify(all_reminders)
-        """
+        
 
 
