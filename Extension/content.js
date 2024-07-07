@@ -7,6 +7,20 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ text: null });
     }
   } 
+  else if (request.action === "getJD") {
+    function extractWords(text) {
+      // Remove all occurrences of '\n' using replace with a regular expression
+      let cleanedText = text.replace(/\n/g, '');
+  
+      // Extract words using a regular expression for words (\w+)
+      let words = cleanedText.match(/\b\w+\b/g);
+  
+      return words;
+  }
+  
+  let text = document.querySelector('.mt4').children[0].textContent + "\n " + document.querySelector('.mt4').children[1].textContent
+  sendResponse({text: encodeURI(extractWords(text).join('-'))})
+  }
   else if (request.action === "getToken") {
     let token = localStorage['token']
     sendResponse({ text: token });
