@@ -36,10 +36,10 @@ const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) =
         const queryString = hash.includes('?') ? hash.split('?')[1] : '';
         const urlParams = new URLSearchParams(queryString);
         const encodedDatad = urlParams.get('query');
-        const encodedData = encodedDatad?.replace(/(-)+/g, ' ');
-        if (encodedData) {
+        const encodedDataS = encodedDatad?.replace(/(-)+/g, ' ');
+        if (encodedDataS) {
             try {
-                setEncodedData(encodedData);
+                setEncodedData(encodedDataS);
             } catch (error) {
                 console.error('Error decoding data:', error);
             }
