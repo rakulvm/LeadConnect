@@ -13,6 +13,7 @@
 In today's fast-paced business environment, staying connected with your network can be challenging. Whether it's former colleagues, promising leads, or talented individuals you met at an event, maintaining those valuable connections often falls by the wayside. Enter **LeadConnect**, your AI-powered lead nurturing sidekick, designed to help you keep in touch with your network, nurture relationships, and fuel your growth.
 
 ## Key Features
+LLM
 
 1. **LinkedIn Integration at Your Fingertips**
    - LeadConnect seamlessly integrates with LinkedIn, providing you with the tools to manage and nurture your connections directly from the platform you use most.
