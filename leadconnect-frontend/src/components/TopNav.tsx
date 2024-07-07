@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { FaSearch, FaPlus } from 'react-icons/fa';
 import { BiSolidDownArrow } from 'react-icons/bi';
+import GenericChatComponent from "./GenericChatComponent.tsx";
 
 export default function TopNav() {
   const [searchTerm, setSearchTerm] = useState<string>("");

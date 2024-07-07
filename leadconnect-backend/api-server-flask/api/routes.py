@@ -37,7 +37,7 @@ from io import BytesIO
 rest_api = Api(version="1.0", title="Users API")
 
 # Replace with your OpenAI API key
-openai.api_key = ''
+openai.api_key = 'sk-proj-nU1b69npFykGXbx08dz7T3BlbkFJU8MHDL1epcKvUGvpVkbU'
 """
     Flask-Restx models for api request and response data
 """
@@ -422,6 +422,121 @@ class Login(Resource):
 """"""
 
 
+@rest_api.route('/api/llm_generic')
+class LLM(Resource):
+    """
+       LLM for generating customized message to the lead
+    """
+
+    # @rest_api.expect(llm_model, validate=True)
+    def post(self):
+        data = request.get_json()
+        users = data.get('users')
+        question = data.get('question')
+        job_description = data.get('job_description')
+        initial_context = data.get('initial_context')
+        if initial_context:
+            if "company" in question:
+                messages = [
+                    {"role": "system", "content": "from the below users who are currently working in the company."},
+                    {"role": "user", "content": f"job description: {job_description}"},
+                    {"role": "user", "content": f"users: {''.join(users)}"}
+                ]
+
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    max_tokens=150
+                )
+                summary_message = response['choices'][0]['message']['content'].strip()
+                return {'customized_message': summary_message}
+            if "cover" or "letter" in question:
+                url = "http://143.110.152.18:5000/generate-cover-letter"
+                data = {
+                    "job_description": job_description
+                }
+                headers = {
+                    "Content-Type": "application/json"
+                }
+                response = requests.post(url, json=data, headers=headers)
+
+                # Checking the status code and printing the result
+                if response.status_code == 200:
+                    print("Success! Here is the link to the generated cover letter:")
+                    print(response.json().get("url"))
+                    print(response.json())
+                    return {'customized_message': f""" Generated Cover Letter for the given job description. <a href='{response.json().get("url")}'>Click to download.</a>"""}
+                else:
+                    print(f"Failed to generate cover letter. Status code: {response.status_code}")
+                    print(response.json())
+                    return {'customized_message': "Error occurred, Please contact the admin."}, 500
+
+            return {'customized_message': """ <div class="container">
+<h1>Hello,</h1>
+<p>I have saved your job description. You can ask questions like:</p>
+
+<ul style="list-style-type: disc; padding-left: 20px;">
+<li>Who from my contacts is currently working in this company?</li>
+<li>How can my contacts help me get more inputs about this job?</li>
+<li>Generate a cover letter.</li>
+<li>Generate a tailored resume.</li>
+</p>
+</ul>
+</div>"""}
+        return {'customized_message': ""}
+
+        # if not headlines:
+        #     return {'customized_message': "Error occurred, Please contact the admin."}
+        #
+        # if initial_context:
+        #     # Take only the last two experiences or one if there's only one
+        #     # selected_experiences = experiences[-2:]
+        #     summary = " ".join(experiences)
+        #     messages = [
+        #         {"role": "system", "content": "You are my lead management and email message generator bot."},
+        #         {"role": "user", "content": f"Summary of the person: {summary}"},
+        #         {"role": "user",
+        #          "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person. Always reply with HTML code, since i want to add it to my website."}
+        #     ]
+        #
+        #     try:
+        #         response = openai.ChatCompletion.create(
+        #             model="gpt-3.5-turbo",
+        #             messages=messages,
+        #             max_tokens=150
+        #         )
+        #         summary_message = response['choices'][0]['message']['content'].strip()
+        #         return jsonify({'customized_message': summary_message})
+        #
+        #     except Exception as e:
+        #         return {'customized_message': "Error occurred, Please contact the admin."}
+        #
+        # else:
+        #     # Use the stored summary to generate a customized message
+        #     try:
+        #         summary = " ".join(experiences)
+        #
+        #         messages = [
+        #             {"role": "system", "content": "You are my lead management and email message generator bot."},
+        #             {"role": "user", "content": f"Summary of the person: {summary}"},
+        #             {"role": "user", "content": f"Always reply with HTML code, since i want to add it to my website."},
+        #             {"role": "user", "content": question}
+        #         ]
+        #
+        #         response = openai.ChatCompletion.create(
+        #             model="gpt-3.5-turbo",
+        #             messages=messages,
+        #             max_tokens=150
+        #         )
+        #         customized_message = response['choices'][0]['message']['content'].strip()
+        #
+        #         return {'customized_message': ""}
+
+            # except Exception as e:
+            #     return {'customized_message': "Error occurred, Please contact the admin."}
+
+
+
 @rest_api.route('/api/llm')
 class LLM(Resource):
     """
@@ -447,7 +562,7 @@ class LLM(Resource):
                 {"role": "system", "content": "You are my lead management and email message generator bot."},
                 {"role": "user", "content": f"Summary of the person: {summary}"},
                 {"role": "user",
-                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person."}
+                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person. Always reply with HTML code, since i want to add it to my website."}
             ]
 
             try:
@@ -470,6 +585,7 @@ class LLM(Resource):
                 messages = [
                     {"role": "system", "content": "You are my lead management and email message generator bot."},
                     {"role": "user", "content": f"Summary of the person: {summary}"},
+                    {"role": "user", "content": f"Always reply with HTML code, since i want to add it to my website."},
                     {"role": "user", "content": question}
                 ]
 

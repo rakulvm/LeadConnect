@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import './../chat.css';
-import { FaTimes, FaPlus, FaPaperPlane, FaRobot, FaUser } from "react-icons/fa";
+import {FaTimes, FaPlus, FaPaperPlane, FaRobot, FaUser} from "react-icons/fa";
 import axios from 'axios';
 
 type Contact = {
@@ -24,11 +24,13 @@ type Experience = {
     company_total_duration: string;
 };
 
-type ChatComponentProps = {
-    contact: Contact;
+type GenericChatComponentProps = {
+    contacts: Contact[] | null;
 };
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
+const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) => {
+    const [encodedData, setEncodedData] = useState('');
+
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ text: string, time: string, sender: string }[]>([]);
     const [chatVisible, setChatVisible] = useState(false);
@@ -39,44 +41,67 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
     const chatBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const initialMessages = [
-            {
-                text: 'Hi, Please wait I am contextualizing this chat with ' + contact.name + ' data.',
-                time: new Date().toLocaleTimeString(),
-                sender: 'bot'
-            },
-            {
-                text: 'Below is the summary of that user.',
-                time: new Date().toLocaleTimeString(),
-                sender: 'bot'
+const hash = window.location.hash;
+        const queryString = hash.includes('?') ? hash.split('?')[1] : '';
+        const urlParams = new URLSearchParams(queryString);
+        const encodedDataS = urlParams.get('query');
+        console.log(encodedDataS);
+        // const encodedDataS = encodedDatad?.replace(/(-)+/g, ' ');
+        if (encodedDataS) {
+            try {
+                setEncodedData(encodedDataS);
+            } catch (error) {
+                console.error('Error decoding data:', error);
             }
-        ];
+        }
+
+        const initialMessages = [
+                {
+                    text: 'Hello, I am your virtual assistant.',
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+                {
+                    text: 'Below is the job description.<br><br> ' + encodedDataS,
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+                {
+                    text: '<h1>Hello,</h1>\n' +
+                        '            <p>I have saved your job description. You can ask questions like:</p>\n' +
+                        '\n' +
+                        '            <ul style="list-style-type: disc; padding-left: 20px;">\n' +
+                        '                <li>Who from my contacts is currently working in this company?</li>\n' +
+                        '                <li>How can my contacts help me get more inputs about this job?</li>\n' +
+                        '                <li>Generate a cover letter.</li>\n' +
+                        '                <li>Generate a tailored resume.</li>\n' +
+                        '            </p>\n' +
+                        '    </ul>\n' +
+                        '    </div>',
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+
+
+            ]
+        ;
 
         const fetchData = async () => {
             setLoading(true);
             try {
-                const experiences = contact.experiences.map(exp => exp.bulletpoints);
-                const response = await axios.post('http://localhost:5000/api/llm', {
-                    experiences,
+
+                const users = contacts?.map(contact =>
+                    "USER_NAME: " + contact.name + " ; USER_SUMMARY: " + contact.headline
+                ).flat();
+                const response = await axios.post('http://localhost:5000/api/llm_generic', {
+                    users: users,
+                    job_description: encodedData,
                     initial_context: true
                 });
 
                 const fetchedMessages = [
                     {
                         text: response.data.customized_message,
-                        time: new Date().toLocaleTimeString(),
-                        sender: 'bot'
-                    },
-                    {
-                        text: `<div>
-    <p>You can ask below things to this person:</p>
-    <ul style="list-style-type: disc; padding-left: 20px;">
-        <li>Do you have any openings in your company?</li>
-        <li>I have an interview in a few days in your company and need your guidance.</li>
-        <li>Are you free for a coffee chat this month?</li>
-        <li>I am trying to learn emerging technologies and your profile looks good. Can you guide me on how to start with my preparation?</li>
-    </ul>
-</div>`,
                         time: new Date().toLocaleTimeString(),
                         sender: 'bot'
                     }
@@ -91,8 +116,9 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
         };
 
         setChatHistory(initialMessages);
-        fetchData();
-    }, [contact.experiences]);
+        // fetchData();
+    }, []);
+
     useEffect(() => {
         scrollToBottom();
     }, [chatHistory]);
@@ -144,18 +170,20 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
     const handleSendMessage = async () => {
         if (message.trim()) {
             const currentTime = new Date().toLocaleTimeString();
-            const userMessage = { text: message, time: currentTime, sender: 'user' };
+            const userMessage = {text: message, time: currentTime, sender: 'user'};
             setChatHistory(prevHistory => [...prevHistory, userMessage]);
             setMessage('');
 
             try {
                 setLoading(true);
-
-                const experiences = contact.experiences.map(exp => exp.bulletpoints);
-                const response = await axios.post('http://localhost:5000/api/llm', {
-                    experiences,
-                    question: message,
-                    initial_context: false
+                 const users = contacts?.map(contact =>
+                    "USER_NAME: " + contact.name + " ; USER_SUMMARY: " + contact.headline
+                ).flat();
+                const response = await axios.post('http://localhost:5000/api/llm_generic', {
+                    users: users,
+                    job_description: encodedData,
+                    question:message,
+                    initial_context: true
                 });
                 const botMessage = {
                     text: response.data.customized_message,
@@ -181,18 +209,21 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
 
     return (
         <div className={`app-container ${chatVisible ? 'blur-background' : ''}`}>
-            <div className={`chat-box ${chatVisible ? 'visible' : ''}`} ref={chatBoxRef}>
+            <div className={`chat-box-generic ${chatVisible ? 'visible' : ''}`} ref={chatBoxRef}>
                 <div className="chat-box-header">
-                    <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
-                    <span style={{ fontWeight: "bold", lineHeight: "2" }}> {chatVisible ? contact.name : ''}</span>
+                    <img
+                        src="https://cdn.dribbble.com/users/5255902/screenshots/16932664/media/975f6cbfd6c29458a4ca38030b7b6039.png?resize=400x0"
+                        alt="profile" className="rounded-full "/>
+                    <span style={{fontWeight: "bold", lineHeight: "2"}}> {'Assistant'}</span>
                     <p id="addExtra" onClick={toggleChatVisibility}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaTimes size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaTimes size={24}/></span>
                     </p>
                 </div>
                 <div className="chat-box-body" ref={chatBodyRef}>
                     {chatHistory.map((msg, index) => (
                         msg.text && (
-                            <div key={index} className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'}`}>
+                            <div key={index}
+                                 className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'} more-width`}>
                                 <div dangerouslySetInnerHTML={{__html: msg.text}}/>
 
                                 <div style={{display: "flex", flexDirection: "row"}}>
@@ -220,7 +251,7 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                 )}
                 <div className="chat-box-footer">
                     <button id="addExtra" onClick={toggleModalVisibility}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaPlus size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaPlus size={24}/></span>
                     </button>
                     <input
                         ref={inputRef}
@@ -230,15 +261,17 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                         onChange={(e) => setMessage(e.target.value)}
                     />
                     <button id="addExtra" onClick={handleSendMessage}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaPaperPlane size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaPaperPlane size={24}/></span>
                     </button>
                 </div>
             </div>
 
-            <div className="chat-button" onClick={toggleChatVisibility}
-                style={{ display: chatVisible ? 'none' : 'flex' }}>
-                <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
-                {contact.name}
+            <div className="chat-button-generic" onClick={toggleChatVisibility}
+                 style={{display: chatVisible ? 'none' : 'flex'}}>
+                <img width="80px"
+                     src="https://cdn.dribbble.com/users/5255902/screenshots/16932664/media/975f6cbfd6c29458a4ca38030b7b6039.png?resize=400x0"
+                     alt="profile" className="rounded-full"/>
+                <p className="generic-chat-title">Let's Chat</p>
             </div>
 
             {modalVisible && (
@@ -253,4 +286,4 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
     );
 };
 
-export default ChatComponent;
+export default GenericChatComponent;
