@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { FaSun, FaUserFriends, FaPhone, FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const LeftSideNav = () => {
   const navigate = useNavigate();
@@ -73,7 +74,7 @@ const LeftSideNav = () => {
       console.log('Response data:', data);
 
       if (data.success) {
-        localStorage.removeItem(`token`);
+        localStorage.removeItem('token');
         window.location.href = '/';
       } else {
         alert(data.message || 'Failed to logout');
@@ -91,35 +92,34 @@ const LeftSideNav = () => {
   return (
     <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 flex flex-col mr-[0.2rem]'>
       <div className='flex items-center mb-4'>
-        <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-md'>
+        <div className='bg-buttonBlue h-10 w-10 flex items-center justify-center rounded-lg'>
           <img src='/src/assets/logo.jpg' alt='Logo' className='w-8' />
         </div>
         <span className='ml-4 text-xl font-bold color-secondaryTextColor'>Lead Connect</span>
       </div>
-      <nav className='flex-grow overflow-y-auto space-y-2 opacity-75'>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
-          <span className='text-l'><FaSun /></span> <span className='ml-2 text-md font-medium'>Today</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
-          <span className='text-l'><FaUserFriends /></span> <span className='ml-2 text-md font-medium'>Contacts</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
-          <span className='text-l'><FaPhone /></span><span className='ml-2 text-md font-medium'>Keep-in-touch</span>
-        </a>
-        {/*<a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>*/}
-        {/*  <span className='text-l'><FaStickyNote /></span>  <span className='ml-2 text-md font-medium'>Notes</span>*/}
-        {/*</a>*/}
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
-          <span className='text-l'><FaClock /></span> <span className='ml-2 text-md font-medium'>Timeline</span>
-        </a>
-        <a href='#' className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
-          <span className='text-l'><FaNetworkWired /></span> <span className='ml-2 text-md font-medium'>Network</span>
-        </a>
+      <nav className='flex-shrink-0 space-y-2 opacity-75'>
+        <Link to="/main" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaSun /></span> <span className='ml-2 text-lg font-medium'>Today</span>
+        </Link>
+        <Link to="/contacts" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaUserFriends /></span> <span className='ml-2 text-lg font-medium'>Contacts</span>
+        </Link>
+        <Link to="/keepintouch" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaPhone /></span><span className='ml-2 text-lg font-medium'>Keep-in-touch</span>
+        </Link>
+        <Link to="/notes" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaStickyNote /></span>  <span className='ml-2 text-lg font-medium'>Notes</span>
+        </Link>
+        <Link to="/timeline" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaClock /></span> <span className='ml-2 text-lg font-medium'>Timeline</span>
+        </Link>
+        <Link to="/network" className='flex items-center color-secondaryTextColor hover:bg-highlightBlue hover:text-buttonBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
+          <span className='text-l'><FaNetworkWired /></span> <span className='ml-2 text-lg font-medium'>Network</span>
+        </Link>
       </nav>
-
-      <div className='mb-20 mt-4'>
-        <div className='flex items-center justify-between mb-6'>
-          <h3 className='text-gray-500 text-md font-bold'>GROUPS</h3>
+      <div className='mt-12'> {/* Set margin-top to 0 */}
+        <div className='flex items-center justify-between mb-2'> {/* Reduced margin-bottom */}
+          <h3 className='text-gray-500 text-lg font-bold'>GROUPS</h3>
           <div className='flex items-center space-x-2'>
             <span className='text-gray-500 cursor-pointer' onClick={handleSort}><FaSort /></span>
             <span className='text-gray-500 cursor-pointer' onClick={handleAddGroup}><FaPlus /></span>
@@ -128,7 +128,7 @@ const LeftSideNav = () => {
         </div>
         <div className='space-y-1'>
           {groups.map(group => (
-            <div key={group.name} className='text-md font-medium flex justify-between color-secondaryTextColor items-center hover:bg-highlightBlue px-2 py-1 rounded-md transition duration-300 ease-in-out'>
+            <div key={group.name} className='text-lg font-medium flex justify-between color-secondaryTextColor items-center hover:bg-highlightBlue px-2 py-1 rounded-lg transition duration-300 ease-in-out'>
               <span className='flex items-center'>
                 <span className='mr-2'>{group.emoji}</span>
                 {group.name}
@@ -140,13 +140,13 @@ const LeftSideNav = () => {
       </div>
       <button
         onClick={handleProfile}
-        className='mt-2 mb-2 bg-white text-gray-500 border border-gray-500 px-4 py-2 rounded-md flex items-center justify-center transition duration-300 ease-in-out hover:bg-gray-500 hover:text-white'
+        className='mt-2 mb-2 bg-white text-gray-500 border border-gray-500 px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-gray-500 hover:text-white'
       >
         <FaUser className='mr-2' /> Profile
       </button>
       <button
         onClick={handleLogout}
-        className='mt-auto bg-buttonBlue text-white px-4 py-2 rounded-md flex items-center justify-center transition duration-300 ease-in-out hover:bg-blue-600'
+        className='mt-auto bg-buttonBlue text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-blue-600'
       >
         <FaSignOutAlt className='mr-2' /> Logout
       </button>
