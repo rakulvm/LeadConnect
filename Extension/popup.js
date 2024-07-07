@@ -11,6 +11,57 @@ function convertToCamelCase(str) {
   });
 }
 
+document.getElementById("generateCV").addEventListener("click", () => {
+   // Function to send a message and get a response as a promise
+   const sendMessageToTab = (tabId, message) => {
+    return new Promise((resolve, reject) => {
+      chrome.tabs.sendMessage(tabId, message, (response) => {
+        if (chrome.runtime.lastError) {
+          reject(chrome.runtime.lastError);
+        } else {
+          resolve({
+            action: message.action,
+            text: response ? response.text : null,
+          });
+        }
+      });
+    });
+  };
+
+  // Initialize an object to store the results
+  let results = {};
+
+    // Example messages to send
+    const messages = [
+      { action: "getJD" },
+
+    ];
+
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      const tabId = tabs[0].id;
+      const promises = messages.map((message) =>
+        sendMessageToTab(tabId, message)
+      );
+
+      Promise.all(promises)
+      .then((responses) => {
+        // Populate the results object with the responses
+        responses.forEach((response) => {
+          let key = convertToCamelCase(response.action);
+          if (response && response.text) {
+            results[key] = response.text;
+          } else {
+            results[key] = "Element text not found.";
+          }
+        });
+  
+        alert(results['jD'])
+        chrome.tabs.update(tabId, {url: "http://localhost:5173/#/main?query="+encodeURI(results['jD'])});
+      })
+    })
+
+})
+
 document.getElementById("getName").addEventListener("click", () => {
   // Function to send a message and get a response as a promise
   const sendMessageToTab = (tabId, message) => {
