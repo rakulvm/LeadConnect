@@ -31,21 +31,6 @@ type GenericChatComponentProps = {
 const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) => {
     const [encodedData, setEncodedData] = useState('');
 
-    useEffect(() => {
-        const hash = window.location.hash;
-        const queryString = hash.includes('?') ? hash.split('?')[1] : '';
-        const urlParams = new URLSearchParams(queryString);
-        const encodedDatad = urlParams.get('query');
-        const encodedDataS = encodedDatad?.replace(/(-)+/g, ' ');
-        if (encodedDataS) {
-            try {
-                setEncodedData(encodedDataS);
-            } catch (error) {
-                console.error('Error decoding data:', error);
-            }
-        }
-    }, []);
-
     const [message, setMessage] = useState('');
     const [chatHistory, setChatHistory] = useState<{ text: string, time: string, sender: string }[]>([]);
     const [chatVisible, setChatVisible] = useState(false);
@@ -56,48 +41,67 @@ const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) =
     const chatBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        const initialMessages = [
-            {
-                text: 'Hello, I am your virtual assistant.',
-                time: new Date().toLocaleTimeString(),
-                sender: 'bot'
-            },
-            {
-                text: 'Below is the job description.<br><br><br> '+encodedData,
-                time: new Date().toLocaleTimeString(),
-                sender: 'bot'
+const hash = window.location.hash;
+        const queryString = hash.includes('?') ? hash.split('?')[1] : '';
+        const urlParams = new URLSearchParams(queryString);
+        const encodedDataS = urlParams.get('query');
+        console.log(encodedDataS);
+        // const encodedDataS = encodedDatad?.replace(/(-)+/g, ' ');
+        if (encodedDataS) {
+            try {
+                setEncodedData(encodedDataS);
+            } catch (error) {
+                console.error('Error decoding data:', error);
             }
-        ];
+        }
+
+        const initialMessages = [
+                {
+                    text: 'Hello, I am your virtual assistant.',
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+                {
+                    text: 'Below is the job description.<br><br> ' + encodedDataS,
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+                {
+                    text: '<h1>Hello,</h1>\n' +
+                        '            <p>I have saved your job description. You can ask questions like:</p>\n' +
+                        '\n' +
+                        '            <ul style="list-style-type: disc; padding-left: 20px;">\n' +
+                        '                <li>Who from my contacts is currently working in this company?</li>\n' +
+                        '                <li>How can my contacts help me get more inputs about this job?</li>\n' +
+                        '                <li>Generate a cover letter.</li>\n' +
+                        '                <li>Generate a tailored resume.</li>\n' +
+                        '            </p>\n' +
+                        '    </ul>\n' +
+                        '    </div>',
+                    time: new Date().toLocaleTimeString(),
+                    sender: 'bot'
+                },
+
+
+            ]
+        ;
 
         const fetchData = async () => {
             setLoading(true);
             try {
 
-                const headlines = contacts?.map(contact =>
-                    contact.headline
+                const users = contacts?.map(contact =>
+                    "USER_NAME: " + contact.name + " ; USER_SUMMARY: " + contact.headline
                 ).flat();
                 const response = await axios.post('http://localhost:5000/api/llm_generic', {
-                    headlines,
-                    query: encodedData,
+                    users: users,
+                    job_description: encodedData,
                     initial_context: true
                 });
 
                 const fetchedMessages = [
                     {
                         text: response.data.customized_message,
-                        time: new Date().toLocaleTimeString(),
-                        sender: 'bot'
-                    },
-                    {
-                        text: `<div>
-    <p>You can ask below things to this person:</p>
-    <ul style="list-style-type: disc; padding-left: 20px;">
-        <li>Do you have any openings in your company?</li>
-        <li>I have an interview in a few days in your company and need your guidance.</li>
-        <li>Are you free for a coffee chat this month?</li>
-        <li>I am trying to learn emerging technologies and your profile looks good. Can you guide me on how to start with my preparation?</li>
-    </ul>
-</div>`,
                         time: new Date().toLocaleTimeString(),
                         sender: 'bot'
                     }
@@ -112,7 +116,7 @@ const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) =
         };
 
         setChatHistory(initialMessages);
-        fetchData();
+        // fetchData();
     }, []);
 
     useEffect(() => {
@@ -172,15 +176,14 @@ const GenericChatComponent: React.FC<GenericChatComponentProps> = ({contacts}) =
 
             try {
                 setLoading(true);
-                const headlines = contacts?.map(contact =>
-                                    contact.headline
-                                ).flat();
-                // const experiences = contact?.experiences.map(exp => exp.bulletpoints);
+                 const users = contacts?.map(contact =>
+                    "USER_NAME: " + contact.name + " ; USER_SUMMARY: " + contact.headline
+                ).flat();
                 const response = await axios.post('http://localhost:5000/api/llm_generic', {
-                    // experiences,
-                    headlines:headlines,
-                    question: message,
-                    initial_context: false
+                    users: users,
+                    job_description: encodedData,
+                    question:message,
+                    initial_context: true
                 });
                 const botMessage = {
                     text: response.data.customized_message,
