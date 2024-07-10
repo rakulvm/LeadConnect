@@ -10,6 +10,8 @@ import ForgotPasswordPage from './ForgotPasswordPage';
 import Profile from '../components/Profile';
 import { format } from 'date-fns';
 import { Contact, Connection } from '../types';
+import PricingTable from '../components/PricingTable';
+import PaymentForm from '../components/PaymentForm';
 
 interface ContactResponse {
   success?: boolean;
@@ -144,6 +146,24 @@ const App: React.FC = () => {
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/profile" element={
           token ? <Profile /> : <Navigate to="/login" />
+        } />
+        <Route path="/pricingTable" element={
+           <div className='flex bg-backgroundColor'>
+           <LeftSideNav />
+           <div className='bg-red w-5/6'>
+             <TopNav />
+             <PricingTable />
+           </div>
+         </div>
+        } />
+        <Route path="/paymentForm" element={
+           <div className='flex bg-backgroundColor'>
+           <LeftSideNav />
+           <div className='bg-red w-5/6'>
+             <TopNav />
+             <PaymentForm />
+           </div>
+         </div>
         } />
       </Routes>
     </>

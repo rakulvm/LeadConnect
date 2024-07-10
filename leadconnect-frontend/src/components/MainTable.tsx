@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {FaSort, FaFilter, FaStickyNote, FaTrash, FaFacebook, FaSearch, FaLinkedin, FaRobot} from 'react-icons/fa';
+import {FaSort, FaFilter, FaStickyNote, FaTrash, FaSearch, FaLinkedin, FaRobot} from 'react-icons/fa';
 import {Contact} from '../types'; // Import the shared types
 import ContactModal from './AddContact';
 import NotesPopup from './NotesPopup';

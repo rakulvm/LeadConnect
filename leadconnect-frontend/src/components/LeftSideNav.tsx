@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaSun, FaUserFriends, FaPhone, FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash, FaSignOutAlt, FaUser } from 'react-icons/fa';
+import { FaSun, FaUserFriends, FaPhone, FaRegCreditCard,FaClock, FaStickyNote, FaNetworkWired, FaSort, FaPlus, FaTrash, FaSignOutAlt, FaUser } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 
@@ -89,6 +89,9 @@ const LeftSideNav = () => {
     navigate('/profile');
   };
 
+  const handlePricingTable = () => {
+    navigate('/pricingTable');
+  };
   return (
     <div className='top-0 left-0 w-1/6 h-screen bg-cardWhite p-5 flex flex-col mr-[0.2rem]'>
       <div className='flex items-center mb-4'>
@@ -120,14 +123,20 @@ const LeftSideNav = () => {
 
       <button
         onClick={handleProfile}
-        style={{marginTop:'420px'}}
+        style={{marginTop:'370px'}}
         className='mt-2 mb-2 bg-white text-gray-500 border border-gray-500 px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-gray-500 hover:text-white'
       >
         <FaUser className='mr-2' /> Profile
       </button>
       <button
+        onClick={handlePricingTable}
+        className='mt-2 mb-2 bg-white text-gray-500 border border-gray-500 px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-gray-500 hover:text-white'
+      >
+        <FaRegCreditCard className='mr-2' /> Subscription
+      </button>
+      <button
         onClick={handleLogout}
-        className='mt-auto bg-buttonBlue text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-blue-600'
+        className='mt-2 bg-buttonBlue text-white px-4 py-2 rounded-lg flex items-center justify-center transition duration-300 ease-in-out hover:bg-blue-600'
       >
         <FaSignOutAlt className='mr-2' /> Logout
       </button>
