@@ -830,6 +830,7 @@ class UserProfileAPI(Resource):
                 "profile_picture_url": user.profile_picture_url,
                 "security_question": user.security_question,
                 "security_answer": user.security_answer,
+                "my_resume_content": user.my_resume_content,  # Added this field
             })
         else:
             return jsonify({"error": "User not found"}), 404
@@ -849,7 +850,9 @@ class UserProfileAPI(Resource):
             user.profile_picture_url = data.get('profile_picture_url', user.profile_picture_url)
             user.security_question = data.get('security_question', user.security_question)
             user.security_answer = data.get('security_answer', user.security_answer)
+            user.my_resume_content = data.get('my_resume_content', user.my_resume_content)  # Added this field
             user.set_password(data.get('password', user.password_hash))  # Assuming password change is allowed
+            
             db.session.commit()
             return jsonify({"message": "Profile updated successfully"})
         else:
