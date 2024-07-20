@@ -13,6 +13,28 @@ Base = declarative_base()
 
 db = SQLAlchemy()
 
+"""
+Users model representing a user in the system.
+
+Attributes:
+    user_id: Unique identifier for the user.
+    username: Username of the user.
+    password_hash: Hashed password for the user.
+    email: Email address of the user.
+    first_name: First name of the user.
+    last_name: Last name of the user.
+    phone_number: Phone number of the user.
+    company: Company name associated with the user.
+    number_of_employees: Enum representing the number of employees in the user's company.
+    province: Enum representing the province the user resides in.
+    profile_picture_url: URL to the user's profile picture.
+    security_question: Enum representing the security question for the user.
+    security_answer: Answer to the security question.
+    status: Status of the user.
+    created_at: Timestamp when the user was created.
+    updated_at: Timestamp when the user was last updated.
+    connections: One-to-many relationship with the Connection model.
+"""
 class Users(db.Model):
     __tablename__ = 'users'
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -31,8 +53,6 @@ class Users(db.Model):
     status = db.Column(db.Integer, nullable=False)  # To indicate the status of the user
     created_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
-
-    # One-to-many relationship with Connection
     connections = db.relationship('Connection', backref='user', lazy=True, cascade='all, delete')
 
     def __repr__(self):
@@ -95,9 +115,16 @@ class Users(db.Model):
         return cls_dict
         
     def toJSON(self):
-
         return self.toDICT()
 
+"""
+JWTTokenBlocklist model representing a blocklist of JWT tokens.
+
+Attributes:
+    id: Unique identifier for the blocklist entry.
+    jwt_token: JWT token string.
+    created_at: Timestamp when the token was created.
+"""
 class JWTTokenBlocklist(Base):
     __tablename__ = 'users_session'
     id = db.Column(db.Integer, primary_key=True)
@@ -112,7 +139,17 @@ class JWTTokenBlocklist(Base):
         db.session.add(self)
         db.session.commit()
 
+"""
+Contact model representing a contact person in the system.
 
+Attributes:
+    contact_url: URL to the contact's profile.
+    name: Name of the contact.
+    current_location: Current location of the contact.
+    headline: Headline or title of the contact.
+    about: About information for the contact.
+    profile_pic_url: URL to the contact's profile picture.
+"""
 class Contact(db.Model):
     __tablename__ = 'contacts'
     contact_url = db.Column(db.String(255), primary_key=True)
@@ -174,8 +211,20 @@ class Contact(db.Model):
     def toJSON(self):
         return self.toDICT()
     
-# Experience Model
+"""
+Experience model representing a professional experience of a contact.
 
+Attributes:
+    id: Unique identifier for the experience.
+    contact_url: URL to the associated contact's profile.
+    company_name: Name of the company.
+    company_logo: URL to the company's logo.
+    company_role: Role of the contact at the company.
+    company_location: Location of the company.
+    bulletpoints: Bullet points describing the experience.
+    company_duration: Duration of the contact's role at the company.
+    company_total_duration: Total duration of the contact's experience.
+"""
 class Experience(db.Model):
     __tablename__ = 'experiences'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -256,7 +305,18 @@ class Experience(db.Model):
 
     def toJSON(self):
         return self.toDICT()
-    
+
+"""
+Connection model representing a connection between a user and a contact.
+
+Attributes:
+    id: Unique identifier for the connection.
+    user_id: ID of the associated user.
+    contact_url: URL to the associated contact's profile.
+    frequency: Enum representing the frequency of interaction.
+    last_interacted: Date when the last interaction occurred.
+    notes: Notes related to the connection.
+"""
 class Connection(db.Model):
     __tablename__ = 'connections'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
