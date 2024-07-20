@@ -6,6 +6,18 @@ import requests
 
 def send_confirmation_link_to_user(recipient_email, recipient_first_name, recipient_last_name, verification_link):
   try:
+    """
+    Send a confirmation email to the user with a verification link.
+
+    Args:
+        recipient_email (str): The recipient's email address.
+        recipient_first_name (str): The recipient's first name.
+        recipient_last_name (str): The recipient's last name.
+        verification_link (str): The link for email verification.
+
+    Returns:
+        None
+    """
     subject = f"IMPORTANT: Confirm your registraion with leadmanagement "
     body=f"""
     <html>
@@ -40,6 +52,18 @@ src="https://bcstechnologies.com/wp-content/uploads/2022/12/1-1.png"/>
   except Exception as e:
     print(traceback.format_exc())
 
+"""
+    Send an email to the admin with the user's registration details and PIN.
+
+    Args:
+        recipient_email (str): The recipient's email address.
+        recipient_first_name (str): The recipient's first name.
+        recipient_last_name (str): The recipient's last name.
+        pin (str): The verification PIN.
+
+    Returns:
+        None
+    """
 def send_email_to_admin(recipient_email, recipient_first_name, recipient_last_name, pin):
   try:
     pin1= pin[0]
@@ -114,7 +138,18 @@ border: 1px solid #ddd;" disabled value="{pin4}"/>
   except Exception as e:
     print(traceback.format_exc())
 
+"""
+Send a simple email message with a list of contacts.
 
+Args:
+    to (str): The recipient's email address.
+    subject (str): The email subject.
+    body (str): The email body.
+    contacts (list): List of contacts to include in the email.
+
+Returns:
+    None
+"""
 def send_simple_message(to, subject, body, contacts):
     # Generate the HTML content
     contact_html = ""
