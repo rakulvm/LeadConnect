@@ -75,7 +75,8 @@ signup_model = rest_api.model('SignupModel', {
                                              'What was the name of your first pet?',
                                              'What was the make of your first car?', 'What is your favorite color?',
                                              'What city were you born in?']),
-    'security_answer': fields.String(required=True, description='Answer to the security question')
+    'security_answer': fields.String(required=True, description='Answer to the security question'),
+    'my_resume_content': fields.String(description='User resume content')
 })
 login_model = rest_api.model('LoginModel', {"username": fields.String(required=True),
                                             "password": fields.String(required=True)
@@ -194,6 +195,7 @@ class Register(Resource):
         security_question = req_data.get("security_question")
         security_answer = req_data.get("security_answer")
         user_exists = Users.get_by_email(email)
+        my_resume_content = req_data.get("my_resume_content")  # New field
         if user_exists:
             return {"success": False, "msg": "User already exists"}, 400
 
@@ -211,7 +213,8 @@ class Register(Resource):
             security_answer=security_answer,
             status=1,  # Assuming 1 means 'active'
             created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc)
+            updated_at=datetime.now(timezone.utc),
+            my_resume_content=my_resume_content,  # Assigning new field
         )
         new_user.set_password(password)
         db.session.add(new_user)

@@ -122,7 +122,7 @@ class Users(db.Model):
     status = db.Column(db.Integer, nullable=False)  # To indicate the status of the user
     created_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), nullable=False)
     updated_at = db.Column(db.TIMESTAMP, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc), nullable=False)
-
+    my_resume_content = db.Column(db.Text, nullable=True, default='')  # New field added
     # One-to-many relationship with Connection
     connections = db.relationship('Connection', backref='user', lazy=True, cascade='all, delete')
 
@@ -182,7 +182,9 @@ class Users(db.Model):
         cls_dict['security_answer'] = self.security_answer
         cls_dict['created_at'] = self.created_at.isoformat() if self.created_at else None,
         cls_dict['updated_at'] = self.updated_at.isoformat() if self.updated_at else None,
-        cls_dict['status'] = self.status
+        cls_dict['status'] = self.status,
+        cls_dict['my_resume_content'] = self.my_resume_content
+
         return cls_dict
         
     def toJSON(self):

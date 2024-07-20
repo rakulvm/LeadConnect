@@ -20,11 +20,12 @@ const Signup: React.FC = () => {
     province: '',
     profile_picture_url: '',
     security_question: '',
-    security_answer: ''
+    security_answer: '',
+    my_resume_content: '' // New field
   });
 
   const nextStep = () => {
-    setCurrentStep((prevStep) => Math.min(prevStep + 1, 4));
+    setCurrentStep((prevStep) => Math.min(prevStep + 1, 5));
   };
 
   const prevStep = () => {
@@ -71,7 +72,7 @@ const Signup: React.FC = () => {
       </div>
       <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
         <h1 className="text-2xl pt-7 font-bold mb-4 text-center">Create your LeadConnect Account</h1>
-        <StepIndicator currentStep={currentStep} totalSteps={4} />
+        <StepIndicator currentStep={currentStep} totalSteps={5} />
         <SignupForm
           currentStep={currentStep}
           nextStep={nextStep}
