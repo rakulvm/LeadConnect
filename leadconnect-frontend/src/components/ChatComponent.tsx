@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import './../chat.css';
-import { FaTimes, FaPlus, FaPaperPlane, FaRobot, FaUser } from "react-icons/fa";
-import axios from 'axios';
+import React, { useState, useEffect, useRef } from 'react'; // Importing necessary React hooks and libraries
+import './../chat.css'; // Importing CSS file for styling
+import { FaTimes, FaPlus, FaPaperPlane, FaRobot, FaUser } from "react-icons/fa"; // Importing FontAwesome icons
+import axios from 'axios'; // Importing axios for making HTTP requests
 
-type Contact = {
+type Contact = { // Defining the Contact type
     about: string;
     contact_url: string;
     current_location: string;
@@ -15,7 +15,7 @@ type Contact = {
     last_interacted: string;
 };
 
-type Experience = {
+type Experience = { // Defining the Experience type
     bulletpoints: string;
     company_duration: string;
     company_location: string;
@@ -24,22 +24,22 @@ type Experience = {
     company_total_duration: string;
 };
 
-type ChatComponentProps = {
+type ChatComponentProps = { // Defining the props type for the ChatComponent
     contact: Contact;
 };
 
-const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
-    const [message, setMessage] = useState('');
-    const [chatHistory, setChatHistory] = useState<{ text: string, time: string, sender: string }[]>([]);
-    const [chatVisible, setChatVisible] = useState(false);
-    const [modalVisible, setModalVisible] = useState(false);
-    const [loading, setLoading] = useState(false);
-    const chatBoxRef = useRef<HTMLDivElement>(null);
-    const inputRef = useRef<HTMLInputElement>(null);
-    const chatBodyRef = useRef<HTMLDivElement>(null);
+const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => { // Defining the ChatComponent functional component
+    const [message, setMessage] = useState(''); // Defining state for message input
+    const [chatHistory, setChatHistory] = useState<{ text: string, time: string, sender: string }[]>([]); // Defining state for chat history
+    const [chatVisible, setChatVisible] = useState(false); // Defining state for chat visibility
+    const [modalVisible, setModalVisible] = useState(false); // Defining state for modal visibility
+    const [loading, setLoading] = useState(false); // Defining state for loading indicator
+    const chatBoxRef = useRef<HTMLDivElement>(null); // Creating a ref for the chat box
+    const inputRef = useRef<HTMLInputElement>(null); // Creating a ref for the input field
+    const chatBodyRef = useRef<HTMLDivElement>(null); // Creating a ref for the chat body
 
-    useEffect(() => {
-        const initialMessages = [
+    useEffect(() => { // Using useEffect to handle component lifecycle
+        const initialMessages = [ // Initial bot messages
             {
                 text: 'Hi, Please wait I am contextualizing this chat with ' + contact.name + ' data.',
                 time: new Date().toLocaleTimeString(),
@@ -52,16 +52,16 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
             }
         ];
 
-        const fetchData = async () => {
-            setLoading(true);
+        const fetchData = async () => { // Function to fetch data from API
+            setLoading(true); // Setting loading to true
             try {
-                const experiences = contact.experiences.map(exp => exp.bulletpoints);
-                const response = await axios.post('http://localhost:5000/api/llm', {
+                const experiences = contact.experiences.map(exp => exp.bulletpoints); // Extracting bulletpoints from experiences
+                const response = await axios.post('http://localhost:5000/api/llm', { // Sending POST request to API
                     experiences,
                     initial_context: true
                 });
 
-                const fetchedMessages = [
+                const fetchedMessages = [ // Bot messages after fetching data
                     {
                         text: response.data.customized_message,
                         time: new Date().toLocaleTimeString(),
@@ -82,50 +82,50 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                     }
                 ];
 
-                setChatHistory([...initialMessages, ...fetchedMessages]);
+                setChatHistory([...initialMessages, ...fetchedMessages]); // Updating chat history with initial and fetched messages
             } catch (error) {
-                console.error('Error sending experiences:', error);
+                console.error('Error sending experiences:', error); // Logging error if API call fails
             } finally {
-                setLoading(false);
+                setLoading(false); // Setting loading to false
             }
         };
 
-        setChatHistory(initialMessages);
-        fetchData();
-    }, [contact.experiences]);
+        setChatHistory(initialMessages); // Setting initial chat history
+        fetchData(); // Fetching data
+    }, [contact.experiences]); // Dependency array for useEffect
     useEffect(() => {
-        scrollToBottom();
+        scrollToBottom(); // Scroll to bottom when chat history updates
     }, [chatHistory]);
 
-    useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
+    useEffect(() => { // Adding event listeners for clicks and key presses
+        const handleClickOutside = (event: MouseEvent) => { // Handling clicks outside chat box
             if (chatBoxRef.current && !chatBoxRef.current.contains(event.target as Node)) {
-                setChatVisible(false);
+                setChatVisible(false); // Hiding chat if click is outside chat box
             }
         };
 
-        const handleEscKey = (event: KeyboardEvent) => {
+        const handleEscKey = (event: KeyboardEvent) => { // Handling Escape key press
             if (event.key === 'Escape') {
-                setChatVisible(false);
+                setChatVisible(false); // Hiding chat if Escape key is pressed
             }
         };
 
-        const handleEnterKey = (event: KeyboardEvent) => {
+        const handleEnterKey = (event: KeyboardEvent) => { // Handling Enter key press
             if (event.key === 'Enter') {
-                handleSendMessage();
+                handleSendMessage(); // Sending message if Enter key is pressed
             }
         };
 
-        document.addEventListener('mousedown', handleClickOutside);
-        document.addEventListener('keydown', handleEscKey);
+        document.addEventListener('mousedown', handleClickOutside); // Adding mousedown event listener
+        document.addEventListener('keydown', handleEscKey); // Adding keydown event listener for Escape key
 
-        document.addEventListener('enterkey', handleSendMessage);
+        document.addEventListener('enterkey', handleSendMessage); // Adding event listener for custom Enter key event
 
         if (inputRef.current) {
-            inputRef.current.addEventListener('keydown', handleEnterKey);
+            inputRef.current.addEventListener('keydown', handleEnterKey); // Adding keydown event listener for Enter key to input field
         }
 
-        return () => {
+        return () => { // Cleanup function to remove event listeners
             document.removeEventListener('mousedown', handleClickOutside);
             document.removeEventListener('keydown', handleEscKey);
 
@@ -135,24 +135,24 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
         };
     }, [chatBoxRef, inputRef]);
 
-    const scrollToBottom = () => {
+    const scrollToBottom = () => { // Function to scroll chat to bottom
         if (chatBodyRef.current) {
-            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
+            chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight; // Setting scroll position to bottom
         }
     };
 
-    const handleSendMessage = async () => {
-        if (message.trim()) {
-            const currentTime = new Date().toLocaleTimeString();
-            const userMessage = { text: message, time: currentTime, sender: 'user' };
-            setChatHistory(prevHistory => [...prevHistory, userMessage]);
-            setMessage('');
+    const handleSendMessage = async () => { // Function to handle sending messages
+        if (message.trim()) { // Checking if message is not empty
+            const currentTime = new Date().toLocaleTimeString(); // Getting current time
+            const userMessage = { text: message, time: currentTime, sender: 'user' }; // Creating user message object
+            setChatHistory(prevHistory => [...prevHistory, userMessage]); // Adding user message to chat history
+            setMessage(''); // Clearing message input
 
             try {
-                setLoading(true);
+                setLoading(true); // Setting loading to true
 
-                const experiences = contact.experiences.map(exp => exp.bulletpoints);
-                const response = await axios.post('http://localhost:5000/api/llm', {
+                const experiences = contact.experiences.map(exp => exp.bulletpoints); // Extracting bulletpoints from experiences
+                const response = await axios.post('http://localhost:5000/api/llm', { // Sending POST request to API
                     experiences,
                     question: message,
                     initial_context: false
@@ -162,38 +162,38 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                     time: new Date().toLocaleTimeString(),
                     sender: 'bot'
                 };
-                setChatHistory(prevHistory => [...prevHistory, botMessage]);
+                setChatHistory(prevHistory => [...prevHistory, botMessage]); // Adding bot message to chat history
             } catch (error) {
-                console.error('Error sending message:', error);
+                console.error('Error sending message:', error); // Logging error if API call fails
             } finally {
-                setLoading(false);
+                setLoading(false); // Setting loading to false
             }
         }
     };
 
-    const toggleChatVisibility = () => {
-        setChatVisible(!chatVisible);
+    const toggleChatVisibility = () => { // Function to toggle chat visibility
+        setChatVisible(!chatVisible); // Toggling chatVisible state
     };
 
-    const toggleModalVisibility = () => {
-        setModalVisible(!modalVisible);
+    const toggleModalVisibility = () => { // Function to toggle modal visibility
+        setModalVisible(!modalVisible); // Toggling modalVisible state
     };
 
     return (
-        <div className={`app-container ${chatVisible ? 'blur-background' : ''}`}>
-            <div className={`chat-box ${chatVisible ? 'visible' : ''}`} ref={chatBoxRef}>
+        <div className={`app-container ${chatVisible ? 'blur-background' : ''}`}> // Container div with conditional class
+            <div className={`chat-box ${chatVisible ? 'visible' : ''}`} ref={chatBoxRef}> // Chat box div with conditional class
                 <div className="chat-box-header">
-                    <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
-                    <span style={{ fontWeight: "bold", lineHeight: "2" }}> {chatVisible ? contact.name : ''}</span>
+                    <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" /> // Profile picture
+                    <span style={{ fontWeight: "bold", lineHeight: "2" }}> {chatVisible ? contact.name : ''}</span> // Contact name
                     <p id="addExtra" onClick={toggleChatVisibility}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaTimes size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaTimes size={24} /></span> // Close icon
                     </p>
                 </div>
-                <div className="chat-box-body" ref={chatBodyRef}>
-                    {chatHistory.map((msg, index) => (
+                <div className="chat-box-body" ref={chatBodyRef}> // Chat body div
+                    {chatHistory.map((msg, index) => ( // Mapping over chat history to display messages
                         msg.text && (
-                            <div key={index} className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'}`}>
-                                <div dangerouslySetInnerHTML={{__html: msg.text}}/>
+                            <div key={index} className={`chat-box-body-${msg.sender === 'bot' ? 'receive' : 'send'}`}> // Message div with conditional class
+                                <div dangerouslySetInnerHTML={{__html: msg.text}}/> // Message text
 
                                 <div style={{display: "flex", flexDirection: "row"}}>
                                     <span style={{
@@ -205,47 +205,47 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
                                         flex: "1"
                                     }}>{msg.sender === 'bot' ? <FaRobot className="chat-icon-receive"/> :
                                         <FaUser
-                                            className="chat-icon-send"/>} {msg.sender === 'bot' ? 'Bot' : 'You'}</span>
-                                    <span>{msg.time}</span>
+                                            className="chat-icon-send"/>} {msg.sender === 'bot' ? 'Bot' : 'You'}</span> // Sender icon and name
+                                    <span>{msg.time}</span> // Message time
 
                                 </div>
                             </div>
                         )
                     ))}
                 </div>
-                {loading && (
+                {loading && ( // Loading indicator
                     <div className="dot-falling-container">
                         <div className="dot-falling"></div>
                     </div>
                 )}
                 <div className="chat-box-footer">
                     <button id="addExtra" onClick={toggleModalVisibility}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaPlus size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaPlus size={24} /></span> // Add icon
                     </button>
                     <input
                         ref={inputRef}
                         placeholder="Type Here"
                         type="text"
                         value={message}
-                        onChange={(e) => setMessage(e.target.value)}
+                        onChange={(e) => setMessage(e.target.value)} // Updating message state on input change
                     />
                     <button id="addExtra" onClick={handleSendMessage}>
-                        <span className="text-buttonBlue hover:text-blue-700"><FaPaperPlane size={24} /></span>
+                        <span className="text-buttonBlue hover:text-blue-700"><FaPaperPlane size={24} /></span> // Send icon
                     </button>
                 </div>
             </div>
 
             <div className="chat-button" onClick={toggleChatVisibility}
-                style={{ display: chatVisible ? 'none' : 'flex' }}>
-                <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" />
-                {contact.name}
+                style={{ display: chatVisible ? 'none' : 'flex' }}> // Chat button with conditional style
+                <img src={contact.profile_pic_url} alt="profile" className="rounded-full avatar-chat" /> // Profile picture
+                {contact.name} // Contact name
             </div>
 
-            {modalVisible && (
+            {modalVisible && ( // Conditional rendering of modal
                 <div className="modal show-modal">
                     <div className="modal-content">
-                        <span className="modal-close-button" onClick={toggleModalVisibility}>&times;</span>
-                        <h1>Add What you want here.</h1>
+                        <span className="modal-close-button" onClick={toggleModalVisibility}>&times;</span> // Close button
+                        <h1>Add What you want here.</h1> // Modal content
                     </div>
                 </div>
             )}
@@ -253,4 +253,4 @@ const ChatComponent: React.FC<ChatComponentProps> = ({ contact }) => {
     );
 };
 
-export default ChatComponent;
+export default ChatComponent; // Exporting ChatComponent as default
