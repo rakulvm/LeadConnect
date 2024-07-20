@@ -5,6 +5,9 @@ from datetime import timedelta
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class BaseConfig():
+    """
+    Base configuration class for setting up environment variables and default values.
+    """
     VERIFICATION_LINK = 'http://localhost:3000/verify'
 
     SENDER_EMAIL = os.getenv('SENDER_EMAIL', None)
