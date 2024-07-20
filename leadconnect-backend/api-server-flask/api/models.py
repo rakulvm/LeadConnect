@@ -317,6 +317,7 @@ Attributes:
     last_interacted: Date when the last interaction occurred.
     notes: Notes related to the connection.
 """
+
 class Connection(db.Model):
     __tablename__ = 'connections'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
