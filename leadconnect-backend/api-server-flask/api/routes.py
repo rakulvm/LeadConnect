@@ -37,7 +37,7 @@ from io import BytesIO
 rest_api = Api(version="1.0", title="Users API")
 
 # Replace with your OpenAI API key
-openai.api_key = 'sk-proj-nU1b69npFykGXbx08dz7T3BlbkFJU8MHDL1epcKvUGvpVkbU'
+openai.api_key = 'sk-None-h4hng2Tx16EatrANslK1T3BlbkFJnGCapd20f85McD4gsfwk'
 """
     Flask-Restx models for api request and response data
 """
