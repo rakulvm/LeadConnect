@@ -7,10 +7,9 @@ interface Step4Props {
   prevStep: () => void;
   handleInputChange: (input: string, value: string) => void;
   formData: any;
-  handleSubmit: () => void;
 }
 
-const Step4: React.FC<Step4Props> = ({ prevStep, handleInputChange, formData, handleSubmit }) => {
+const Step4: React.FC<Step4Props> = ({ nextStep, prevStep, handleInputChange, formData }) => {
   const [error, setError] = useState<string>('');
   const [profilePicture, setProfilePicture] = useState<string | ArrayBuffer | null>(null);
 
@@ -19,7 +18,7 @@ const Step4: React.FC<Step4Props> = ({ prevStep, handleInputChange, formData, ha
       setError('Security question & answer fields are required');
     } else {
       setError('');
-      handleSubmit();
+      nextStep();
     }
   };
 
@@ -97,7 +96,7 @@ const Step4: React.FC<Step4Props> = ({ prevStep, handleInputChange, formData, ha
               onClick={handleNextStep}
               className="p-2 bg-blue-600 text-white rounded-lg shadow-lg hover:bg-blue-700"
             >
-              Submit
+              Next
             </button>
           </div>
         </form>

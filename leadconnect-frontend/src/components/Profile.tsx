@@ -16,6 +16,7 @@ interface FormData {
   profile_picture_url: string;
   security_question: string;
   security_answer: string;
+  my_resume_content: string; // Added this field
 }
 
 const Profile: React.FC = () => {
@@ -32,6 +33,7 @@ const Profile: React.FC = () => {
     profile_picture_url: '',
     security_question: '',
     security_answer: '',
+    my_resume_content: '', // Added this field
   });
   const [error, setError] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -65,6 +67,7 @@ const Profile: React.FC = () => {
           profile_picture_url: data.profile_picture_url || '',
           security_question: data.security_question || '',
           security_answer: data.security_answer || '',
+          my_resume_content: data.my_resume_content || '', // Added this field
         });
       })
       .catch((error) => setError('Failed to load user data. Error: '+error.toString()));
@@ -265,6 +268,17 @@ const Profile: React.FC = () => {
               value={formData.security_answer}
               onChange={(e) => handleInputChange('security_answer', e.target.value)}
               className="p-2 border rounded w-full"
+              required
+            />
+          </div>
+          {/* Added my_resume_content */}
+          <div className="mb-4">
+            <label className="block text-gray-700">Resume Content</label>
+            <textarea
+              value={formData.my_resume_content}
+              onChange={(e) => handleInputChange('my_resume_content', e.target.value)}
+              className="p-2 border rounded w-full"
+              rows={5}
               required
             />
           </div>
