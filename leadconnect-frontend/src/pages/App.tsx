@@ -148,22 +148,30 @@ const App: React.FC = () => {
           token ? <Profile /> : <Navigate to="/login" />
         } />
         <Route path="/pricingTable" element={
-           <div className='flex bg-backgroundColor'>
-           <LeftSideNav />
-           <div className='bg-red w-5/6'>
-             <TopNav />
-             <PricingTable />
-           </div>
-         </div>
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <PricingTable />
+              </div>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
         <Route path="/paymentForm" element={
-           <div className='flex bg-backgroundColor'>
-           <LeftSideNav />
-           <div className='bg-red w-5/6'>
-             <TopNav />
-             <PaymentForm />
-           </div>
-         </div>
+          token ? (
+            <div className='flex bg-backgroundColor'>
+              <LeftSideNav />
+              <div className='bg-red w-5/6'>
+                <TopNav />
+                <PaymentForm />
+              </div>
+            </div>
+          ) : (
+            <Navigate to="/login" />
+          )
         } />
       </Routes>
     </>

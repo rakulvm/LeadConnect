@@ -56,9 +56,13 @@ class Users(db.Model):
     my_resume_content = db.Column(db.Text, nullable=True, default='')  # New field added
     # One-to-many relationship with Connection
     connections = db.relationship('Connection', backref='user', lazy=True, cascade='all, delete')
+    subscription = db.Column(
+        db.Enum('Free Tier', 'Business Tier', 'Enterprise Tier'),
+        nullable=False,
+    )
 
     def __repr__(self):
-        return f"User {self.username}"
+        return f"User {self.username}"  # Return the username of the user   
 
     def save(self):
         db.session.add(self)
