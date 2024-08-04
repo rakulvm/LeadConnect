@@ -731,6 +731,7 @@ class UserProfileAPI(Resource):
                 "security_question": user.security_question,
                 "security_answer": user.security_answer,
                 "my_resume_content": user.my_resume_content,  # Added this field
+                "subscription": user.subscription,
             })
         else:
             return jsonify({"error": "User not found"}), 404
@@ -771,7 +772,7 @@ class UserProfileAPI(Resource):
             user.security_answer = data.get('security_answer', user.security_answer)
             user.my_resume_content = data.get('my_resume_content', user.my_resume_content)  # Added this field
             user.set_password(data.get('password', user.password_hash))  # Assuming password change is allowed
-            
+            user.subscription = data.get('subscription', user.subscription)
             db.session.commit()
             return jsonify({"message": "Profile updated successfully"})
         else:
