@@ -197,7 +197,10 @@ class Contact(db.Model):
     @classmethod
     def get_by_contact_url(cls, contact_url):
         return db.session.query(cls).get(contact_url)
-
+    @classmethod
+    def get_by_contact_name(cls, user_id, name):
+        return db.session.query(cls).join(Contact).filter(Contact.name == name, cls.user_id == user_id).first()
+    
     @classmethod
     def get_all(cls):
         return cls.query.all()
@@ -331,7 +334,7 @@ class Connection(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id', ondelete='CASCADE'), nullable=False)
     contact_url = db.Column(db.String(255), db.ForeignKey('contacts.contact_url', ondelete='CASCADE'), nullable=False)
-    frequency = db.Column(db.Enum('Weekly', 'Biweekly', 'Monthly', 'Bimonthly', 'Once in 3 months', 'Once in 6 months'), default='Weekly', nullable=False)
+    frequency = db.Column(db.Enum('Weekly', 'Biweekly', 'Monthly', 'Bimonthly', 'Once_in_3_months', 'Once_in_6_months'), default='Weekly', nullable=False)
     last_interacted = db.Column(db.Date, default=datetime.utcnow, nullable=False)
     notes = db.Column(db.Text, nullable=True)  # New field
 
@@ -339,8 +342,8 @@ class Connection(db.Model):
         return f"Connection(User ID: {self.user_id}, Contact URL: {self.contact_url})"
    
     @classmethod
-    def get_by_connection(cls, user_id, url):
-        return db.session.query(cls).filter_by(contact_url=url, user_id=user_id).first()
+    def get_by_connection(cls, user_id, contact_url):
+        return db.session.query(cls).filter_by(contact_url=contact_url, user_id=user_id).first()
     
     def save(self):
         db.session.add(self)
