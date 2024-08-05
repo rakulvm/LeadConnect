@@ -2,6 +2,7 @@ export type Experience = {
     bulletpoints: string;
     company_duration: string;
     company_location: string;
+    company_logo: string;
     company_name: string;
     company_role: string;
     company_total_duration: string;
@@ -17,7 +18,7 @@ export type Experience = {
     profile_pic_url: string;
     frequency: string;
     last_interacted: string;
-    notes: string; // Add notes field
+    notes: string;
   };
 
   export interface Connection {

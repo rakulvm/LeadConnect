@@ -5,12 +5,16 @@ from datetime import timedelta
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
 class BaseConfig():
+    """
+    Base configuration class for setting up environment variables and default values.
+    """
     VERIFICATION_LINK = 'http://localhost:3000/verify'
 
     SENDER_EMAIL = os.getenv('SENDER_EMAIL', None)
     SENDER_PASSWORD = os.getenv('SENDER_PASSWORD', None)
     ADMIN_EMAIL = os.getenv('ADMIN_EMAIL', None)
-    
+    MAILGUN_API_KEY = os.getenv('MAILGUN_API_KEY',None)
+    MAILGUN_DOMAIN = os.getenv('MAILGUN_DOMAIN',None)
     SECRET_KEY = os.getenv('SECRET_KEY', None)
     if not SECRET_KEY:
         SECRET_KEY = ''.join(random.choice( string.ascii_lowercase  ) for i in range( 32 ))

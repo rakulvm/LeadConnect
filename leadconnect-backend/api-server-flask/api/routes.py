@@ -29,7 +29,7 @@ import requests
 import uuid
 import random
 # import json
-from .smtp import send_email_to_admin, send_confirmation_link_to_user
+from .smtp import send_email_to_admin, send_confirmation_link_to_user, send_simple_message
 import traceback
 # from .mock import youth_data, split_youth_name
 from io import BytesIO
@@ -37,7 +37,7 @@ from io import BytesIO
 rest_api = Api(version="1.0", title="Users API")
 
 # Replace with your OpenAI API key
-openai.api_key = ''
+openai.api_key = 'sk-None-h4hng2Tx16EatrANslK1T3BlbkFJnGCapd20f85McD4gsfwk'
 """
     Flask-Restx models for api request and response data
 """
@@ -75,7 +75,8 @@ signup_model = rest_api.model('SignupModel', {
                                              'What was the name of your first pet?',
                                              'What was the make of your first car?', 'What is your favorite color?',
                                              'What city were you born in?']),
-    'security_answer': fields.String(required=True, description='Answer to the security question')
+    'security_answer': fields.String(required=True, description='Answer to the security question'),
+    'my_resume_content': fields.String(description='User resume content')
 })
 login_model = rest_api.model('LoginModel', {"username": fields.String(required=True),
                                             "password": fields.String(required=True)
@@ -131,6 +132,12 @@ from .config import BaseConfig
 def token_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):
+        """
+        Check the validity of the token and make sure the token exisis in the database.
+
+        Returns:
+            JSON response with the token validity status and user ID if the token is valid.
+        """
         token = None
 
         if "authorization" in request.headers:
@@ -180,6 +187,26 @@ class TokenCheck(Resource):
 class Register(Resource):
     @rest_api.expect(signup_model, validate=True)
     def post(self):
+        """
+        Register a new user.
+
+        Request Data:
+            - username: User's username.
+            - password: User's password.
+            - email: User's email address.
+            - first_name: User's first name.
+            - last_name: User's last name.
+            - phone_number: User's phone number.
+            - company: User's company.
+            - number_of_employees: Number of employees in the company.
+            - province: User's province.
+            - profile_picture_url: URL to the user's profile picture.
+            - security_question: Security question for password recovery.
+            - security_answer: Answer to the security question.
+
+        Returns:
+            JSON response with the status and user ID if the registration is successful.
+        """
         req_data = request.get_json()
         username = req_data.get("username")
         password = req_data.get("password")
@@ -194,6 +221,7 @@ class Register(Resource):
         security_question = req_data.get("security_question")
         security_answer = req_data.get("security_answer")
         user_exists = Users.get_by_email(email)
+        my_resume_content = req_data.get("my_resume_content")  # New field
         if user_exists:
             return {"success": False, "msg": "User already exists"}, 400
 
@@ -211,7 +239,8 @@ class Register(Resource):
             security_answer=security_answer,
             status=1,  # Assuming 1 means 'active'
             created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc)
+            updated_at=datetime.now(timezone.utc),
+            my_resume_content=my_resume_content,  # Assigning new field
         )
         new_user.set_password(password)
         db.session.add(new_user)
@@ -220,70 +249,19 @@ class Register(Resource):
 
         return {"status": "success", "userID": new_user.user_id, "msg": "The user was successfully registered"}, 201
 
-
-"""
-    Flask-Restx routes
-"""
-
-"""
-@rest_api.route('/api/users/register')
-class Register(Resource):
-#       Creates a new user by taking 'signup_model' input
-
-    def extract_date_components(date_str):
-        return day, month, year
-
-    @rest_api.expect(signup_model, validate=True)
-    def post(self):
-
-        req_data = request.get_json()
-
-        _first_name = req_data.get("first_name")
-        _last_name = req_data.get("last_name")
-        _email_address = req_data.get("email_address")
-        _password = req_data.get("password")
-        _license_number = req_data.get("license_number")
-        _password = req_data.get("password")
-        date_str = req_data.get("date_of_birth")
-        year = date_str.split('-')[0]
-        month = date_str.split('-')[1]
-        day = date_str.split('-')[2]
-        _date_of_birth = f"{year}-{month}-{day}"
-        _last_four_ssn = req_data.get("last_four_ssn")
-        _security_question = req_data.get("security_question")
-        _security_question_answer = req_data.get("security_question_answer")
-        _user_type = req_data.get("user_type")
-
-        user_exists = Users.get_by_email_address(_email_address)
-        if user_exists:
-            return {"success": False,
-                    "msg": "Email already taken"}, 400      
-        # Extract day, month, and year from the date of birth using the generic method
-        _user_id = str(uuid.uuid4())
-        _is_authenticated = str(0);
-        _is_user_loggedin = str(0);
-        _pin = ''.join([str(random.randint(0, 9)) for _ in range(4)])
-
-        new_user = Users(email_address=_email_address, first_name=_first_name, last_name=_last_name, license_number=_license_number, date_of_birth=_date_of_birth, last_four_ssn=_last_four_ssn, security_question=_security_question, security_question_answer=_security_question_answer, user_id=_user_id, is_authenticated=_is_authenticated, is_user_loggedin=_is_user_loggedin, pin=_pin,user_type=_user_type)
-        new_user.set_password(_password)
-
-        db.session.add(new_user)
-        db.session.commit()
-        new_user.save()
-        _verification_link = BaseConfig.VERIFICATION_LINK.format(user_id=_user_id)
-        send_email_to_admin(_email_address, _first_name, _last_name, _pin)
-        send_confirmation_link_to_user(_email_address, _first_name, _last_name, _verification_link)
-        return {"success": True,
-                "userID": new_user.id,
-                "msg": "The user was successfully registered"}, 200
-
-"""
-
-
 @rest_api.route('/api/user/forgot-password')
 class ForgotPassword(Resource):
 
     def post(self):
+        """
+        Handle forgot password request.
+
+        Request Data:
+            - email: User's email address.
+
+        Returns:
+            JSON response with the security question if the user exists.
+        """
         req_data = request.get_json()
         _email_address = req_data.get("email")
         user_exists = Users.get_by_email(_email_address)
@@ -300,6 +278,18 @@ class ResetPassword(Resource):
 
     @rest_api.expect(login_model, validate=True)
     def post(self):
+        """
+        Handle password reset request.
+
+        Request Data:
+            - email: User's email address.
+            - security_question: User's security question.
+            - security_answer: Answer to the security question.
+            - password: New password.
+
+        Returns:
+            JSON response indicating the success or failure of the password reset.
+        """
         try:
             req_data = request.get_json()
             _email_address = req_data.get("email")
@@ -338,13 +328,19 @@ class ResetPassword(Resource):
 
 @rest_api.route('/api/users/verify')
 class Verify(Resource):
-    """
-    Verify user by taking 'login_model' input and return JWT token
-    """
-
     @rest_api.expect(login_model, validate=True)
     def post(self):
+        """
+        Verify user credentials and return JWT token.
 
+        Request Data:
+            - email: User's email address.
+            - password: User's password.
+            - pin: User's PIN.
+
+        Returns:
+            JSON response with the JWT token and user details if verification is successful.
+        """
         req_data = request.get_json()
 
         _email_address = req_data.get("email")
@@ -371,7 +367,6 @@ class Verify(Resource):
                 # create access token using JWT
                 token = jwt.encode({'email': _email_address, 'exp': datetime.utcnow() + timedelta(days=60)},
                                    BaseConfig.SECRET_KEY)
-
                 user_exists.set_status(True)
                 user_exists.save()
 
@@ -385,12 +380,18 @@ class Verify(Resource):
 
 @rest_api.route('/api/users/login')
 class Login(Resource):
-    """
-       Login user by taking 'login_model' input and return JWT token
-    """
-
     @rest_api.expect(login_model, validate=True)
     def post(self):
+        """
+        Login user and return JWT token.
+
+        Request Data:
+            - username: User's username.
+            - password: User's password.
+
+        Returns:
+            JSON response with the JWT token and user details if login is successful.
+        """
         req_data = request.get_json()
 
         username = req_data.get("username")
@@ -412,7 +413,6 @@ class Login(Resource):
         # create access token uwing JWT
         token = jwt.encode({'user_id': user_id, 'username': username, 'exp': datetime.utcnow() + timedelta(minutes=30)},
                            BaseConfig.SECRET_KEY)
-
         user_exists.set_status(True)
         user_exists.save()
 
@@ -420,18 +420,91 @@ class Login(Resource):
                 "token": token,
                 "user": user_exists.toJSON()}, 200
 
+@rest_api.route('/api/llm_generic')
+class LLM(Resource):
+    def post(self):
+        """
+        Generate a customized message using OpenAI's GPT-4o-mini based on user input.
 
-""""""
+        Request Data:
+            - users: List of users.
+            - question: Question or prompt for the model.
+            - job_description: Job description.
+            - initial_context: Boolean flag to indicate if this is the initial context setting.
 
+        Returns:
+            JSON response with the generated message.
+        """
+        data = request.get_json()
+        users = data.get('users')
+        question = data.get('question')
+        job_description = data.get('job_description')
+        initial_context = data.get('initial_context')
+        if initial_context:
+            if "company" in question:
+                messages = [
+                    {"role": "system", "content": "from the below users who are currently working in the company."},
+                    {"role": "user", "content": f"job description: {job_description}"},
+                    {"role": "user", "content": f"users: {''.join(users)}"}
+                ]
+
+                response = openai.ChatCompletion.create(
+                    model="gpt-4o-mini",
+                    messages=messages,
+                    max_tokens=1500
+                )
+                summary_message = response['choices'][0]['message']['content'].strip()
+                return {'customized_message': summary_message}
+            if "cover" or "letter" in question:
+                url = "http://143.110.152.18:5000/generate-cover-letter"
+                data = {
+                    "job_description": job_description
+                }
+                headers = {
+                    "Content-Type": "application/json"
+                }
+                response = requests.post(url, json=data, headers=headers)
+
+                # Checking the status code and printing the result
+                if response.status_code == 200:
+                    print("Success! Here is the link to the generated cover letter:")
+                    print(response.json().get("url"))
+                    print(response.json())
+                    return {'customized_message': f""" Generated Cover Letter for the given job description. <a href='{response.json().get("url")}'>Click to download.</a>"""}
+                else:
+                    print(f"Failed to generate cover letter. Status code: {response.status_code}")
+                    print(response.json())
+                    return {'customized_message': "Error occurred, Please contact the admin."}, 500
+
+            return {'customized_message': """ <div class="container">
+<h1>Hello,</h1>
+<p>I have saved your job description. You can ask questions like:</p>
+
+<ul style="list-style-type: disc; padding-left: 20px;">
+<li>Who from my contacts is currently working in this company?</li>
+<li>How can my contacts help me get more inputs about this job?</li>
+<li>Generate a cover letter.</li>
+<li>Generate a tailored resume.</li>
+</p>
+</ul>
+</div>"""}
+        return {'customized_message': ""}
 
 @rest_api.route('/api/llm')
 class LLM(Resource):
-    """
-       LLM for generating customized message to the lead
-    """
-
     @rest_api.expect(llm_model, validate=True)
     def post(self):
+        """
+        Generate a customized message using OpenAI's GPT-3.5 based on user input.
+
+        Request Data:
+            - experiences: List of user experiences.
+            - question: Question or prompt for the model.
+            - initial_context: Boolean flag to indicate if this is the initial context setting.
+
+        Returns:
+            JSON response with the generated message.
+        """
         data = request.get_json()
 
         experiences = data.get('experiences')
@@ -442,21 +515,19 @@ class LLM(Resource):
             return {'customized_message': "Error occurred, Please contact the admin."}
 
         if initial_context:
-            # Take only the last two experiences or one if there's only one
-            # selected_experiences = experiences[-2:]
             summary = " ".join(experiences)
             messages = [
                 {"role": "system", "content": "You are my lead management and email message generator bot."},
                 {"role": "user", "content": f"Summary of the person: {summary}"},
                 {"role": "user",
-                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person."}
+                 "content": "Generate a summary of that person and later I will ask you to create a customized message to be in touch with that person. Always reply with HTML code, since i want to add it to my website."}
             ]
 
             try:
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
                     messages=messages,
-                    max_tokens=150
+                    max_tokens=1500
                 )
                 summary_message = response['choices'][0]['message']['content'].strip()
                 return jsonify({'customized_message': summary_message})
@@ -472,13 +543,14 @@ class LLM(Resource):
                 messages = [
                     {"role": "system", "content": "You are my lead management and email message generator bot."},
                     {"role": "user", "content": f"Summary of the person: {summary}"},
+                    {"role": "user", "content": f"Always reply with HTML code, since i want to add it to my website."},
                     {"role": "user", "content": question}
                 ]
 
                 response = openai.ChatCompletion.create(
-                    model="gpt-3.5-turbo",
+                    model="gpt-4o-mini",
                     messages=messages,
-                    max_tokens=150
+                    max_tokens=1500
                 )
                 customized_message = response['choices'][0]['message']['content'].strip()
 
@@ -491,9 +563,11 @@ class LLM(Resource):
 @rest_api.route('/api/users')
 class UserList(Resource):
     """
-       List all user names
-    """
+    List all user names.
 
+    Returns:
+        JSON response with the list of user names.
+    """
     def get(self):
         users = Users.query.all()
         user_names = [user.name for user in users]
@@ -509,65 +583,28 @@ def format_date(dt):
 
 # Convert date strings to the 'YYYY-MM-DD' format
 def convert_date(date_str):
+    """
+    Convert date strings to the 'YYYY-MM-DD' format.
+
+    Args:
+        date_str (str): Date string in 'mm/dd/yyyy' format.
+
+    Returns:
+        str: Date string in 'YYYY-MM-DD' format.
+    """
     return datetime.strptime(date_str, '%m/%d/%Y').strftime('%Y-%m-%d')
-
-
-"""
-def store_to_mysql(json_data):
-    # Iterate through the JSON data and insert into the table
-    try:
-
-        total_duplicates = 0
-        total_inserted = 0
-        total_failed = 0
-        for row in json_data:
-            try:
-                # Create a new YouthServices object
-                if not YouthServices.query.filter_by(auth_id=row["auth_id"]).first():
-                    youth_service = YouthServices(
-                        auth_id=row["auth_id"],
-                        cyber_id=row["cyber_id"],
-                        youth_name=row["youth_name"],
-                        dob=convert_date(row["dob"]),
-                        youth_county=row["youth_county"],
-                        medicaid=row["medicaid"],
-                        units=row["units"],
-                        service_code=row["service_code"],
-                        description=row["description"],
-                        start_date=convert_date(row["start_date"]),
-                        end_date=convert_date(row["end_date"]),
-                        create_date=convert_date(row["create_date"]),
-                        youth_first_name=row["youth_first_name"],
-                        youth_last_name=row["youth_last_name"]
-                    )
-                    # Add the YouthServices object to the session
-                    db.session.add(youth_service)
-                    total_inserted += 1
-                else:
-                    total_duplicates += 1
-            except Exception as e:
-                print(traceback.format_exc())
-                total_failed += 1
-        # Commit changes to the database
-        db.session.commit()
-    except Exception as e:
-        # Rollback changes if an error occurs
-        db.session.rollback()
-
-        total_failed = len(json_data)
-        print(traceback.format_exc())
-        return {
-            "total_duplicates": total_duplicates,
-            "total_inserted": total_inserted,
-            "total_failed": total_failed
-        }
-"""
 
 
 @rest_api.route('/api/users/contacts')
 class get_user_contacts(Resource):
     @token_required
     def get(self, current_user):
+        """
+        Get contacts of the current user.
+
+        Returns:
+            JSON response with the list of contacts and their experiences.
+        """
         user_id = current_user.user_id
 
         connections = db.session.query(Connection).filter(Connection.user_id == user_id).all()
@@ -608,41 +645,15 @@ class get_user_contacts(Resource):
             contacts.append(contact_data)
         return jsonify({'contacts': contacts})
 
-    """"
-    @token_required
-    def post(self, current_user):
-        data = request.get_json()
-        contact_url = data.get('contact_url')
-        notes = data.get('notes')
-
-        if not contact_url or not notes:
-            print('Invalid input:', data)
-            return {'success': False, 'msg': 'Invalid input'}, 400
-
-        connection = Connection.query.filter_by(user_id=current_user.user_id, contact_url=contact_url).first()
-
-        if not connection:
-            print('Connection not found for user:', current_user.user_id, 'and contact URL:', contact_url)
-            return {'success': False, 'msg': 'Connection not found'}, 404
-
-        print('Updating notes for connection:', connection.id)
-        connection.notes = notes
-        db.session.commit()
-
-        return {'success': True, 'msg': 'Notes updated successfully'}
-
-
-
-"""
-
 @rest_api.route('/api/sef/pdf_upload')
 class upload_file(Resource):
-    """
-    Upload pdf
-    """
-
-    # @token_required
     def post(self, **kwargs):
+        """
+        Upload a PDF file.
+
+        Returns:
+            JSON response with the file URL if the upload is successful.
+        """
         try:
             if 'file' not in request.files:
                 return {'success': False, 'message': 'No file part in the request'}, 400
@@ -667,12 +678,13 @@ class upload_file(Resource):
 
 @rest_api.route('/api/sef/pdf/<filename>', methods=['GET'])
 class upload_file(Resource):
-    """
-    Download a pdf
-    """
-
-    # @token_required
     def get(self, filename):
+        """
+        Download a PDF file.
+
+        Returns:
+            The requested PDF file if it exists.
+        """
         try:
             filename = filename + ".pdf"
             # Ensure the file exists
@@ -693,11 +705,16 @@ class upload_file(Resource):
             return {"success": False, "message": "An error occurred"}, 500
 
 
-# end of the create SEF
 @rest_api.route('/api/users/profile')
 class UserProfileAPI(Resource):
     @token_required
     def get(self, current_user):
+        """
+        Get the profile details of the current user.
+
+        Returns:
+            JSON response with the user's profile details.
+        """
         user_id = current_user.user_id
         user = Users.query.filter_by(user_id=user_id).first()
         if user:
@@ -713,12 +730,33 @@ class UserProfileAPI(Resource):
                 "profile_picture_url": user.profile_picture_url,
                 "security_question": user.security_question,
                 "security_answer": user.security_answer,
+                "my_resume_content": user.my_resume_content,  # Added this field
+                "subscription": user.subscription,
             })
         else:
             return jsonify({"error": "User not found"}), 404
 
     @token_required
     def put(self, current_user):
+        """
+        Update the profile details of the current user.
+
+        Request Data:
+            - email: User's email address.
+            - first_name: User's first name.
+            - last_name: User's last name.
+            - phone_number: User's phone number.
+            - company: User's company.
+            - number_of_employees: Number of employees in the company.
+            - province: User's province.
+            - profile_picture_url: URL to the user's profile picture.
+            - security_question: Security question for password recovery.
+            - security_answer: Answer to the security question.
+            - password: User's new password (if changing).
+
+        Returns:
+            JSON response indicating the success or failure of the profile update.
+        """
         data = request.json
         user = current_user
         if user:
@@ -732,7 +770,9 @@ class UserProfileAPI(Resource):
             user.profile_picture_url = data.get('profile_picture_url', user.profile_picture_url)
             user.security_question = data.get('security_question', user.security_question)
             user.security_answer = data.get('security_answer', user.security_answer)
+            user.my_resume_content = data.get('my_resume_content', user.my_resume_content)  # Added this field
             user.set_password(data.get('password', user.password_hash))  # Assuming password change is allowed
+            user.subscription = data.get('subscription', user.subscription)
             db.session.commit()
             return jsonify({"message": "Profile updated successfully"})
         else:
@@ -741,12 +781,14 @@ class UserProfileAPI(Resource):
 
 @rest_api.route('/api/users/logout')
 class LogoutUser(Resource):
-    """
-       Logs out User using 'logout_model' input
-    """
-
     @token_required
     def post(self, current_user):
+        """
+        Logout the current user.
+
+        Returns:
+            JSON response indicating the success or failure of the logout.
+        """
         user_id = current_user.user_id
         user = Users.query.filter_by(user_id=user_id).first()
 
@@ -882,49 +924,6 @@ class ExtensionResource(Resource):
         user_connection.delete()
         return {"status": "deleted"}
 
-
-def get_next_interaction_date(interaction):
-    last_interacted = interaction.last_interacted
-    frequency = interaction.frequency
-
-    if frequency == 'Weekly':
-        return last_interacted + timedelta(weeks=1)
-    elif frequency == 'Biweekly':
-        return last_interacted + timedelta(weeks=2)
-    elif frequency == 'Monthly':
-        return last_interacted + timedelta(days=30)
-    elif frequency == 'Bimonthly':
-        return last_interacted + timedelta(days=60)
-    elif frequency == 'Once in 3 months':
-        return last_interacted + timedelta(days=90)
-    elif frequency == 'Once in 6 months':
-        return last_interacted + timedelta(days=180)
-
-
-@rest_api.route('/api/users/get_notifications')
-class get_reminders(Resource):
-    @token_required
-    def get(self, current_user):
-        user_id = current_user.user_id
-        today = datetime.today().date()
-        reminders = []
-        interactions = Connection.query.filter(Connection.user_id == user_id)
-        for interaction in interactions:
-            next_interaction_date = get_next_interaction_date(interaction)
-            if today >= next_interaction_date:
-                contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
-                if contact:
-                    connection = next((conn for conn in interactions if conn.contact_url == contact.contact_url), None)
-                    if connection:
-                        reminders.append({
-                            'name': contact.name,
-                            'contact_url': interaction.contact_url,
-                            'profile_pic_url': contact.profile_pic_url
-                        })
-
-        return jsonify(reminders)
-
-
 @rest_api.route('/api/users/contacts/notes', methods=['POST'])
 class UpdateUserNotes(Resource):
     @token_required
@@ -945,5 +944,80 @@ class UpdateUserNotes(Resource):
         db.session.commit()
 
         return {'success': True, 'msg': 'Notes updated successfully'}
+    
+def get_next_interaction_date(interaction):
+    last_interacted = interaction.last_interacted
+    frequency = interaction.frequency
+
+    if frequency == 'Weekly':
+        return last_interacted + timedelta(weeks=1)
+    elif frequency == 'Biweekly':
+        return last_interacted + timedelta(weeks=2)
+    elif frequency == 'Monthly':
+        return last_interacted + timedelta(days=30)
+    elif frequency == 'Bimonthly':
+        return last_interacted + timedelta(days=60)
+    elif frequency == 'Once in 3 months':
+        return last_interacted + timedelta(days=90)
+    elif frequency == 'Once in 6 months':
+        return last_interacted + timedelta(days=180)
+
+""""
+@rest_api.route('/api/users/get_notifications')
+class get_reminders(Resource):
+    @token_required
+    def get(self, current_user):
+        user_id = current_user.user_id
+        tommorrow = datetime.today().date() + + timedelta(days=1)
+        reminders = []
+        interactions = Connection.query.filter(Connection.user_id == user_id)
+        for interaction in interactions:
+            next_interaction_date = get_next_interaction_date(interaction)
+            if tommorrow == next_interaction_date:
+                contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
+                if contact:
+                    connection = next((conn for conn in interactions if conn.contact_url == contact.contact_url), None)
+                    if connection:
+                        reminders.append({
+                            'name': contact.name,
+                            'contact_url': interaction.contact_url,
+                            'profile_pic_url': contact.profile_pic_url
+                        })
+
+        return jsonify(reminders)
+"""
+
+
+@rest_api.route('/api/users/notifications')
+class GetReminders(Resource):
+    def get(self):
+        users = Users.query.all()  # Fetch all users
+        tomorrow = datetime.today().date() + timedelta(days=1)
+        all_reminders = {}
+
+        for user in users:
+            reminders = []
+            interactions = Connection.query.filter(Connection.user_id == user.user_id).all()
+            for interaction in interactions:
+                next_interaction_date = get_next_interaction_date(interaction)
+                if tomorrow == next_interaction_date:
+                    contact = Contact.query.filter_by(contact_url=interaction.contact_url).first()
+                    if contact:
+                        reminders.append({
+                            'name': contact.name,
+                            'contact_url': interaction.contact_url,
+                            'profile_pic_url': contact.profile_pic_url
+                        })
+            if reminders:
+                all_reminders[user.email] = reminders
+        
+        for email, reminders in all_reminders.items():
+            contact_list = "\n".join([f"{contact['name']} ({contact['profile_pic_url']})" for contact in reminders])
+            email_subject = "Your Contacts to Reach Out Today"
+            email_body = f"Hi,\n\nYou need to contact the following people tomorrow:\n\n{contact_list}\n\nBest regards,\nYour Team"
+            send_simple_message(to=email, subject=email_subject, body=email_body, contacts=reminders)
+        
+        return jsonify(all_reminders)
+        
 
 
