@@ -233,7 +233,7 @@ const MainTable: React.FC<MainTableProps> = ({ contacts, setContacts, token, del
                 <img src={contact.profile_pic_url} alt="profile" className="w-10 h-10 rounded-full" />
                 <div className="flex items-center">
                   <p className="font-semibold text-lg opacity-80">{contact.name}</p>
-                  <p className="text-lg opacity-60 ml-2">{contact.experiences[0].company_role}</p>
+                  <p className="text-l opacity-60 ml-2">{contact.experiences[0].company_role}</p>
                 </div>
               </div>
               <div className="col-span-2 text-lg opacity-80">{contact.frequency}</div>
